@@ -1,0 +1,25 @@
+{
+  "name": "smb-manager",
+  "version": "2.0.0",
+  "description": "Modern NAS-style Web Administration Interface for Samba / SMB Server",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "samba",
+    "smb",
+    "nas",
+    "web-ui",
+    "dashboard",
+    "permissions",
+    "truenas",
+    "casaos"
+  ],
+  "author": "Antigravity AI",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}

@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="hu" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Modern NAS SMB Manager — Samba Szerver Adminisztrációs Dashboard">
+  <title>NAS SMB Manager Dashboard</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='28' font-size='28'>🗄️</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+        </div>
+        <div>
+          <div class="logo-text">SMB Admin</div>
+          <div class="logo-sub">TrueNAS / CasaOS Style</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">FŐMENÜ</div>
+      <a href="#" class="nav-item active" data-section="dashboard" id="nav-dashboard">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <span>Áttekintés</span>
+      </a>
+
+      <div class="nav-section-title">HOZZÁFÉRÉS & FELHASZNÁLÓK</div>
+      <a href="#" class="nav-item" data-section="users" id="nav-users">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>Felhasználók</span>
+      </a>
+      <a href="#" class="nav-item" data-section="groups" id="nav-groups">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>Csoportok</span>
+      </a>
+
+      <div class="nav-section-title">MEGOSZTÁSOK & JOGOK</div>
+      <a href="#" class="nav-item" data-section="shares" id="nav-shares">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        <span>SMB Megosztások</span>
+      </a>
+      <a href="#" class="nav-item" data-section="folder-manager" id="nav-folder-manager">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+        <span>Mappa Kezelő</span>
+      </a>
+      <a href="#" class="nav-item" data-section="permissions" id="nav-permissions">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span>Jogosultságok</span>
+      </a>
+      <a href="#" class="nav-item" data-section="connections" id="nav-connections">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        <span>Aktív Kapcsolatok</span>
+        <span class="badge badge-cyan ml-auto" id="navConnCount">0</span>
+      </a>
+
+      <div class="nav-section-title">TÁRHELY & RENDSZER</div>
+      <a href="#" class="nav-item" data-section="storage" id="nav-storage">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M21 19c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14"/><path d="M21 5v14"/></svg>
+        <span>Tárhely & Kvóták</span>
+      </a>
+      <a href="#" class="nav-item" data-section="recycle" id="nav-recycle">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        <span>Lomtár</span>
+      </a>
+      <a href="#" class="nav-item" data-section="snapshots" id="nav-snapshots">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        <span>Pillanatképek (Snapshots)</span>
+      </a>
+
+      <div class="nav-section-title">BEÁLLÍTÁSOK & AUDIT</div>
+      <a href="#" class="nav-item" data-section="samba-config" id="nav-samba-config">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+        <span>Samba Beállítások</span>
+      </a>
+      <a href="#" class="nav-item" data-section="audit" id="nav-audit">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <span>Audit Naplók</span>
+      </a>
+      <a href="#" class="nav-item" data-section="settings" id="nav-settings">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>Rendszer Beállítások</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="service-indicator" id="sidebarStatus">
+        <span class="status-dot offline"></span>
+        <span id="sidebarStatusText">SMB Szolgáltatás</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Top Header Bar -->
+  <header class="top-header" id="topHeader">
+    <div class="top-header-left">
+      <button class="hamburger" id="hamburger" aria-label="Menü">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="search-bar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="globalSearch" placeholder="Gyorskeresés (felhasználók, megosztások, adatok)...">
+      </div>
+    </div>
+
+    <div class="top-header-right">
+      <button class="theme-toggle-btn" id="themeToggleBtn" title="Téma váltása (Sötét / Világos)">
+        <span class="theme-icon">🌙</span>
+      </button>
+      <div class="status-chip" id="topStatusChip">
+        <span class="status-dot offline"></span>
+        <span id="topStatusLabel">Betöltés...</span>
+      </div>
+      <div class="user-profile">
+        <div class="avatar">A</div>
+        <span class="user-name">Administrator</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main class="main-workspace" id="mainWorkspace">
+
+    <!-- ========================================================= -->
+    <!-- 1. DASHBOARD OVERVIEW -->
+    <!-- ========================================================= -->
+    <section class="content-section active" id="section-dashboard">
+      <div class="section-title-bar">
+        <div>
+          <h1>NAS Vezérlőpult Áttekintés</h1>
+          <p class="subtitle">Samba szerver és rendszer állapota valós időben</p>
+        </div>
+        <div class="title-actions">
+          <button class="btn btn-ghost" onclick="refreshDashboard()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            Frissítés
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Grid -->
+      <div class="cards-grid">
+        <div class="card metric-card">
+          <div class="metric-icon purple">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div class="metric-body">
+            <div class="metric-label">Felhasználók</div>
+            <div class="metric-value" id="dashUsersCount">0</div>
+          </div>
+        </div>
+
+        <div class="card metric-card">
+          <div class="metric-icon pink">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div class="metric-body">
+            <div class="metric-label">Csoportok</div>
+            <div class="metric-value" id="dashGroupsCount">0</div>
+          </div>
+        </div>
+
+        <div class="card metric-card">
+          <div class="metric-icon cyan">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <div class="metric-body">
+            <div class="metric-label">SMB Megosztások</div>
+            <div class="metric-value" id="dashSharesCount">0</div>
+          </div>
+        </div>
+
+        <div class="card metric-card">
+          <div class="metric-icon green">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </div>
+          <div class="metric-body">
+            <div class="metric-label">Aktív Kapcsolatok</div>
+            <div class="metric-value" id="dashConnCount">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- System & Storage Detailed Cards Row -->
+      <div class="dashboard-row">
+        <!-- Service Control Widget -->
+        <div class="card flex-1">
+          <div class="card-header-flex">
+            <h3>Samba Szolgáltatás</h3>
+            <span class="badge badge-green" id="dashServiceBadge">Aktív</span>
+          </div>
+          <div class="service-actions-grid mt-16">
+            <button class="btn btn-success" onclick="serviceAction('start')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Indítás
+            </button>
+            <button class="btn btn-danger" onclick="serviceAction('stop')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+              Leállítás
+            </button>
+            <button class="btn btn-warning" onclick="serviceAction('restart')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              Újraindítás
+            </button>
+          </div>
+          <div class="sys-info-list mt-16">
+            <div class="sys-info-item"><span>Gépnév:</span> <strong id="sysHostname">—</strong></div>
+            <div class="sys-info-item"><span>OS / Arch:</span> <strong id="sysPlatform">—</strong></div>
+            <div class="sys-info-item"><span>Futásidő:</span> <strong id="sysUptime">—</strong></div>
+            <div class="sys-info-item"><span>CPU Terhelés:</span> <strong id="sysLoad">—</strong></div>
+          </div>
+        </div>
+
+        <!-- Storage Gauge Widget -->
+        <div class="card flex-1">
+          <h3>Tárhely Használat</h3>
+          <div class="storage-gauge-box mt-16">
+            <div class="gauge-labels">
+              <span id="dashStorageUsed">0 GB használt</span>
+              <span id="dashStorageTotal">0 GB összesen</span>
+            </div>
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-fill" id="dashStorageProgress" style="width: 0%;"></div>
+            </div>
+            <div class="gauge-footer text-muted" id="dashStorageFree">0 GB szabad tárhely</div>
+          </div>
+          <div class="sys-info-list mt-16">
+            <div class="sys-info-item"><span>Fájlrendszer:</span> <strong id="sysFilesystem">—</strong></div>
+            <div class="sys-info-item"><span>Memória:</span> <strong id="sysMemory">—</strong></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- 2. USERS MANAGEMENT -->
+    <!-- ========================================================= -->
+    <section class="content-section" id="section-users">
+      <div class="section-title-bar">
+        <div>
+          <h1>Felhasználók Kezelése</h1>
+          <p class="subtitle">Samba & Rendszer felhasználók, csoportokhoz rendelés, kvóták és tiltás</p>
+        </div>
+        <button class="btn btn-primary" onclick="openAddUserModal()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+          Új Felhasználó
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="table-toolbar">
+          <input type="text" id="usersSearchInput" placeholder="Szűrés felhasználónév vagy név alapján..." class="input-search">
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Felhasználónév</th>
+                <th>Teljes Név</th>
+                <th>Csoportok</th>
+                <th>Tárhely Kvóta</th>
+                <th>Utolsó Belépés</th>
+                <th>Állapot</th>
+                <th>Műveletek</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody">
+              <tr><td colspan="7" class="text-muted">Betöltés...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- 3. GROUPS MANAGEMENT -->
+    <!-- ========================================================= -->
+    <section class="content-section" id="section-groups">
+      <div class="section-title-bar">
+        <div>
+          <h1>Csoportok Kezelése</h1>
+          <p class="subtitle">Felhasználói csoportok létrehozása és tagok kezelése</p>
+        </div>
+        <button class="btn btn-primary" onclick="openAddGroupModal()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+          Új Csoport
+        </button>
+      </div>
+
+      <div class="groups-grid" id="groupsGrid">
+        <div class="card"><p class="text-muted">Betöltés...</p></div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- 4. SMB SHARES MANAGEMENT -->
+    <!-- ========================================================= -->
+    <section class="content-section" id="section-shares">
+      <div class="section-title-bar">
+        <div>
+          <h1>SMB Megosztások Kezelése</h1>
+          <p class="subtitle">Megosztott mappák, publikus/privát hozzáférés és lomtár funkció</p>
+        </div>
+        <button class="btn btn-primary" onclick="openAddShareModal()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+          Új Megosztás
+        </button>
+      </div>
+
+      <div class="shares-grid" id="sharesGrid">
+        <div class="card"><p class="text-muted">Betöltés...</p></div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- INTERACTIVE FOLDER MANAGER -->
+    <!-- ========================================================= -->
+    <section class="content-section" id="section-folder-manager">
+      <div class="section-title-bar">
+        <div>
+          <h1>Interaktív Mappa & Tárhely Kezelő</h1>
+          <p class="subtitle">Böngészd a szerver könyvtárait, állíts be jogosultságokat vagy alakíts tetszőleges mappát SMB megosztássá egy kattintással!</p>
+        </div>
+        <div class="flex-gap">
+          <button class="btn btn-outline" onclick="loadInteractiveExplorer('/srv/samba')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            Szerver Alapértelmezés (/srv/samba)
+          </button>
+          <button class="btn btn-primary" onclick="promptCreateSubfolder()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+            Új Mappa Létrehozása
+          </button>
+        </div>
+      </div>
+
+      <!-- Home Directories Banner -->
+      <div class="card mb-24" style="background:linear-gradient(135deg, rgba(139,92,246,0.1), rgba(6,182,212,0.1));border-color:var(--border-accent);">
+        <div class="card-header-flex">
+          <div>
+            <h3>🏠 Felhasználói Saját Home Mappák</h3>
+            <p class="text-muted" style="margin-top:4px;">A felhasználók saját mappái a <code>/srv/samba/homes/&lt;felhasználónév&gt;</code> útvonalon érhetőek el.</p>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="loadInteractiveExplorer('/srv/samba/homes')">
+            🏠 Home Mappák Megnyitása
+          </button>
+        </div>
+        <div class="mt-12 p-12" style="background:var(--bg-input);border-radius:var(--radius-sm);font-size:0.85rem;">
+          <strong>💡 Hálózati Csatlakozási Útmutató (Windows / Mac):</strong><br>
+          <span class="text-muted">A felhasználó saját hálózati mappájának elérése:</span><br>
+          <code>\\192.168.1.22\&lt;felhasználónév&gt;</code> (pl. <code>\\192.168.1.22\csuszy</code>)
+        </div>
+      </div>
+
+      <!-- Breadcrumbs & Path Bar -->
+      <div class="card mb-16">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <button class="btn btn-ghost btn-sm" id="fmParentBtn" onclick="navigateExplorerUp()">⬆️ Vissza / Szülő Mappa</button>
+          <div style="flex:1;display:flex;align-items:center;gap:8px;">
+            <span class="text-muted" style="font-size:0.85rem;font-weight:700;">ÚTVONAL:</span>
+            <code id="fmCurrentPathBadge" style="font-size:0.9rem;padding:6px 12px;background:var(--bg-input);border-radius:8px;flex:1;">/srv/samba</code>
+          </div>
+        </div>
+      </div>
+
+      <!-- Folders & Files Grid -->
+      <div class="folders-grid" id="explorerCardsGrid">
+        <div class="card"><p class="text-muted">Betöltés...</p></div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- 5. PERMISSIONS MANAGEMENT -->
+    <!-- ========================================================= -->
+    <section class="content-section" id="section-permissions">
+      <div class="section-title-bar">
+        <div>
+          <h1>Jogosultság Kezelő (ACL Visual Matrix)</h1>
+          <p class="subtitle">Interaktív hozzáférés beállítás felhasználók és csoportok számára — kártyás vizuális felületen</p>
+        </div>
+      </div>
+
+      <div class="card mb-24">
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+          <div style="flex:1;min-width:280px;">
+            <label class="form-label" style="font-weight:700;">1. Válaszd ki a megosztást vagy mappát:</label>
+            <select id="permFolderSelect" class="form-control" onchange="loadPermissionsForSelectedFolder()">
+              <option value="">-- Mappa kiválasztása --</option>
+            </select>
+          </div>
+          <button class="btn btn-outline" onclick="openFileBrowserModal()" style="margin-top:20px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            📁 Szerver Mappa Tallózó
+          </button>
+        </div>
+      </div>
+
+      <div class="card" id="permMatrixCard" style="display:none;">
+        <div class="card-header-flex mb-16">
+          <h3 id="permMatrixTitle">Jogosultságok Kezelése</h3>
+          <span class="badge badge-purple" id="permSelectedPathBadge">Útvonal</span>
+        </div>
+        
+        <!-- Preset quick buttons -->
+        <div class="perm-presets-bar mb-24">
+          <span class="text-muted" style="font-size:0.8rem;font-weight:700;margin-right:8px;">GYORS BEÁLLÍTÁSOK (MINDENKIRE):</span>
+          <button class="btn btn-ghost btn-sm" onclick="applyPermPresetAll('none')">🔒 Nincs Hozzáférés</button>
+          <button class="btn btn-ghost btn-sm" onclick="applyPermPresetAll('read')">👁️ Csak Olvasás</button>
+          <button class="btn btn-ghost btn-sm" onclick="applyPermPresetAll('full')">⭐ Teljes Hozzáférés</button>
+        </div>
+
+        <!-- Users Permissions Cards Grid -->
+        <div class="perm-section">
+          <h4 style="margin-bottom:12px;color:var(--text-secondary);text-transform:uppercase;font-size:0.8rem;letter-spacing:1px;">👤 Felhasználói Hozzáférések</h4>
+          <div class="perm-cards-grid" id="userPermCardsContainer"></div>
+        </div>
+
+        <!-- Groups Permissions Cards Grid -->
+        <div class="perm-section mt-24">
+          <h4 style="margin-bottom:12px;color:var(--text-secondary);text-transform:uppercase;font-size:0.8rem;letter-spacing:1px;">👥 Csoportos Hozzáférések</h4>
+          <div class="perm-cards-grid" id="groupPermCardsContainer"></div>
+        </div>
+
+        <div class="form-actions mt-24">
+          <button class="btn btn-primary" onclick="saveCurrentFolderPermissions()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Jogosultságok Mentése & Alkalmazása
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- 6. ACTIVE SMB CONNECTIONS -->
+    <!-- ========================================================= -->
+    <section class="content-section" id="section-connections">
+      <div class="section-title-bar">
+        <div>
+          <h1>Aktív SMB Kapcsolatok</h1>
+          <p class="subtitle">Csatlakozott munkamenetek, IP címek, megosztások és bontás</p>
+        </div>
+        <button class="btn btn-ghost" onclick="loadConnections()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Frissítés
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>PID</th>
+                <th>Felhasználó</th>
+                <th>Csoport</th>
+                <th>Gép / IP Cím</th>
+                <th>Használt Megosztás</th>
+                <th>Protokoll</th>
+                <th>Művelet</th>
+              </tr>
+            </thead>
+            <tbody id="connectionsTableBody">
+              <tr><td colspan="7" class="text-muted">Betöltés...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- 7. AUDIT LOGS -->
+    <!-- ========================================================= -->
+    <section class="content-section" id="section-audit">
+      <div class="section-title-bar">
+        <div>
+          <h1>Audit Naplózás</h1>
+          <p class="subtitle">Rendszeresemények, bejelentkezések, jogosultság és konfigurációs módosítások</p>
+        </div>
+      </div>
+
+      <div class="card mb-16">
+        <div class="filters-row">
+          <select id="auditCategoryFilter" class="form-control flex-1" onchange="loadAuditLogs()">
+            <option value="all">Minden kategória</option>
+            <option value="auth">Hitelesítés / Belépés</option>
+            <option value="users">Felhasználók</option>
+            <option value="groups">Csoportok</option>
+            <option value="shares">Megosztások</option>
+            <option value="permissions">Jogosultságok</option>
+            <option value="files">Fájlok & Snapshotok</option>
+            <option value="config">Konfiguráció</option>
+          </select>
+          <input type="text" id="auditSearchInput" placeholder="Keresés naplókban..." class="form-control flex-2" onkeyup="loadAuditLogs()">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Időpont</th>
+                <th>Kategória</th>
+                <th>Esemény / Művelet</th>
+                <th>Felhasználó</th>
+                <th>IP Cím</th>
+                <th>Részletek</th>
+              </tr>
+            </thead>
+            <tbody id="auditTableBody">
+              <tr><td colspan="6" class="text-muted">Betöltés...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- 8. STORAGE & QUOTAS -->
+    <!-- ========================================================= -->
+    <section class="content-section" id="section-storage">
+      <div class="section-title-bar">
+        <div>
+          <h1>Tárhely & Kvóta Kezelés</h1>
+          <p class="subtitle">Kötet tárhelyelemzés, megosztások mérete és felhasználói kvóták</p>
+        </div>
+      </div>
+
+      <div class="card mb-24">
+        <h3>Megosztás Mappák Mérete</h3>
+        <div class="table-wrap mt-12">
+          <table>
+            <thead><tr><th>Mappanév</th><th>Útvonal</th><th>Méret</th></tr></thead>
+            <tbody id="shareSizesTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Felhasználói Tárhely Limits (Kvóták)</h3>
+        <div class="table-wrap mt-12">
+          <table>
+            <thead><tr><th>Felhasználónév</th><th>Jelenlegi Limit (MB)</th><th>Művelet</th></tr></thead>
+            <tbody id="userQuotasTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- 9. RECYCLE BIN -->
+    <!-- ========================================================= -->
+    <section class="content-section" id="section-recycle">
+      <div class="section-title-bar">
+        <div>
+          <h1>Okos Samba Lomtár (Recycle Bin Hub)</h1>
+          <p class="subtitle">Megosztásokból törölt fájlok vizuális kezelése, tömeges visszaállítás és törlés</p>
+        </div>
+        <div class="flex-gap">
+          <button class="btn btn-outline" onclick="loadRecycleFiles()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            Frissítés
+          </button>
+          <button class="btn btn-danger" onclick="confirmEmptyRecycle()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Lomtár Kiürítése
+          </button>
+        </div>
+      </div>
+
+      <!-- Recycle Metrics -->
+      <div class="cards-grid mb-24">
+        <div class="card metric-card">
+          <div class="metric-icon purple">🗑️</div>
+          <div class="metric-body">
+            <div class="metric-label">Törölt Fájlok</div>
+            <div class="metric-value" id="recycleCountText">0</div>
+          </div>
+        </div>
+        <div class="card metric-card">
+          <div class="metric-icon cyan">💾</div>
+          <div class="metric-body">
+            <div class="metric-label">Foglalt Tárhely</div>
+            <div class="metric-value" id="recycleSizeText">0 B</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bulk Actions Bar -->
+      <div class="card mb-16" id="recycleBulkBar" style="display:none;background:rgba(139,92,246,0.1);border-color:var(--purple);">
+        <div class="card-header-flex">
+          <div><strong id="recycleSelectedCount">0</strong> fájl kijelölve</div>
+          <div class="flex-gap">
+            <button class="btn btn-success btn-sm" onclick="bulkRestoreRecycle()">Kijelöltek Visszaállítása</button>
+            <button class="btn btn-danger btn-sm" onclick="bulkDeleteRecycle()">Kijelöltek Végleges Törlése</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:40px;"><input type="checkbox" id="selectAllRecycle" onchange="toggleSelectAllRecycle(this)"></th>
+                <th>Fájlnév</th>
+                <th>Megosztás</th>
+                <th>Eredeti Útvonal</th>
+                <th>Méret</th>
+                <th>Törölve</th>
+                <th>Műveletek</th>
+              </tr>
+            </thead>
+            <tbody id="recycleTableBody">
+              <tr><td colspan="7" class="text-muted">Betöltés...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- 10. SNAPSHOTS -->
+    <!-- ========================================================= -->
+    <section class="content-section" id="section-snapshots">
+      <div class="section-title-bar">
+        <div>
+          <h1>Pillanatképek (Snapshots)</h1>
+          <p class="subtitle">Samba tárhely állapotának biztonsági mentése és visszaállítása</p>
+        </div>
+        <button class="btn btn-primary" onclick="openCreateSnapshotModal()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          Új Pillanatkép
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Pillanatkép Neve</th>
+                <th>Útvonal</th>
+                <th>Létrehozva</th>
+                <th>Méret</th>
+                <th>Műveletek</th>
+              </tr>
+            </thead>
+            <tbody id="snapshotsTableBody">
+              <tr><td colspan="5" class="text-muted">Betöltés...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- 11. SAMBA CONFIGURATION GUI -->
+    <!-- ========================================================= -->
+    <section class="content-section" id="section-samba-config">
+      <div class="section-title-bar">
+        <div>
+          <h1>Samba Grafikus Konfiguráció</h1>
+          <p class="subtitle">SMB protokoll verziók, titkosítás, vendég hozzáférés és raw smb.conf szerkesztő</p>
+        </div>
+      </div>
+
+      <div class="card mb-24">
+        <h3>Grafikus Beállítások</h3>
+        <div class="form-grid mt-16">
+          <div class="form-group">
+            <label>Munkacsoport (Workgroup)</label>
+            <input type="text" id="cfgWorkgroup" class="form-control">
+          </div>
+          <div class="form-group">
+            <label>Szerver Hálózati Név (NetBIOS Name / Név a hálózaton)</label>
+            <input type="text" id="cfgNetbiosName" class="form-control" placeholder="pl. NAS-SERVER">
+          </div>
+          <div class="form-group">
+            <label>Szerver Leírás / Fejléc</label>
+            <input type="text" id="cfgServerString" class="form-control">
+          </div>
+          <div class="form-group">
+            <label>Minimális SMB Protokoll</label>
+            <select id="cfgMinProto" class="form-control">
+              <option value="SMB2_10">SMB2_10 (Ajánlott)</option>
+              <option value="SMB2">SMB2</option>
+              <option value="SMB3">SMB3</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Maximális SMB Protokoll</label>
+            <select id="cfgMaxProto" class="form-control">
+              <option value="SMB3_11">SMB3_11 (Legújabb)</option>
+              <option value="SMB3">SMB3</option>
+              <option value="SMB2">SMB2</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Globális Vendég Hozzáférés</label>
+            <select id="cfgGuestOk" class="form-control">
+              <option value="no">Tiltva (Biztonságos)</option>
+              <option value="yes">Engedélyezve (Bad User)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>SMB Titkosítás (Encryption)</label>
+            <select id="cfgEncrypt" class="form-control">
+              <option value="auto">Automatikus (Auto)</option>
+              <option value="required">Kötelező (Required)</option>
+              <option value="off">Kikapcsolva (Off)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions mt-16">
+          <button class="btn btn-primary" onclick="saveSambaGuiSettings()">Beállítások Mentése</button>
+        </div>
+      </div>
+
+      <!-- Raw Config Editor -->
+      <div class="card editor-card">
+        <div class="editor-toolbar">
+          <span class="editor-filename">📄 /etc/samba/smb.conf</span>
+          <span class="editor-status" id="rawConfigStatus">Betöltve</span>
+        </div>
+        <textarea class="code-editor" id="rawConfigTextarea" spellcheck="false"></textarea>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- 12. SYSTEM SETTINGS & IMPORT/EXPORT -->
+    <!-- ========================================================= -->
+    <section class="content-section" id="section-settings">
+      <div class="section-title-bar">
+        <div>
+          <h1>Rendszer Beállítások & Export/Import</h1>
+          <p class="subtitle">Konfiguráció mentése, visszaállítása és alkalmazás beállítások</p>
+        </div>
+      </div>
+
+      <div class="dashboard-row">
+        <div class="card flex-1">
+          <h3>Konfiguráció Export / Import</h3>
+          <p class="text-muted mt-8">Töltsd le a teljes NAS konfigurációt JSON-ben, vagy állítsd vissza egy mentésből.</p>
+          <div class="flex-gap mt-16">
+            <a href="/api/settings/export" class="btn btn-primary" download>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Konfiguráció Letöltése (Export)
+            </a>
+            <button class="btn btn-outline" onclick="triggerImportConfig()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Importálás (Restore)
+            </button>
+            <input type="file" id="importFileInput" style="display:none;" onchange="handleImportConfig(event)">
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================================= -->
+  <!-- MODALS -->
+  <!-- ========================================================= -->
+
+  <!-- User Modal (Add/Edit) -->
+  <div class="modal-overlay" id="userModal">
+    <div class="modal">
+      <h3 id="userModalTitle">Új Felhasználó Létrehozása</h3>
+      <div class="form-group mt-16">
+        <label>Felhasználónév *</label>
+        <input type="text" id="uModalUsername" class="form-control" placeholder="pl. janos">
+      </div>
+      <div class="form-group">
+        <label>Teljes Név</label>
+        <input type="text" id="uModalFullName" class="form-control" placeholder="pl. Kovács János">
+      </div>
+      <div class="form-group" id="uModalPassGroup">
+        <label>Jelszó *</label>
+        <input type="password" id="uModalPassword" class="form-control" placeholder="Jelszó">
+      </div>
+      <div class="form-group">
+        <label>Tárhely Limit Kvóta (MB, 0 = korlátlan)</label>
+        <input type="number" id="uModalQuota" class="form-control" value="0">
+      </div>
+      <div class="form-group">
+        <label>Csoportok Hozzárendelése</label>
+        <div id="uModalGroupsCheckboxes" class="checkbox-group-list"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal('userModal')">Mégse</button>
+        <button class="btn btn-primary" onclick="saveUserFromModal()">Mentés</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Change Password Modal -->
+  <div class="modal-overlay" id="userPassModal">
+    <div class="modal">
+      <h3>Jelszó Módosítása</h3>
+      <p class="text-muted" id="userPassModalUser"></p>
+      <div class="form-group mt-16">
+        <label>Új Jelszó</label>
+        <input type="password" id="uModalNewPass" class="form-control">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal('userPassModal')">Mégse</button>
+        <button class="btn btn-primary" onclick="saveUserPassword()">Jelszó Frissítése</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Group Modal -->
+  <div class="modal-overlay" id="groupModal">
+    <div class="modal">
+      <h3>Új Csoport Létrehozása</h3>
+      <div class="form-group mt-16">
+        <label>Csoportnév *</label>
+        <input type="text" id="gModalName" class="form-control" placeholder="pl. fejlodes">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal('groupModal')">Mégse</button>
+        <button class="btn btn-primary" onclick="saveGroupFromModal()">Létrehozás</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Share Modal (Add/Edit) -->
+  <div class="modal-overlay" id="shareModal">
+    <div class="modal" style="max-width:550px;">
+      <h3 id="shareModalTitle">Új SMB Megosztás Létrehozása</h3>
+      <div class="form-group mt-16">
+        <label>Megosztás Neve *</label>
+        <input type="text" id="sModalName" class="form-control" placeholder="pl. dokumentumok">
+      </div>
+      <div class="form-group">
+        <label>Mappa Útvonal *</label>
+        <input type="text" id="sModalPath" class="form-control" placeholder="pl. /srv/samba/dokumentumok">
+      </div>
+      <div class="form-group">
+        <label>Leírás / Komment</label>
+        <input type="text" id="sModalComment" class="form-control" placeholder="Mappa leírása">
+      </div>
+      <div class="checkbox-options-grid mt-12">
+        <label class="checkbox-row"><input type="checkbox" id="sModalPublic"> Publikus / Vendég hozzáférés</label>
+        <label class="checkbox-row"><input type="checkbox" id="sModalReadOnly"> Csak Olvasható</label>
+        <label class="checkbox-row"><input type="checkbox" id="sModalRecycle" checked> Samba Lomtár Engedélyezése</label>
+        <label class="checkbox-row"><input type="checkbox" id="sModalDisabled"> Tiltva (Inaktív)</label>
+      </div>
+      <div class="form-group mt-12">
+        <label>👥 Hozzáférésre Engedélyezett Felhasználók & Csoportok (Kijelölés listából)</label>
+        <div class="checkbox-picker-grid mt-8" id="sModalValidUsersGrid">
+          <span class="text-muted">Betöltés...</span>
+        </div>
+      </div>
+      <div class="form-group mt-12">
+        <label>✏️ Írási Jogosultsággal Rendelkezők (Write List — Kijelölés listából)</label>
+        <div class="checkbox-picker-grid mt-8" id="sModalWriteListGrid">
+          <span class="text-muted">Betöltés...</span>
+        </div>
+      </div>
+      <!-- Hidden inputs for backward compatibility -->
+      <input type="hidden" id="sModalValidUsers">
+      <input type="hidden" id="sModalWriteList">
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal('shareModal')">Mégse</button>
+        <button class="btn btn-primary" onclick="saveShareFromModal()">Megosztás Mentése</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Snapshot Modal -->
+  <div class="modal-overlay" id="snapshotModal">
+    <div class="modal">
+      <h3>Új Pillanatkép (Snapshot)</h3>
+      <div class="form-group mt-16">
+        <label>Snapshot Neve</label>
+        <input type="text" id="snapModalName" class="form-control" placeholder="pl. mentes_2026_07">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal('snapshotModal')">Mégse</button>
+        <button class="btn btn-primary" onclick="saveSnapshotFromModal()">Létrehozás</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quota Modal -->
+  <div class="modal-overlay" id="quotaModal">
+    <div class="modal">
+      <h3>Felhasználó Kvóta Beállítása</h3>
+      <p class="text-muted" id="quotaModalUser"></p>
+      <div class="form-group mt-16">
+        <label>Limit (MB, 0 = korlátlan)</label>
+        <input type="number" id="qModalLimit" class="form-control">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal('quotaModal')">Mégse</button>
+        <button class="btn btn-primary" onclick="saveUserQuotaFromModal()">Mentés</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- File Browser Modal -->
+  <div class="modal-overlay" id="fileBrowserModal">
+    <div class="modal" style="max-width:700px;">
+      <div class="card-header-flex">
+        <h3>📁 Szerver Mappa & Fájl Böngésző</h3>
+        <button class="btn btn-ghost btn-sm" onclick="closeModal('fileBrowserModal')">✕</button>
+      </div>
+      <div class="mt-12 mb-12">
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn btn-ghost btn-sm" id="fbParentBtn" onclick="navigateFileBrowserParent()">⬆️ Döntés/Vissza</button>
+          <code id="fbCurrentPathText" style="flex:1;font-size:0.85rem;">/srv/samba</code>
+        </div>
+      </div>
+      <div class="table-wrap" style="max-height:360px;overflow-y:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Név</th>
+              <th>Típus</th>
+              <th>Méret</th>
+              <th>Művelet</th>
+            </tr>
+          </thead>
+          <tbody id="fbTableBody">
+            <tr><td colspan="4" class="text-muted">Betöltés...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-actions mt-16">
+        <button class="btn btn-ghost" onclick="closeModal('fileBrowserModal')">Bezárás</button>
+        <button class="btn btn-primary" onclick="selectCurrentFolderForPerms()">Ezen mappa megnyitása a Jogosultság Kezelőben</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Modal -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal">
+      <h3 id="confirmTitle">Megerősítés</h3>
+      <p id="confirmText" class="mt-8 text-muted"></p>
+      <div class="modal-actions mt-24">
+        <button class="btn btn-ghost" onclick="closeModal('confirmModal')">Mégse</button>
+        <button class="btn btn-danger" id="confirmBtn">Folytatás</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
