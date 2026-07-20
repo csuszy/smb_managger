@@ -111,6 +111,13 @@
     </div>
 
     <div class="top-header-right">
+      <div class="status-chip" id="topVersionChip" style="background:rgba(139,92,246,0.12);border-color:rgba(139,92,246,0.3);color:var(--purple);font-weight:700;cursor:pointer;" onclick="switchSection('settings')">
+        <span>📦 </span><strong id="topVersionText">v2.0.0</strong>
+      </div>
+      <div class="status-chip" id="topSmbIpChip" style="background:rgba(6,182,212,0.12);border-color:rgba(6,182,212,0.3);color:var(--cyan);font-weight:700;">
+        <span>🌐 SMB IP: </span>
+        <strong id="topSmbIpValue">Betöltés...</strong>
+      </div>
       <button class="theme-toggle-btn" id="themeToggleBtn" title="Téma váltása (Sötét / Világos)">
         <span class="theme-icon">🌙</span>
       </button>
@@ -184,6 +191,23 @@
           <div class="metric-body">
             <div class="metric-label">Aktív Kapcsolatok</div>
             <div class="metric-value" id="dashConnCount">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SMB Server IP & Access Banner -->
+      <div class="card mb-24" style="background:linear-gradient(135deg, rgba(6,182,212,0.12), rgba(139,92,246,0.12));border-color:var(--border-accent);">
+        <div class="card-header-flex">
+          <div>
+            <h3>🌐 Hálózati SMB Szerver Cím</h3>
+            <p class="text-muted" style="margin-top:4px;">Ezen az IP-címen éred el az összes SMB megosztást a helyi hálózaton.</p>
+          </div>
+          <span class="badge badge-cyan" style="font-size:1rem;padding:6px 14px;" id="dashSmbIpBadge">192.168.1.22</span>
+        </div>
+        <div class="mt-12 flex-gap" style="align-items:center;">
+          <div style="flex:1;min-width:280px;background:var(--bg-input);padding:10px 14px;border-radius:8px;font-size:0.9rem;display:flex;align-items:center;justify-content:space-between;">
+            <div><span>Windows / Mac Hálózati Útvonal:</span> <code id="dashSmbPathCode">\\192.168.1.22</code></div>
+            <button class="btn btn-ghost btn-sm" onclick="copySmbPathToClipboard()">📋 Másolás</button>
           </div>
         </div>
       </div>
@@ -745,6 +769,37 @@
       </div>
 
       <div class="dashboard-row">
+        <!-- Version Control & Auto Update Widget -->
+        <div class="card flex-1" style="border-color:var(--border-accent);">
+          <div class="card-header-flex">
+            <div>
+              <h3>🐙 Verziókezelés & GitHub Frissítés</h3>
+              <p class="text-muted mt-8">Automatikusan felismeri a legújabb kiadásokat a GitHub repozitóriumból (<code id="versionRepoLinkText">csuszy/smb_managger</code>).</p>
+            </div>
+            <span class="badge badge-purple" id="versionStatusBadge">Ellenőrzés...</span>
+          </div>
+
+          <div class="sys-info-list mt-16">
+            <div class="sys-info-item"><span>Telepített Verzió:</span> <strong id="verCurrentText">v2.0.0</strong></div>
+            <div class="sys-info-item"><span>Jelenlegi Git Commit:</span> <code id="verCommitText">—</code></div>
+            <div class="sys-info-item"><span>GitHub Legújabb Verzió:</span> <strong id="verLatestText">—</strong></div>
+            <div class="sys-info-item"><span>Legutóbbi Commit Üzenet:</span> <small class="text-muted" id="verCommitMsg">—</small></div>
+            <div class="sys-info-item"><span>Utolsó Frissítés:</span> <small class="text-muted" id="verPublishedAt">—</small></div>
+          </div>
+
+          <div class="flex-gap mt-16" style="align-items:center;flex-wrap:wrap;">
+            <button class="btn btn-outline" onclick="checkAppVersion(true)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              Frissítések Ellenőrzése
+            </button>
+            <button class="btn btn-primary" id="verApplyBtn" style="display:none;" onclick="applyAppUpdate()">
+              🚀 1-Kattintásos Rendszer Frissítése
+            </button>
+            <a href="https://github.com/csuszy/smb_managger" target="_blank" class="btn btn-ghost btn-sm">🐙 GitHub Repozitórium ↗</a>
+          </div>
+        </div>
+
+        <!-- Export / Import Widget -->
         <div class="card flex-1">
           <h3>Konfiguráció Export / Import</h3>
           <p class="text-muted mt-8">Töltsd le a teljes NAS konfigurációt JSON-ben, vagy állítsd vissza egy mentésből.</p>
@@ -761,6 +816,98 @@
           </div>
         </div>
       </div>
+
+      <!-- Push & Release Management Row -->
+      <div class="dashboard-row mt-24">
+        <!-- Push to GitHub Widget -->
+        <div class="card flex-1" style="border-color:rgba(34,197,94,0.3);">
+          <div class="card-header-flex">
+            <h3>📤 Push a GitHub-ra</h3>
+            <span class="badge badge-green">Git Push</span>
+          </div>
+          <p class="text-muted mt-8">Jelenlegi módosítások mentése és feltöltése a GitHub repozitóriumba.</p>
+          <div class="form-group mt-16">
+            <label>Commit Üzenet</label>
+            <input type="text" id="pushCommitMsg" class="form-control" placeholder="pl. Dashboard frissítés, új funkciók">
+          </div>
+          <div class="form-actions mt-12">
+            <button class="btn btn-success" onclick="pushToGitHub()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Push Végrehajtása
+            </button>
+          </div>
+        </div>
+
+        <!-- Release Creation Widget -->
+        <div class="card flex-1" style="border-color:rgba(139,92,246,0.3);">
+          <div class="card-header-flex">
+            <h3>🏷️ Új Release Létrehozása</h3>
+            <span class="badge badge-purple">GitHub Release</span>
+          </div>
+          <p class="text-muted mt-8">Hozz létre egy hivatalos GitHub release-t a jelenlegi verzióból.</p>
+          <div class="form-grid mt-16">
+            <div class="form-group">
+              <label>Tag Név (pl. v2.1.0) *</label>
+              <input type="text" id="releaseTag" class="form-control" placeholder="v2.1.0">
+            </div>
+            <div class="form-group">
+              <label>Release Cím</label>
+              <input type="text" id="releaseName" class="form-control" placeholder="SMB Manager v2.1.0">
+            </div>
+          </div>
+          <div class="form-group mt-12">
+            <label>Változási Jegyzék (Markdown)</label>
+            <textarea id="releaseBody" class="form-control" rows="3" placeholder="- Új verziókezelő rendszer&#10;- Hibajavítások&#10;- Teljesítmény javítások"></textarea>
+          </div>
+          <div class="form-actions mt-12" style="display:flex;align-items:center;gap:16px;">
+            <label class="checkbox-row" style="margin:0;"><input type="checkbox" id="releasePrerelease"> Pre-release (Teszt verzió)</label>
+            <button class="btn btn-primary" onclick="createGitHubRelease()">
+              🏷️ Release Létrehozása
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Changelog -->
+      <div class="card mt-24" style="border-color:rgba(6,182,212,0.3);">
+        <div class="card-header-flex">
+          <h3>📋 Git Változási Napló (Changelog)</h3>
+          <button class="btn btn-ghost btn-sm" onclick="loadChangelog()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            Frissítés
+          </button>
+        </div>
+        <div class="table-wrap mt-12">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:80px;">Commit</th>
+                <th>Üzenet</th>
+                <th>Szerző</th>
+                <th>Dátum</th>
+              </tr>
+            </thead>
+            <tbody id="changelogTableBody">
+              <tr><td colspan="4" class="text-muted">Kattints a "Frissítés" gombra a changelog betöltéséhez</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Releases List -->
+      <div class="card mt-24" style="border-color:rgba(245,158,11,0.3);">
+        <div class="card-header-flex">
+          <h3>🏷️ GitHub Kiadások (Releases)</h3>
+          <button class="btn btn-ghost btn-sm" onclick="loadReleasesList()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            Frissítés
+          </button>
+        </div>
+        <div id="releasesListContainer" class="mt-12">
+          <p class="text-muted">Kattints a "Frissítés" gombra a kiadások betöltéséhez</p>
+        </div>
+      </div>
+
     </section>
 
   </main>

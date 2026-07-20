@@ -9,6 +9,11 @@ logs/
 *.backup-*
 .DS_Store
 
+# Sensitive data — DO NOT COMMIT
+data/github_token.json
+data/audit_log.json
+data/user_quotas.json
+
 # System data scratch
 data/snapshots/*
 !data/snapshots/.gitkeep

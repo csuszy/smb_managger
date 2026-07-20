@@ -1,6 +1,6 @@
 {
   "name": "smb-manager",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Modern NAS-style Web Administration Interface for Samba / SMB Server",
   "main": "server.js",
   "scripts": {

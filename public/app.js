@@ -172,7 +172,12 @@ async function refreshDashboard() {
     topDots.forEach(d => d.className = `status-dot ${isActive ? 'online' : 'offline'}`);
     document.getElementById('topStatusLabel').textContent = isActive ? 'Samba Online' : 'Samba Offline';
 
-    // System info
+    // System info & IP
+    const serverIp = data.system.ipAddress || location.hostname || '127.0.0.1';
+    if (document.getElementById('topSmbIpValue')) document.getElementById('topSmbIpValue').textContent = serverIp;
+    if (document.getElementById('dashSmbIpBadge')) document.getElementById('dashSmbIpBadge').textContent = serverIp;
+    if (document.getElementById('dashSmbPathCode')) document.getElementById('dashSmbPathCode').textContent = `\\\\${serverIp}`;
+
     document.getElementById('sysHostname').textContent = data.system.hostname;
     document.getElementById('sysPlatform').textContent = data.system.platform;
     document.getElementById('sysUptime').textContent = data.system.uptime;
@@ -188,6 +193,14 @@ async function refreshDashboard() {
 
   } catch (e) {
     console.error('Dashboard hiba:', e);
+  }
+}
+
+function copySmbPathToClipboard() {
+  const codeEl = document.getElementById('dashSmbPathCode');
+  if (codeEl) {
+    navigator.clipboard.writeText(codeEl.textContent);
+    toast(`Útvonal másolva a vágólapra: ${codeEl.textContent}`, 'success');
   }
 }
 
@@ -1217,9 +1230,186 @@ async function saveSambaGuiSettings() {
 // =========================================================
 async function loadSettings() {
   try {
+    await checkAppVersion(false);
     const data = await apiGet('/api/settings');
   } catch (e) {}
 }
+
+// =========================================================
+// 13. VERSION CONTROL & GITHUB AUTO-UPDATE
+// =========================================================
+async function checkAppVersion(showToast = false) {
+  try {
+    const data = await apiGet('/api/version/check');
+
+    const topChip = document.getElementById('topVersionText');
+    if (topChip) topChip.textContent = `v${data.currentVersion}`;
+
+    if (document.getElementById('verCurrentText')) document.getElementById('verCurrentText').textContent = `v${data.currentVersion}`;
+    if (document.getElementById('verCommitText')) document.getElementById('verCommitText').textContent = data.currentCommit || 'unknown';
+    if (document.getElementById('verLatestText')) document.getElementById('verLatestText').textContent = data.latestVersion ? `v${data.latestVersion} (${data.latestCommit})` : '—';
+    if (document.getElementById('verCommitMsg')) document.getElementById('verCommitMsg').textContent = data.commitMessage || 'Naprakész verzió';
+    if (document.getElementById('verPublishedAt')) {
+      document.getElementById('verPublishedAt').textContent = data.publishedAt
+        ? new Date(data.publishedAt).toLocaleString('hu-HU')
+        : '—';
+    }
+
+    const badge = document.getElementById('versionStatusBadge');
+    const applyBtn = document.getElementById('verApplyBtn');
+
+    if (data.hasUpdate) {
+      if (badge) {
+        badge.className = 'badge badge-amber';
+        badge.textContent = '🎉 Új verzió érhető el!';
+      }
+      if (applyBtn) applyBtn.style.display = '';
+      if (topChip) {
+        topChip.parentNode.style.background = 'rgba(245,158,11,0.2)';
+        topChip.parentNode.style.borderColor = 'rgba(245,158,11,0.5)';
+        topChip.textContent = `🎉 Új: v${data.latestVersion}`;
+      }
+      if (showToast) toast(`Új verzió érhető el a GitHubon: v${data.latestVersion}!`, 'info');
+    } else {
+      if (badge) {
+        badge.className = 'badge badge-green';
+        badge.textContent = '✓ Naprakész';
+      }
+      if (applyBtn) applyBtn.style.display = 'none';
+      if (topChip) {
+        topChip.parentNode.style.background = 'rgba(139,92,246,0.12)';
+        topChip.parentNode.style.borderColor = 'rgba(139,92,246,0.3)';
+      }
+      if (showToast) toast('Az alkalmazás naprakész!', 'success');
+    }
+
+  } catch (e) {
+    if (showToast) toast('Verzió-ellenőrzési hiba: ' + e.message, 'error');
+  }
+}
+
+async function applyAppUpdate() {
+  if (!confirm('Biztosan frissíteni szeretnéd a rendszert a GitHub legújabb verziójára?')) return;
+  try {
+    toast('Frissítés indítása... A rendszer hamarosan újraindul.', 'info');
+    const res = await apiPost('/api/version/update');
+    toast(res.message || 'Frissítés sikeres!', 'success');
+    setTimeout(() => {
+      location.reload();
+    }, 4000);
+  } catch (e) {
+    toast('Frissítési hiba: ' + e.message, 'error');
+  }
+}
+
+async function pushToGitHub() {
+  const message = document.getElementById('pushCommitMsg').value.trim();
+  if (!message) return toast('Kérlek adj meg egy commit üzenetet!', 'error');
+
+  if (!confirm(`Push végrehajtása a GitHub-ra?\nCommit üzenet: "${message}"`)) return;
+
+  try {
+    toast('Push folyamatban...', 'info');
+    const res = await apiPost('/api/version/push', { message });
+    toast(res.message || 'Sikeresen push-olva!', 'success');
+    document.getElementById('pushCommitMsg').value = '';
+    checkAppVersion(false);
+  } catch (e) {
+    toast('Push hiba: ' + e.message, 'error');
+  }
+}
+
+async function createGitHubRelease() {
+  const tag = document.getElementById('releaseTag').value.trim();
+  const name = document.getElementById('releaseName').value.trim();
+  const body = document.getElementById('releaseBody').value.trim();
+  const prerelease = document.getElementById('releasePrerelease').checked;
+
+  if (!tag) return toast('A tag név megadása kötelező (pl. v2.1.0)!', 'error');
+
+  if (!confirm(`Új GitHub release létrehozása: ${tag}?`)) return;
+
+  try {
+    toast('Release létrehozása...', 'info');
+    const res = await apiPost('/api/version/release', { tag, name, body, prerelease });
+    toast(res.message || 'Release sikeresen létrehozva!', 'success');
+    document.getElementById('releaseTag').value = '';
+    document.getElementById('releaseName').value = '';
+    document.getElementById('releaseBody').value = '';
+    document.getElementById('releasePrerelease').checked = false;
+    loadReleasesList();
+  } catch (e) {
+    toast('Release hiba: ' + e.message, 'error');
+  }
+}
+
+async function loadChangelog() {
+  const tbody = document.getElementById('changelogTableBody');
+  tbody.innerHTML = '<tr><td colspan="4" class="text-muted">Betöltés...</td></tr>';
+
+  try {
+    const data = await apiGet('/api/version/changelog?limit=20');
+    const changelog = data.changelog || [];
+
+    if (changelog.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" class="text-muted">Nincsenek commit-ok</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = changelog.map(c => `
+      <tr>
+        <td><code style="font-size:0.8rem;">${c.sha}</code></td>
+        <td><strong>${escapeHtml(c.message.split('\n')[0])}</strong></td>
+        <td>${escapeHtml(c.author)}</td>
+        <td><small>${c.date ? new Date(c.date).toLocaleString('hu-HU') : '—'}</small></td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    tbody.innerHTML = '<tr><td colspan="4" class="text-muted">Hiba a changelog betöltésekor: ' + e.message + '</td></tr>';
+  }
+}
+
+async function loadReleasesList() {
+  const container = document.getElementById('releasesListContainer');
+  container.innerHTML = '<p class="text-muted">Betöltés...</p>';
+
+  try {
+    const data = await apiGet('/api/version/releases');
+    const releases = data.releases || [];
+
+    if (releases.length === 0) {
+      container.innerHTML = '<p class="text-muted">Nincsenek GitHub release-ek. Hozz létre egyet fent!</p>';
+      return;
+    }
+
+    container.innerHTML = releases.map(r => `
+      <div class="card mb-12" style="background:var(--bg-input);border-color:${r.prerelease ? 'rgba(245,158,11,0.3)' : 'rgba(34,197,94,0.3)'};">
+        <div class="card-header-flex">
+          <div>
+            <h4 style="margin:0;">🏷️ ${escapeHtml(r.name || r.tag)}</h4>
+            <small class="text-muted">${r.publishedAt ? new Date(r.publishedAt).toLocaleString('hu-HU') : '—'}</small>
+          </div>
+          <div class="flex-gap">
+            ${r.prerelease ? '<span class="badge badge-amber">Pre-release</span>' : '<span class="badge badge-green">Stabil</span>'}
+            ${r.url ? `<a href="${r.url}" target="_blank" class="btn btn-ghost btn-sm">Megnyitás ↗</a>` : ''}
+          </div>
+        </div>
+        ${r.body ? `<div class="mt-8 text-muted" style="white-space:pre-wrap;font-size:0.85rem;">${escapeHtml(r.body)}</div>` : ''}
+      </div>
+    `).join('');
+  } catch (e) {
+    container.innerHTML = '<p class="text-muted">Hiba a release-ek betöltésekor: ' + e.message + '</p>';
+  }
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text || '';
+  return div.innerHTML;
+}
+
+// Initial version check
+setTimeout(() => { checkAppVersion(false); }, 1500);
 
 function triggerImportConfig() {
   document.getElementById('importFileInput').click();

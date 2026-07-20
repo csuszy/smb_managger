@@ -14,6 +14,7 @@ const { getRecycleFiles, restoreRecycleFile, restoreRecycleFiles, deleteRecycleF
 const { getSnapshots, createSnapshot, restoreSnapshot, deleteSnapshot } = require('./lib/snapshots');
 const { getSambaGlobalConfig, saveSambaGlobalConfig, ensureDefaultHomesSection } = require('./lib/sambaConfig');
 const { getSettings, saveSettings, exportFullConfig, importFullConfig } = require('./lib/settings');
+const { checkVersion, getChangelog, getReleases, applySystemUpdate, createRelease, pushToGitHub } = require('./lib/version');
 const audit = require('./lib/audit');
 
 const app = express();
@@ -569,6 +570,67 @@ app.get('/api/settings/export', async (req, res) => {
 app.post('/api/settings/import', async (req, res) => {
   try {
     const result = await importFullConfig(req.body);
+    res.json(result);
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+// ============================
+// 14. VERSION CONTROL & AUTO UPDATE
+// ============================
+app.get('/api/version/check', async (req, res) => {
+  try {
+    const versionInfo = await checkVersion();
+    res.json(versionInfo);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get('/api/version/changelog', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 20;
+    const changelog = await getChangelog(limit);
+    res.json({ changelog });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get('/api/version/releases', async (req, res) => {
+  try {
+    const releases = await getReleases();
+    res.json({ releases });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post('/api/version/update', async (req, res) => {
+  try {
+    const result = await applySystemUpdate();
+    res.json(result);
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.post('/api/version/push', async (req, res) => {
+  try {
+    const { message } = req.body;
+    const result = await pushToGitHub(message || 'Update from SMB Manager Dashboard');
+    res.json(result);
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.post('/api/version/release', async (req, res) => {
+  try {
+    const { tag, name, body, prerelease } = req.body;
+    if (!tag) return res.status(400).json({ error: 'Tag név megadása kötelező!' });
+    const result = await createRelease(tag, name, body, prerelease);
     res.json(result);
   } catch (e) {
     res.status(400).json({ error: e.message });
