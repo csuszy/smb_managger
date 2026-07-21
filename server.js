@@ -11,7 +11,14 @@ const { getShares, saveShare, toggleShare, deleteShare } = require('./lib/shares
 const { getFolderPermissions, saveFolderPermissions } = require('./lib/permissions');
 const { getActiveConnections, killConnection } = require('./lib/connections');
 const { getRecycleFiles, restoreRecycleFile, restoreRecycleFiles, deleteRecycleFile, deleteRecycleFiles, emptyRecycleBin } = require('./lib/recycle');
-const { getSnapshots, createSnapshot, restoreSnapshot, deleteSnapshot } = require('./lib/snapshots');
+const {
+  getSnapshots,
+  createSnapshot,
+  restoreSnapshot,
+  deleteSnapshot,
+  loadSnapshotConfig,
+  saveSnapshotConfig
+} = require('./lib/snapshots');
 const { getSambaGlobalConfig, saveSambaGlobalConfig, ensureDefaultHomesSection } = require('./lib/sambaConfig');
 const { getSettings, saveSettings, exportFullConfig, importFullConfig } = require('./lib/settings');
 const { checkVersion, getChangelog, getReleases, applySystemUpdate } = require('./lib/version');
@@ -23,6 +30,13 @@ const {
   sendSmtpEmail,
   notifyEvent
 } = require('./lib/notifications');
+const {
+  loadPrinterConfig,
+  savePrinterConfig,
+  getPrinters,
+  printFile,
+  startFolderPrintWatcher
+} = require('./lib/printers');
 
 const {
   loadConfig,
@@ -703,7 +717,7 @@ app.post('/api/notifications/test', async (req, res) => {
   try {
     const { type, discordUrl, smtpConfig } = req.body;
     const testTitle = '🔔 Teszt Értesítés';
-    const testMessage = `Sikeres teszt értesítés az SMB Manager rendszerből!\nIdőpont: ${new Date().toLocaleString('hu-HU')}`;
+    const testMessage = `Sikeres teszt értesítés a SambaHub rendszerből!\nIdőpont: ${new Date().toLocaleString('hu-HU')}`;
 
     if (type === 'discord') {
       const url = (discordUrl || '').trim() || loadNotifConfig().discord.webhookUrl;
@@ -730,9 +744,29 @@ app.post('/api/notifications/test', async (req, res) => {
 app.get('/api/snapshots', async (req, res) => {
   try {
     const snapshots = await getSnapshots();
-    res.json({ snapshots });
+    const config = loadSnapshotConfig();
+    res.json({ snapshots, config });
   } catch (e) {
     res.status(500).json({ error: e.message });
+  }
+});
+
+app.get('/api/snapshots/config', (req, res) => {
+  try {
+    const config = loadSnapshotConfig();
+    res.json({ config });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.put('/api/snapshots/config', (req, res) => {
+  try {
+    saveSnapshotConfig(req.body);
+    audit.logEvent('config', 'Automata snapshot beállítások elmentve', 'admin');
+    res.json({ success: true, message: 'Automata snapshot beállítások elmentve!' });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
   }
 });
 
@@ -758,6 +792,41 @@ app.post('/api/snapshots/:id/restore', async (req, res) => {
 app.delete('/api/snapshots/:id', async (req, res) => {
   try {
     const result = await deleteSnapshot(req.params.id);
+    res.json(result);
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+// ============================
+// PRINTERS & PRINTING API
+// ============================
+app.get('/api/printers', async (req, res) => {
+  try {
+    const printerInfo = await getPrinters();
+    const config = loadPrinterConfig();
+    res.json({ ...printerInfo, config });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.put('/api/printers/config', async (req, res) => {
+  try {
+    savePrinterConfig(req.body);
+    startFolderPrintWatcher();
+    audit.logEvent('config', 'Nyomtató beállítások elmentve', 'admin');
+    res.json({ success: true, message: 'Nyomtató beállítások elmentve!' });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.post('/api/printers/print', async (req, res) => {
+  try {
+    const { filePath, printerName } = req.body;
+    if (!filePath) return res.status(400).json({ error: 'A fájl útvonala megadása kötelező!' });
+    const result = await printFile(filePath, printerName);
     res.json(result);
   } catch (e) {
     res.status(400).json({ error: e.message });

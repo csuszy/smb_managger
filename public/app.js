@@ -72,6 +72,7 @@ function switchSection(sectionId) {
     case 'storage': loadStorage(); break;
     case 'recycle': loadRecycleFiles(); break;
     case 'snapshots': loadSnapshots(); break;
+    case 'printers': loadPrintersView(); break;
     case 'samba-config': loadSambaGuiConfig(); break;
     case 'settings': loadSettings(); break;
   }
@@ -1133,12 +1134,92 @@ function confirmEmptyRecycle() {
 }
 
 // =========================================================
+// STORAGE & QUOTAS CONTROLLER
+// =========================================================
+async function loadStorage() {
+  try {
+    const data = await apiGet('/api/storage');
+
+    // Share sizes table
+    const sTbody = document.getElementById('shareSizesTableBody');
+    if (sTbody) {
+      if (!data.storage || !data.storage.shareSizes || data.storage.shareSizes.length === 0) {
+        sTbody.innerHTML = '<tr><td colspan="3" class="text-muted">Nincsenek mappák a megfigyelt tárhelyen</td></tr>';
+      } else {
+        sTbody.innerHTML = data.storage.shareSizes.map(s => `
+          <tr>
+            <td><strong>📁 ${s.name}</strong></td>
+            <td><code>${s.path}</code></td>
+            <td><span class="badge badge-cyan">${s.size}</span></td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    // Users quota table
+    const qTbody = document.getElementById('userQuotasTableBody');
+    if (qTbody) {
+      const usersData = await apiGet('/api/users').catch(() => ({ users: [] }));
+      const users = usersData.users || [];
+      const quotas = data.quotas || {};
+
+      if (users.length === 0) {
+        qTbody.innerHTML = '<tr><td colspan="3" class="text-muted">Nincsenek felhasználók</td></tr>';
+      } else {
+        qTbody.innerHTML = users.map(u => {
+          const qLimit = quotas[u.username] || u.quotaMB || 0;
+          return `
+            <tr>
+              <td><strong>👤 ${u.username}</strong></td>
+              <td>${qLimit ? `<span class="badge badge-purple">${qLimit} MB</span>` : '<span class="text-muted">Korlátlan</span>'}</td>
+              <td>
+                <button class="btn btn-ghost btn-sm" onclick="openUserQuotaModal('${u.username}', ${qLimit})">Limit Módosítása</button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+    }
+  } catch (e) {
+    toast('Hiba a tárhely adatok betöltésekor: ' + e.message, 'error');
+  }
+}
+
+function openUserQuotaModal(username, currentLimit) {
+  document.getElementById('quotaModalUser').textContent = `Felhasználó: ${username}`;
+  document.getElementById('qModalLimit').value = currentLimit || 0;
+  document.getElementById('quotaModal').dataset.username = username;
+  document.getElementById('quotaModal').classList.add('open');
+}
+
+async function saveUserQuotaFromModal() {
+  const username = document.getElementById('quotaModal').dataset.username;
+  const limitMB = parseInt(document.getElementById('qModalLimit').value) || 0;
+  if (!username) return;
+
+  try {
+    await apiPut(`/api/storage/quotas/${username}`, { limitMB });
+    toast(`Kvóta beállítva ${username} számára: ${limitMB ? limitMB + ' MB' : 'Korlátlan'}`, 'success');
+    closeModal('quotaModal');
+    loadStorage();
+  } catch (e) {
+    toast('Hiba: ' + e.message, 'error');
+  }
+}
+
+// =========================================================
 // 10. SNAPSHOTS
 // =========================================================
 async function loadSnapshots() {
   try {
     const data = await apiGet('/api/snapshots');
     const tbody = document.getElementById('snapshotsTableBody');
+
+    if (data.config) {
+      if (document.getElementById('autoSnapEnabled')) document.getElementById('autoSnapEnabled').checked = !!data.config.enabled;
+      if (document.getElementById('autoSnapInterval')) document.getElementById('autoSnapInterval').value = data.config.intervalHours || 24;
+      if (document.getElementById('autoSnapMaxCount')) document.getElementById('autoSnapMaxCount').value = data.config.maxSnapshots || 10;
+    }
 
     if (!data.snapshots || data.snapshots.length === 0) {
       tbody.innerHTML = '<tr><td colspan="5" class="text-muted">Nincsenek pillanatképek</td></tr>';
@@ -1161,6 +1242,85 @@ async function loadSnapshots() {
     `).join('');
   } catch (e) {
     toast('Hiba a pillanatképek betöltésekor', 'error');
+  }
+}
+
+async function saveSnapshotSettings() {
+  const body = {
+    enabled: document.getElementById('autoSnapEnabled').checked,
+    intervalHours: parseInt(document.getElementById('autoSnapInterval').value) || 24,
+    maxSnapshots: parseInt(document.getElementById('autoSnapMaxCount').value) || 10
+  };
+
+  try {
+    const res = await apiPut('/api/snapshots/config', body);
+    toast(res.message || 'Automata snapshot beállítások elmentve!', 'success');
+  } catch (e) {
+    toast('Hiba a mentéskor: ' + e.message, 'error');
+  }
+}
+
+// =========================================================
+// PRINTERS & PRINTING CONTROLLER
+// =========================================================
+async function loadPrintersView() {
+  try {
+    const data = await apiGet('/api/printers');
+    const tbody = document.getElementById('printersTableBody');
+    const badge = document.getElementById('printerCountBadge');
+    const select = document.getElementById('printerDefaultSelect');
+    const config = data.config || {};
+
+    if (document.getElementById('printerServiceEnabled')) {
+      document.getElementById('printerServiceEnabled').checked = !!config.enabled;
+    }
+    if (document.getElementById('printerFolderInterval')) {
+      document.getElementById('printerFolderInterval').value = (config.folderPrint && config.folderPrint.checkIntervalSec) || 10;
+    }
+
+    const printers = data.printers || [];
+    if (badge) badge.textContent = `${printers.length} Nyomtató`;
+
+    if (select) {
+      select.innerHTML = '<option value="">Rendszer alapértelmezett</option>' +
+        printers.map(p => `<option value="${p.name}" ${config.defaultPrinter === p.name ? 'selected' : ''}>${p.name}</option>`).join('');
+    }
+
+    if (!printers || printers.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="3" class="text-muted">Nem található felderített nyomtató a rendszerben (CUPS / lpstat)</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = printers.map(p => `
+      <tr>
+        <td><strong>🜁 ${p.name}</strong></td>
+        <td><span class="badge ${p.status === 'Printing' ? 'badge-amber' : 'badge-green'}">${p.status}</span></td>
+        <td>${data.defaultPrinter === p.name ? '<span class="badge badge-purple">Alapértelmezett</span>' : '—'}</td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    toast('Hiba a nyomtatók betöltésekor: ' + e.message, 'error');
+  }
+}
+
+async function savePrinterSettings() {
+  const body = {
+    enabled: document.getElementById('printerServiceEnabled').checked,
+    defaultPrinter: document.getElementById('printerDefaultSelect').value,
+    folderPrint: {
+      enabled: document.getElementById('printerServiceEnabled').checked,
+      monitoredFolder: '/srv/samba/Print/nyomtatas',
+      archiveFolder: '/srv/samba/Print/archive',
+      checkIntervalSec: parseInt(document.getElementById('printerFolderInterval').value) || 10
+    }
+  };
+
+  try {
+    const res = await apiPut('/api/printers/config', body);
+    toast(res.message || 'Nyomtatási beállítások elmentve!', 'success');
+    loadPrintersView();
+  } catch (e) {
+    toast('Hiba a mentéskor: ' + e.message, 'error');
   }
 }
 

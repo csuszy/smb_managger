@@ -1,7 +1,7 @@
 {
-  "name": "smb-manager",
+  "name": "sambahub",
   "version": "0.2.0",
-  "description": "Modern NAS-style Web Administration Interface for Samba / SMB Server",
+  "description": "SambaHub — Modern NAS Samba Administration & Printer Management Dashboard",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

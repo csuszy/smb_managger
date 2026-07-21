@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Modern NAS SMB Manager — Samba Szerver Adminisztrációs Dashboard">
-  <title>NAS SMB Manager Dashboard</title>
+  <meta name="description" content="SambaHub — NAS Samba Adminisztrációs & Nyomtatási Dashboard">
+  <title>SambaHub — NAS Administration Dashboard</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='28' font-size='28'>🗄️</text></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
@@ -19,8 +19,8 @@
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
         </div>
         <div>
-          <div class="logo-text">SMB Admin</div>
-          <div class="logo-sub">TrueNAS / CasaOS Style</div>
+          <div class="logo-text">SambaHub</div>
+          <div class="logo-sub">NAS Administration Platform</div>
         </div>
       </div>
     </div>
@@ -73,6 +73,10 @@
       <a href="#" class="nav-item" data-section="snapshots" id="nav-snapshots">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
         <span>Pillanatképek (Snapshots)</span>
+      </a>
+      <a href="#" class="nav-item" data-section="printers" id="nav-printers">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        <span>Nyomtatók & Nyomtatás</span>
       </a>
 
       <div class="nav-section-title">BEÁLLÍTÁSOK & AUDIT</div>
@@ -685,6 +689,118 @@
           </table>
         </div>
       </div>
+
+      <!-- Automated Snapshots Configuration Card -->
+      <div class="card mt-24" style="border-color:rgba(139,92,246,0.3);">
+        <div class="card-header-flex">
+          <div>
+            <h3>⚙️ Automata Pillanatkép Mentések</h3>
+            <p class="text-muted mt-4">Beállíthatod, hogy a SambaHub megadott időközönként automatikusan mentsen pillanatképeket.</p>
+          </div>
+          <label class="checkbox-row">
+            <input type="checkbox" id="autoSnapEnabled"> <strong>Automata Mentés Bekapcsolva</strong>
+          </label>
+        </div>
+        <div class="form-grid mt-16">
+          <div class="form-group">
+            <label>Mentési Időköz</label>
+            <select id="autoSnapInterval" class="form-control">
+              <option value="1">Óránként (1 óra)</option>
+              <option value="6">6 óránként</option>
+              <option value="12">12 óránként</option>
+              <option value="24" selected>Naponta (24 óra)</option>
+              <option value="168">Hetente (7 nap)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Megőrzött Automata Mentések Max. Száma</label>
+            <input type="number" id="autoSnapMaxCount" class="form-control" value="10">
+          </div>
+        </div>
+        <div class="form-actions mt-16">
+          <button class="btn btn-primary" onclick="saveSnapshotSettings()">
+            💾 Automatizálási Beállítások Mentése
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- PRINTERS & PRINTING SECTION -->
+    <!-- ========================================================= -->
+    <section class="content-section" id="section-printers">
+      <div class="section-title-bar">
+        <div>
+          <h1>🜁 Nyomtatók & Nyomtatási Központ</h1>
+          <p class="subtitle">Rendszernyomtatók automatikus felderítése, mappából nyomtatás és e-mail nyomtatás</p>
+        </div>
+        <button class="btn btn-outline" onclick="loadPrintersView()">
+          🔄 Frissítés
+        </button>
+      </div>
+
+      <!-- Printers Status Overview -->
+      <div class="dashboard-row">
+        <div class="card flex-1">
+          <div class="card-header-flex">
+            <h3>🜁 Felderített Rendszernyomtatók</h3>
+            <span class="badge badge-purple" id="printerCountBadge">0 Nyomtató</span>
+          </div>
+          <div class="table-wrap mt-16">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nyomtató Neve</th>
+                  <th>Állapot</th>
+                  <th>Alapértelmezett</th>
+                </tr>
+              </thead>
+              <tbody id="printersTableBody">
+                <tr><td colspan="3" class="text-muted">Kattints a "Frissítés" gombra a nyomtatók kereséséhez</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Printing Configuration Card -->
+      <div class="card mt-24" style="border-color:rgba(6,182,212,0.3);">
+        <div class="card-header-flex">
+          <div>
+            <h3>📁 Mappából Nyomtatás & Beállítások</h3>
+            <p class="text-muted mt-4">A <code>/srv/samba/Print/nyomtatas</code> mappába helyezett dokumentumok automatikusan kinyomtatódnak és az <code>archive</code> mappába kerülnek.</p>
+          </div>
+          <label class="checkbox-row">
+            <input type="checkbox" id="printerServiceEnabled" onchange="savePrinterSettings()"> <strong>Funkció Bekapcsolása</strong>
+          </label>
+        </div>
+
+        <div id="printerConfigDetails" class="mt-16">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Alapértelmezett Nyomtató</label>
+              <select id="printerDefaultSelect" class="form-control">
+                <option value="">Rendszer alapértelmezett</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Mappavizsgálati Időköz (másodperc)</label>
+              <input type="number" id="printerFolderInterval" class="form-control" value="10">
+            </div>
+          </div>
+
+          <div class="sys-info-list mt-16">
+            <div class="sys-info-item"><span>📁 Nyomtatási Mappa (SMB Megosztás):</span> <code>/srv/samba/Print/nyomtatas</code></div>
+            <div class="sys-info-item"><span>📦 Archívum Mappa:</span> <code>/srv/samba/Print/archive</code></div>
+          </div>
+
+          <div class="form-actions mt-16">
+            <button class="btn btn-primary" onclick="savePrinterSettings()">
+              💾 Nyomtatási Beállítások Mentése
+            </button>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- ========================================================= -->
@@ -1164,7 +1280,7 @@
         <div class="logo-icon" style="margin:0 auto 12px;width:56px;height:56px;">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
         </div>
-        <h2>🚀 SMB Manager Telepítés</h2>
+        <h2>🚀 SambaHub Telepítés</h2>
         <p class="text-muted mt-8">Első használat: Hozd létre az adminisztrátori fiókot és add meg a megfigyelt tárhely útvonalát.</p>
       </div>
       <form id="setupForm" onsubmit="handleSetupSubmit(event)" class="mt-24">

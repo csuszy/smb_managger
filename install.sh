@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# SMB Manager — Auto Installer Script (Ubuntu / Debian Linux)
+# SambaHub — Auto Installer Script (Ubuntu / Debian Linux)
 # ==============================================================================
 
 set -e
 
-RED='\030[0;31m'
+RED='\033[0;31m'
 GREEN='\033[0;32m'
 CYAN='\033[0;36m'
 YELLOW='\033[1;33m'
@@ -13,7 +13,7 @@ NC='\033[0m' # No Color
 
 echo -e "${CYAN}"
 echo "================================================================="
-echo "   🚀 SMB Manager — NAS Administration Dashboard Installer"
+echo "   🚀 SambaHub — NAS Administration Dashboard Installer"
 echo "================================================================="
 echo -e "${NC}"
 

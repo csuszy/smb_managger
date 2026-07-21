@@ -1,5 +1,5 @@
 [Unit]
-Description=NAS SMB Manager Web Interface
+Description=SambaHub NAS Administration Web Interface
 After=network.target smbd.service nmbd.service
 
 [Service]
