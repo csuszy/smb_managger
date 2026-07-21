@@ -523,3 +523,24 @@ tr:hover td { background: rgba(139,92,246,0.025); }
   .top-header { left: 0; padding: 0 16px; }
   .main-workspace { margin-left: 0; padding: 20px 16px; }
 }
+
+/* Auth & Setup Overlay Styles */
+.auth-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(13, 14, 21, 0.95);
+  backdrop-filter: blur(12px);
+  z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.auth-card {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius);
+  padding: 32px;
+  box-shadow: var(--shadow-modal);
+}
+.auth-header { text-align: center; }
+.auth-header h2 { font-size: 1.5rem; font-weight: 800; color: var(--text-primary); }
+

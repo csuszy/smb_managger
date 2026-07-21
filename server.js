@@ -17,12 +17,26 @@ const { getSettings, saveSettings, exportFullConfig, importFullConfig } = requir
 const { checkVersion, getChangelog, getReleases, applySystemUpdate } = require('./lib/version');
 const audit = require('./lib/audit');
 
+const {
+  loadConfig,
+  saveConfig,
+  hashPassword,
+  verifyPassword,
+  createSession,
+  validateSession,
+  destroySession
+} = require('./lib/auth');
+
 const app = express();
 const PORT = 8080;
-const SAMBA_BASE = '/srv/samba';
 
-if (!fs.existsSync(SAMBA_BASE)) {
-  fs.mkdirSync(SAMBA_BASE, { recursive: true });
+function getSambaBase() {
+  const cfg = loadConfig();
+  const basePath = cfg.storageBasePath || '/srv/samba';
+  if (!fs.existsSync(basePath)) {
+    try { fs.mkdirSync(basePath, { recursive: true }); } catch (e) {}
+  }
+  return basePath;
 }
 
 // Guarantee default [homes] section and permissions
@@ -40,15 +54,150 @@ function run(cmd) {
   });
 }
 
-// Helper logger
+// ============================
+// AUTHENTICATION & INITIAL SETUP
+// ============================
+app.get('/api/auth/status', (req, res) => {
+  const cfg = loadConfig();
+  const token = req.headers['x-auth-token'] || req.query.token;
+  const session = validateSession(token);
+
+  res.json({
+    setupCompleted: !!cfg.setupCompleted,
+    authenticated: !!session,
+    username: session ? session.username : null,
+    storageBasePath: cfg.storageBasePath || '/srv/samba'
+  });
+});
+
+app.post('/api/auth/setup', async (req, res) => {
+  const cfg = loadConfig();
+  if (cfg.setupCompleted) {
+    return res.status(400).json({ error: 'A rendszer telepítése már megtörtént!' });
+  }
+
+  const { username, password, storageBasePath } = req.body;
+  if (!username || !/^[a-zA-Z0-9_.-]+$/.test(username.trim())) {
+    return res.status(400).json({ error: 'Érvénytelen adminisztrátori felhasználónév!' });
+  }
+  if (!password || password.length < 4) {
+    return res.status(400).json({ error: 'A jelszónak legalább 4 karakteresnek kell lennie!' });
+  }
+
+  const baseDir = (storageBasePath && storageBasePath.trim()) ? path.resolve(storageBasePath.trim()) : '/srv/samba';
+  if (!fs.existsSync(baseDir)) {
+    try { fs.mkdirSync(baseDir, { recursive: true }); } catch (e) {}
+  }
+
+  const { hash, salt } = hashPassword(password);
+  cfg.setupCompleted = true;
+  cfg.adminUsername = username.trim();
+  cfg.passwordHash = hash;
+  cfg.salt = salt;
+  cfg.storageBasePath = baseDir;
+  saveConfig(cfg);
+
+  try {
+    await createUser({ username: username.trim(), password, fullName: 'System Administrator' }).catch(() => {});
+  } catch (e) {}
+
+  const token = createSession(username.trim());
+  audit.logEvent('auth', `Rendszer sikeresen telepítve, admin: ${username}`, username);
+
+  res.json({
+    success: true,
+    message: 'Telepítés sikeres!',
+    token,
+    username: username.trim(),
+    storageBasePath: baseDir
+  });
+});
+
+app.post('/api/auth/login', (req, res) => {
+  const cfg = loadConfig();
+  if (!cfg.setupCompleted) {
+    return res.status(428).json({ error: 'Rendszer telepítése szükséges!', setupRequired: true });
+  }
+
+  const { username, password } = req.body;
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Felhasználónév és jelszó kötelező!' });
+  }
+
+  if (username.trim() !== cfg.adminUsername || !verifyPassword(password, cfg.passwordHash, cfg.salt)) {
+    audit.logEvent('auth', `Hibás bejelentkezési kísérlet: ${username}`, 'guest');
+    return res.status(401).json({ error: 'Hibás felhasználónév vagy jelszó!' });
+  }
+
+  const token = createSession(username.trim());
+  audit.logEvent('auth', `Sikeres bejelentkezés: ${username}`, username);
+
+  res.json({
+    success: true,
+    token,
+    username: username.trim(),
+    storageBasePath: cfg.storageBasePath || '/srv/samba'
+  });
+});
+
+app.post('/api/auth/logout', (req, res) => {
+  const token = req.headers['x-auth-token'] || req.query.token;
+  destroySession(token);
+  res.json({ success: true });
+});
+
+app.put('/api/auth/storage-path', (req, res) => {
+  const { storageBasePath } = req.body;
+  if (!storageBasePath || !storageBasePath.trim()) {
+    return res.status(400).json({ error: 'A tárhely útvonal megadása kötelező!' });
+  }
+
+  const absPath = path.resolve(storageBasePath.trim());
+  if (!fs.existsSync(absPath)) {
+    try {
+      fs.mkdirSync(absPath, { recursive: true });
+    } catch (e) {
+      return res.status(400).json({ error: 'Nem sikerült a tárhely mappát létrehozni: ' + e.message });
+    }
+  }
+
+  const cfg = loadConfig();
+  cfg.storageBasePath = absPath;
+  saveConfig(cfg);
+
+  audit.logEvent('config', `Megfigyelt tárhely útvonala módosítva: ${absPath}`, 'admin');
+  res.json({ success: true, storageBasePath: absPath });
+});
+
+// Middleware for securing /api/* endpoints
+app.use('/api', (req, res, next) => {
+  if (req.path.startsWith('/auth/status') || req.path.startsWith('/auth/setup') || req.path.startsWith('/auth/login')) {
+    return next();
+  }
+
+  const cfg = loadConfig();
+  if (!cfg.setupCompleted) {
+    return res.status(428).json({ error: 'Rendszer telepítése szükséges!', setupRequired: true });
+  }
+
+  const token = req.headers['x-auth-token'] || req.query.token;
+  const session = validateSession(token);
+  if (!session) {
+    return res.status(401).json({ error: 'Hitelesítés szükséges!' });
+  }
+
+  req.user = session.username;
+  next();
+});
 
 // ============================
 // 1. DASHBOARD
 // ============================
 app.get('/api/dashboard', async (req, res) => {
   try {
+    const sambaBase = getSambaBase();
     const sysInfo = await getSystemInfo();
-    const storageInfo = await getStorageInfo(SAMBA_BASE);
+    const storageInfo = await getStorageInfo(sambaBase);
     const users = await getUsers();
     const groups = await getGroups();
     const shares = getShares();
@@ -307,7 +456,8 @@ app.get('/api/audit', async (req, res) => {
 // ============================
 app.get('/api/storage', async (req, res) => {
   try {
-    const storage = await getStorageInfo(SAMBA_BASE);
+    const sambaBase = getSambaBase();
+    const storage = await getStorageInfo(sambaBase);
     const quotas = getUserQuotas();
     res.json({ storage, quotas });
   } catch (e) {
@@ -413,9 +563,10 @@ app.post('/api/recycle/empty', async (req, res) => {
 // ============================
 app.get('/api/file-browser', async (req, res) => {
   try {
-    let reqPath = req.query.path ? path.resolve(req.query.path) : SAMBA_BASE;
-    if (!reqPath.startsWith(SAMBA_BASE) || !fs.existsSync(reqPath)) {
-      reqPath = SAMBA_BASE;
+    const sambaBase = getSambaBase();
+    let reqPath = req.query.path ? path.resolve(req.query.path) : sambaBase;
+    if (!reqPath.startsWith(sambaBase) || !fs.existsSync(reqPath)) {
+      reqPath = sambaBase;
     }
 
     const entries = fs.readdirSync(reqPath, { withFileTypes: true });
@@ -436,7 +587,7 @@ app.get('/api/file-browser', async (req, res) => {
       } catch (e) {}
     }
 
-    const parentPath = (reqPath !== SAMBA_BASE && reqPath.startsWith(SAMBA_BASE)) ? path.dirname(reqPath) : null;
+    const parentPath = (reqPath !== sambaBase && reqPath.startsWith(sambaBase)) ? path.dirname(reqPath) : null;
     res.json({ currentPath: reqPath, parentPath, items });
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -445,13 +596,14 @@ app.get('/api/file-browser', async (req, res) => {
 
 app.post('/api/folders/create', async (req, res) => {
   try {
+    const sambaBase = getSambaBase();
     const { basePath, name } = req.body;
     if (!name || !/^[a-zA-Z0-9_.-]+$/.test(name.trim())) {
       return res.status(400).json({ error: 'Érvénytelen mappanév!' });
     }
-    const resolvedBase = path.resolve(basePath || SAMBA_BASE);
-    if (!resolvedBase.startsWith(SAMBA_BASE)) {
-      return res.status(403).json({ error: 'Mappa csak a Samba gyökérkönyvtárban hozható létre!' });
+    const resolvedBase = path.resolve(basePath || sambaBase);
+    if (!resolvedBase.startsWith(sambaBase)) {
+      return res.status(403).json({ error: 'Mappa csak a megfigyelt gyökérkönyvtárban hozható létre!' });
     }
     const targetDir = path.join(resolvedBase, name.trim());
     if (!fs.existsSync(targetDir)) {
@@ -467,10 +619,11 @@ app.post('/api/folders/create', async (req, res) => {
 
 app.delete('/api/folders/delete', async (req, res) => {
   try {
+    const sambaBase = getSambaBase();
     const { folderPath } = req.query;
     if (!folderPath) return res.status(400).json({ error: 'folderPath megadása kötelező!' });
     const absPath = path.resolve(folderPath);
-    if (!absPath.startsWith(SAMBA_BASE) || absPath === SAMBA_BASE) {
+    if (!absPath.startsWith(sambaBase) || absPath === sambaBase) {
       return res.status(403).json({ error: 'Csak a Samba almappák törölhetők!' });
     }
     await run(`rm -rf "${absPath}" 2>&1`);

@@ -103,9 +103,24 @@ document.querySelectorAll('.modal-overlay').forEach(m => {
   });
 });
 
-// Generic API Fetch Helpers
+// Generic API Fetch Helpers & Token Handling
+function getAuthToken() {
+  return localStorage.getItem('nas_auth_token') || '';
+}
+
+function getAuthHeaders(extra = {}) {
+  const headers = { ...extra };
+  const token = getAuthToken();
+  if (token) headers['X-Auth-Token'] = token;
+  return headers;
+}
+
 async function apiGet(url) {
-  const res = await fetch(API + url);
+  const res = await fetch(API + url, { headers: getAuthHeaders() });
+  if (res.status === 401 || res.status === 428) {
+    checkAuthStatus();
+    throw new Error('Hitelesítés vagy telepítés szükséges');
+  }
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.error || 'Hálózati hiba');
@@ -116,9 +131,13 @@ async function apiGet(url) {
 async function apiPost(url, body = {}) {
   const res = await fetch(API + url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify(body)
   });
+  if (res.status === 401 || res.status === 428) {
+    checkAuthStatus();
+    throw new Error('Hitelesítés vagy telepítés szükséges');
+  }
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.error || 'Művelet sikertelen');
@@ -129,9 +148,13 @@ async function apiPost(url, body = {}) {
 async function apiPut(url, body = {}) {
   const res = await fetch(API + url, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify(body)
   });
+  if (res.status === 401 || res.status === 428) {
+    checkAuthStatus();
+    throw new Error('Hitelesítés vagy telepítés szükséges');
+  }
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.error || 'Művelet sikertelen');
@@ -140,7 +163,14 @@ async function apiPut(url, body = {}) {
 }
 
 async function apiDelete(url) {
-  const res = await fetch(API + url, { method: 'DELETE' });
+  const res = await fetch(API + url, {
+    method: 'DELETE',
+    headers: getAuthHeaders()
+  });
+  if (res.status === 401 || res.status === 428) {
+    checkAuthStatus();
+    throw new Error('Hitelesítés vagy telepítés szükséges');
+  }
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.error || 'Művelet sikertelen');
@@ -1404,16 +1434,129 @@ function formatBytes(bytes) {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
+// =========================================================
+// AUTHENTICATION & SETUP CONTROLLER
+// =========================================================
+let currentAuthStatus = { setupCompleted: false, authenticated: false, username: null, storageBasePath: '/srv/samba' };
+
+async function checkAuthStatus() {
+  try {
+    const res = await fetch('/api/auth/status', { headers: getAuthHeaders() });
+    const data = await res.json();
+    currentAuthStatus = data;
+
+    const setupOverlay = document.getElementById('setupOverlay');
+    const loginOverlay = document.getElementById('loginOverlay');
+    const settingsPathInput = document.getElementById('settingsStoragePath');
+
+    if (settingsPathInput && data.storageBasePath) {
+      settingsPathInput.value = data.storageBasePath;
+    }
+
+    if (!data.setupCompleted) {
+      if (setupOverlay) setupOverlay.style.display = 'flex';
+      if (loginOverlay) loginOverlay.style.display = 'none';
+      return false;
+    }
+
+    if (!data.authenticated) {
+      if (setupOverlay) setupOverlay.style.display = 'none';
+      if (loginOverlay) loginOverlay.style.display = 'flex';
+      return false;
+    }
+
+    // Authenticated
+    if (setupOverlay) setupOverlay.style.display = 'none';
+    if (loginOverlay) loginOverlay.style.display = 'none';
+
+    if (document.getElementById('topUserName')) document.getElementById('topUserName').textContent = data.username || 'Admin';
+    if (document.getElementById('topUserAvatar')) document.getElementById('topUserAvatar').textContent = (data.username || 'A').charAt(0).toUpperCase();
+
+    refreshDashboard();
+    return true;
+  } catch (e) {
+    console.error('Auth status check error:', e);
+    return false;
+  }
+}
+
+async function handleSetupSubmit(e) {
+  e.preventDefault();
+  const username = document.getElementById('setupUsername').value.trim();
+  const password = document.getElementById('setupPassword').value;
+  const passwordConfirm = document.getElementById('setupPasswordConfirm').value;
+  const storageBasePath = document.getElementById('setupStoragePath').value.trim() || '/srv/samba';
+
+  if (password !== passwordConfirm) {
+    return toast('A megadott jelszavak nem egyeznek!', 'error');
+  }
+
+  try {
+    const res = await apiPost('/api/auth/setup', { username, password, storageBasePath });
+    if (res.token) {
+      localStorage.setItem('nas_auth_token', res.token);
+    }
+    toast('Rendszer sikeresen telepítve és konfigurálva!', 'success');
+    await checkAuthStatus();
+  } catch (err) {
+    toast('Telepítési hiba: ' + err.message, 'error');
+  }
+}
+
+async function handleLoginSubmit(e) {
+  e.preventDefault();
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value;
+
+  try {
+    const res = await apiPost('/api/auth/login', { username, password });
+    if (res.token) {
+      localStorage.setItem('nas_auth_token', res.token);
+    }
+    toast('Sikeres bejelentkezés!', 'success');
+    await checkAuthStatus();
+  } catch (err) {
+    toast('Bejelentkezési hiba: ' + err.message, 'error');
+  }
+}
+
+async function logoutApp() {
+  try {
+    await apiPost('/api/auth/logout').catch(() => {});
+  } catch (e) {}
+  localStorage.removeItem('nas_auth_token');
+  toast('Kijelentkezve!', 'info');
+  await checkAuthStatus();
+}
+
+async function saveStoragePathFromSettings() {
+  const pathInput = document.getElementById('settingsStoragePath');
+  const storageBasePath = pathInput ? pathInput.value.trim() : '';
+
+  if (!storageBasePath) {
+    return toast('Kérlek add meg a megfigyelt tárhely útvonalát!', 'error');
+  }
+
+  try {
+    await apiPut('/api/auth/storage-path', { storageBasePath });
+    toast('Megfigyelt tárhely útvonala sikeresen elmentve!', 'success');
+    refreshDashboard();
+  } catch (e) {
+    toast('Hiba a mentéskor: ' + e.message, 'error');
+  }
+}
+
 // Global search bar
 document.getElementById('globalSearch').addEventListener('input', (e) => {
   const q = e.target.value.trim().toLowerCase();
   if (!q) return;
-  // Auto filter or navigate based on query
 });
 
-// Auto-refresh interval (15s)
-refreshDashboard();
+// Auto-refresh interval & initial auth check
+checkAuthStatus();
 setInterval(() => {
-  if (currentSection === 'dashboard') refreshDashboard();
-  else if (currentSection === 'connections') loadConnections();
+  if (currentAuthStatus.authenticated) {
+    if (currentSection === 'dashboard') refreshDashboard();
+    else if (currentSection === 'connections') loadConnections();
+  }
 }, 15000);
