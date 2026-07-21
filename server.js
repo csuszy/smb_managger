@@ -81,12 +81,21 @@ function run(cmd) {
   });
 }
 
+// Helper to extract JWT token from Authorization header or X-Auth-Token header
+function extractToken(req) {
+  let token = req.headers['authorization'] || req.headers['x-auth-token'] || req.query.token;
+  if (token && typeof token === 'string' && token.startsWith('Bearer ')) {
+    token = token.slice(7).trim();
+  }
+  return token;
+}
+
 // ============================
 // AUTHENTICATION & INITIAL SETUP
 // ============================
 app.get('/api/auth/status', (req, res) => {
   const cfg = loadConfig();
-  const token = req.headers['x-auth-token'] || req.query.token;
+  const token = extractToken(req);
   const session = validateSession(token);
 
   res.json({
@@ -232,7 +241,7 @@ app.use('/api', (req, res, next) => {
     return res.status(428).json({ error: 'Rendszer telepítése szükséges!', setupRequired: true });
   }
 
-  const token = req.headers['x-auth-token'] || req.query.token;
+  const token = extractToken(req);
   const session = validateSession(token);
   if (!session) {
     return res.status(401).json({ error: 'Hitelesítés szükséges!' });

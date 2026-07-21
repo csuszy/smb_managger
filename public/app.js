@@ -106,13 +106,16 @@ document.querySelectorAll('.modal-overlay').forEach(m => {
 
 // Generic API Fetch Helpers & Token Handling
 function getAuthToken() {
-  return localStorage.getItem('nas_auth_token') || '';
+  return localStorage.getItem('sambahub_jwt') || localStorage.getItem('nas_auth_token') || '';
 }
 
 function getAuthHeaders(extra = {}) {
   const headers = { ...extra };
   const token = getAuthToken();
-  if (token) headers['X-Auth-Token'] = token;
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+    headers['X-Auth-Token'] = token;
+  }
   return headers;
 }
 
@@ -1900,6 +1903,7 @@ async function checkAuthStatus() {
 
     const setupOverlay = document.getElementById('setupOverlay');
     const loginOverlay = document.getElementById('loginOverlay');
+    const appContainer = document.getElementById('appContainer');
     const settingsPathInput = document.getElementById('settingsStoragePath');
 
     if (settingsPathInput && data.storageBasePath) {
@@ -1907,28 +1911,36 @@ async function checkAuthStatus() {
     }
 
     if (!data.setupCompleted) {
+      if (appContainer) appContainer.style.display = 'none';
       if (setupOverlay) setupOverlay.style.display = 'flex';
       if (loginOverlay) loginOverlay.style.display = 'none';
       return false;
     }
 
     if (!data.authenticated) {
+      if (appContainer) appContainer.style.display = 'none';
       if (setupOverlay) setupOverlay.style.display = 'none';
       if (loginOverlay) loginOverlay.style.display = 'flex';
       return false;
     }
 
-    // Authenticated
+    // Authenticated -> Hide login/setup overlays and reveal application workspace
     if (setupOverlay) setupOverlay.style.display = 'none';
     if (loginOverlay) loginOverlay.style.display = 'none';
+    if (appContainer) appContainer.style.display = 'flex';
 
     if (document.getElementById('topUserName')) document.getElementById('topUserName').textContent = data.username || 'Admin';
+    if (document.getElementById('dropdownUserName')) document.getElementById('dropdownUserName').textContent = data.username || 'Admin';
     if (document.getElementById('topUserAvatar')) document.getElementById('topUserAvatar').textContent = (data.username || 'A').charAt(0).toUpperCase();
 
     refreshDashboard();
     return true;
   } catch (e) {
     console.error('Auth status check error:', e);
+    const appContainer = document.getElementById('appContainer');
+    const loginOverlay = document.getElementById('loginOverlay');
+    if (appContainer) appContainer.style.display = 'none';
+    if (loginOverlay) loginOverlay.style.display = 'flex';
     return false;
   }
 }
@@ -1972,6 +1984,7 @@ async function handleSetupSubmit(e) {
     await new Promise(r => setTimeout(r, 400));
 
     if (res.token) {
+      localStorage.setItem('sambahub_jwt', res.token);
       localStorage.setItem('nas_auth_token', res.token);
     }
 
@@ -1996,6 +2009,7 @@ async function handleLoginSubmit(e) {
   try {
     const res = await apiPost('/api/auth/login', { username, password });
     if (res.token) {
+      localStorage.setItem('sambahub_jwt', res.token);
       localStorage.setItem('nas_auth_token', res.token);
     }
     toast('Sikeres bejelentkezés!', 'success');
@@ -2009,6 +2023,7 @@ async function logoutApp() {
   try {
     await apiPost('/api/auth/logout').catch(() => {});
   } catch (e) {}
+  localStorage.removeItem('sambahub_jwt');
   localStorage.removeItem('nas_auth_token');
   toast('Kijelentkezve!', 'info');
   await checkAuthStatus();

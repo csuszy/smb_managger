@@ -525,11 +525,15 @@ tr:hover td { background: rgba(139,92,246,0.025); }
 }
 
 /* Auth & Setup Overlay Styles */
+.app-container {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+}
 .auth-overlay {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(13, 14, 21, 0.95);
-  backdrop-filter: blur(12px);
-  z-index: 1000;
+  background: var(--bg-dark);
+  z-index: 10000;
   display: flex; align-items: center; justify-content: center;
   padding: 20px;
 }
