@@ -407,17 +407,17 @@
       <div class="card mb-24" style="background:linear-gradient(135deg, rgba(139,92,246,0.1), rgba(6,182,212,0.1));border-color:var(--border-accent);">
         <div class="card-header-flex">
           <div>
-            <h3>🏠 Felhasználói Saját Home Mappák</h3>
-            <p class="text-muted" style="margin-top:4px;">A felhasználók saját mappái a <code>/srv/samba/homes/&lt;felhasználónév&gt;</code> útvonalon érhetőek el.</p>
+            <h3>🏠 Felhasználói Saját Tárhely Mappák</h3>
+            <p class="text-muted" style="margin-top:4px;">A felhasználók saját mappái a <code>/srv/samba/&lt;felhasználónév&gt;</code> útvonalon érhetőek el.</p>
           </div>
-          <button class="btn btn-outline btn-sm" onclick="loadInteractiveExplorer('/srv/samba/homes')">
-            🏠 Home Mappák Megnyitása
+          <button class="btn btn-outline btn-sm" onclick="loadInteractiveExplorer('/srv/samba')">
+            📂 Tárhely Mappák Megnyitása
           </button>
         </div>
         <div class="mt-12 p-12" style="background:var(--bg-input);border-radius:var(--radius-sm);font-size:0.85rem;">
-          <strong>💡 Hálózati Csatlakozási Útmutató (Windows / Mac):</strong><br>
-          <span class="text-muted">A felhasználó saját hálózati mappájának elérése:</span><br>
-          <code>\\192.168.1.22\&lt;felhasználónév&gt;</code> (pl. <code>\\192.168.1.22\csuszy</code>)
+          <strong>💡 Hálózati Csatlakozási Útmutató (Windows / Mac / SMB):</strong><br>
+          <span class="text-muted">A felhasználó saját hálózati mappájának közvetlen elérése:</span><br>
+          <code>\\&lt;szerver-ip&gt;\&lt;felhasználónév&gt;</code> (pl. <code>\\192.168.1.100\csuszy</code>)
         </div>
       </div>
 

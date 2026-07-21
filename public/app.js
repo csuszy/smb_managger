@@ -822,14 +822,37 @@ let currentFolderPermData = { users: [], groups: [] };
 
 async function loadPermissionsView() {
   try {
-    const sharesData = await apiGet('/api/shares');
-    const select = document.getElementById('permFolderSelect');
-    select.innerHTML = '<option value="">-- Mappa / Megosztás kiválasztása --</option>' +
-      '<option value="/srv/samba/homes">🏠 Felhasználói Home Mappák (/srv/samba/homes)</option>' +
-      sharesData.shares.map(s => `<option value="${s.path}">[${s.name}] — ${s.path}</option>`).join('');
+    const [sharesData, usersData] = await Promise.all([
+      apiGet('/api/shares').catch(() => ({ shares: [] })),
+      apiGet('/api/users').catch(() => ({ users: [] }))
+    ]);
 
+    const select = document.getElementById('permFolderSelect');
+    let html = '<option value="">-- Mappa / Megosztás kiválasztása --</option>';
+    html += '<option value="/srv/samba">📁 Samba Tárhely Gyökér (/srv/samba)</option>';
+
+    if (sharesData.shares && sharesData.shares.length > 0) {
+      html += '<optgroup label="SMB Megosztások">';
+      sharesData.shares.forEach(s => {
+        html += `<option value="${s.path}">📁 Megosztás: [${s.name}] — ${s.path}</option>`;
+      });
+      html += '</optgroup>';
+    }
+
+    if (usersData.users && usersData.users.length > 0) {
+      html += '<optgroup label="Felhasználói Mappák">';
+      usersData.users.forEach(u => {
+        const uPath = `/srv/samba/${u.username}`;
+        html += `<option value="${uPath}">👤 ${u.username} mappája (${uPath})</option>`;
+      });
+      html += '</optgroup>';
+    }
+
+    select.innerHTML = html;
     document.getElementById('permMatrixCard').style.display = 'none';
-  } catch (e) {}
+  } catch (e) {
+    console.error('loadPermissionsView error:', e);
+  }
 }
 
 async function loadPermissionsForSelectedFolder(targetPath = null) {
