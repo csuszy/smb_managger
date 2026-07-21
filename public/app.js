@@ -870,10 +870,23 @@ async function loadPermissionsForSelectedFolder(targetPath = null) {
     const data = await apiGet(`/api/permissions?folderPath=${encodeURIComponent(folderPath)}`);
     currentFolderPermData = data;
 
+    // Show POSIX owner/group/mode info bar
+    const infoBar = document.getElementById('permPosixInfoBar');
+    if (infoBar && data.owner) {
+      infoBar.style.display = '';
+      infoBar.innerHTML = `
+        <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;">
+          <div><span class="metric-label">Tulajdonos (Owner):</span> <strong style="color:var(--purple);">${data.owner}</strong></div>
+          <div><span class="metric-label">Csoport (Group):</span> <strong style="color:var(--cyan);">${data.group}</strong></div>
+          <div><span class="metric-label">Mód (Mode):</span> <code style="padding:4px 10px;background:var(--bg-input);border-radius:6px;">${data.mode}</code></div>
+        </div>
+      `;
+    }
+
     renderVisualPermCards();
     document.getElementById('permMatrixCard').style.display = '';
   } catch (e) {
-    toast('Hiba a jogosultságok lekérdezésekor', 'error');
+    toast('Hiba a jogosultságok lekérdezésekor: ' + (e.message || ''), 'error');
   }
 }
 
@@ -885,13 +898,14 @@ function renderVisualPermCards() {
   } else {
     uContainer.innerHTML = currentFolderPermData.users.map(u => {
       const lvl = u.level || 'none';
+      const ownerTag = u.isOwner ? '<span class="badge badge-amber" style="font-size:0.65rem;margin-left:6px;">👑 Tulajdonos</span>' : '';
       return `
         <div class="perm-card" id="perm-user-card-${u.name}">
           <div class="perm-card-header">
             <div class="perm-card-user">
               <div class="perm-card-avatar">${u.name.charAt(0).toUpperCase()}</div>
               <div>
-                <div class="perm-card-name">${u.name}</div>
+                <div class="perm-card-name">${u.name}${ownerTag}</div>
                 <div class="perm-card-fullname">${u.fullName || 'Samba Felhasználó'}</div>
               </div>
             </div>
@@ -916,13 +930,14 @@ function renderVisualPermCards() {
   } else {
     gContainer.innerHTML = currentFolderPermData.groups.map(g => {
       const lvl = g.level || 'none';
+      const ownerGroupTag = g.isOwnerGroup ? '<span class="badge badge-amber" style="font-size:0.65rem;margin-left:6px;">👑 Tulajdonos csoport</span>' : '';
       return `
         <div class="perm-card" id="perm-group-card-${g.name}">
           <div class="perm-card-header">
             <div class="perm-card-user">
               <div class="perm-card-avatar" style="background:var(--gradient-green);">👥</div>
               <div>
-                <div class="perm-card-name">${g.name}</div>
+                <div class="perm-card-name">${g.name}${ownerGroupTag}</div>
                 <div class="perm-card-fullname">Csoport</div>
               </div>
             </div>
