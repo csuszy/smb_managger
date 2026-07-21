@@ -16,6 +16,13 @@ const { getSambaGlobalConfig, saveSambaGlobalConfig, ensureDefaultHomesSection }
 const { getSettings, saveSettings, exportFullConfig, importFullConfig } = require('./lib/settings');
 const { checkVersion, getChangelog, getReleases, applySystemUpdate } = require('./lib/version');
 const audit = require('./lib/audit');
+const {
+  loadNotifConfig,
+  saveNotifConfig,
+  sendDiscordWebhook,
+  sendSmtpEmail,
+  notifyEvent
+} = require('./lib/notifications');
 
 const {
   loadConfig,
@@ -252,6 +259,7 @@ app.post('/api/users', async (req, res) => {
     if (req.body.quotaMB !== undefined) {
       await setUserQuota(result.username || req.body.username, req.body.quotaMB);
     }
+    notifyEvent('users', '👤 Új Felhasználó Létrehozva', `Új Samba/rendszer felhasználó lett létrehozva: ${result.username}`, 0x10b981).catch(() => {});
     res.json(result);
   } catch (e) {
     res.status(400).json({ error: e.message });
@@ -297,6 +305,7 @@ app.delete('/api/users/:username', async (req, res) => {
   try {
     const { username } = req.params;
     const result = await deleteUser(username);
+    notifyEvent('users', '🗑️ Felhasználó Törölve', `Felhasználó törölve a rendszerből: ${username}`, 0xef4444).catch(() => {});
     res.json(result);
   } catch (e) {
     res.status(400).json({ error: e.message });
@@ -631,6 +640,87 @@ app.delete('/api/folders/delete', async (req, res) => {
     res.json({ success: true });
   } catch (e) {
     res.status(500).json({ error: e.message });
+  }
+});
+
+// ============================
+// NOTIFICATION SYSTEM API
+// ============================
+app.get('/api/notifications/config', (req, res) => {
+  try {
+    const cfg = loadNotifConfig();
+    res.json({
+      config: {
+        ...cfg,
+        smtp: {
+          ...cfg.smtp,
+          pass: cfg.smtp.pass ? '••••••••' : ''
+        }
+      }
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.put('/api/notifications/config', (req, res) => {
+  try {
+    const current = loadNotifConfig();
+    const { discord, smtp, events } = req.body;
+
+    const updated = {
+      discord: {
+        enabled: discord ? !!discord.enabled : current.discord.enabled,
+        webhookUrl: discord ? (discord.webhookUrl || '').trim() : current.discord.webhookUrl
+      },
+      smtp: {
+        enabled: smtp ? !!smtp.enabled : current.smtp.enabled,
+        host: smtp ? (smtp.host || '').trim() : current.smtp.host,
+        port: smtp ? (parseInt(smtp.port) || 587) : current.smtp.port,
+        secure: smtp ? !!smtp.secure : current.smtp.secure,
+        user: smtp ? (smtp.user || '').trim() : current.smtp.user,
+        pass: (smtp && smtp.pass && smtp.pass !== '••••••••') ? smtp.pass : current.smtp.pass,
+        fromEmail: smtp ? (smtp.fromEmail || '').trim() : current.smtp.fromEmail,
+        toEmail: smtp ? (smtp.toEmail || '').trim() : current.smtp.toEmail
+      },
+      events: {
+        userChanges: events ? !!events.userChanges : current.events.userChanges,
+        shareChanges: events ? !!events.shareChanges : current.events.shareChanges,
+        serviceAlerts: events ? !!events.serviceAlerts : current.events.serviceAlerts,
+        storageAlerts: events ? !!events.storageAlerts : current.events.storageAlerts
+      }
+    };
+
+    saveNotifConfig(updated);
+    audit.logEvent('config', 'Értesítési beállítások frissítve', 'admin');
+    res.json({ success: true, message: 'Értesítési beállítások elmentve!' });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.post('/api/notifications/test', async (req, res) => {
+  try {
+    const { type, discordUrl, smtpConfig } = req.body;
+    const testTitle = '🔔 Teszt Értesítés';
+    const testMessage = `Sikeres teszt értesítés az SMB Manager rendszerből!\nIdőpont: ${new Date().toLocaleString('hu-HU')}`;
+
+    if (type === 'discord') {
+      const url = (discordUrl || '').trim() || loadNotifConfig().discord.webhookUrl;
+      if (!url) return res.status(400).json({ error: 'Nincs megadva Discord Webhook URL!' });
+      await sendDiscordWebhook(url, testTitle, testMessage, 0x10b981);
+      return res.json({ success: true, message: 'Discord teszt üzenet elküldve!' });
+    } else if (type === 'smtp') {
+      const cfg = smtpConfig || loadNotifConfig().smtp;
+      if (!cfg.host || !cfg.toEmail) return res.status(400).json({ error: 'Hiányzó SMTP host vagy fogadó e-mail!' });
+      await sendSmtpEmail(cfg, testTitle, testMessage);
+      return res.json({ success: true, message: 'SMTP teszt e-mail elküldve!' });
+    } else {
+      await notifyEvent('system', testTitle, testMessage, 0x10b981);
+      return res.json({ success: true, message: 'Teszt értesítés elküldve a beállított csatornákra!' });
+    }
+  } catch (e) {
+    res.status(400).json({ error: 'Értesítés küldési hiba: ' + e.message });
   }
 });
 

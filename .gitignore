@@ -14,6 +14,7 @@ data/github_token.json
 data/audit_log.json
 data/user_quotas.json
 data/app_config.json
+data/notification_config.json
 
 # System data scratch
 data/snapshots/*

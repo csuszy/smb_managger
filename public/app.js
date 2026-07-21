@@ -1263,9 +1263,84 @@ async function loadSettings() {
     await checkAppVersion(false);
     const data = await apiGet('/api/settings');
   } catch (e) {}
-  // Auto-load changelog & releases
+  // Auto-load changelog, releases & notification settings
   loadChangelog();
   loadReleasesList();
+  loadNotificationSettings();
+}
+
+async function loadNotificationSettings() {
+  try {
+    const res = await apiGet('/api/notifications/config');
+    const cfg = res.config || {};
+
+    if (cfg.discord) {
+      document.getElementById('notifDiscordEnabled').checked = !!cfg.discord.enabled;
+      document.getElementById('notifDiscordUrl').value = cfg.discord.webhookUrl || '';
+    }
+
+    if (cfg.smtp) {
+      document.getElementById('notifSmtpEnabled').checked = !!cfg.smtp.enabled;
+      document.getElementById('notifSmtpHost').value = cfg.smtp.host || '';
+      document.getElementById('notifSmtpPort').value = cfg.smtp.port || 587;
+      document.getElementById('notifSmtpUser').value = cfg.smtp.user || '';
+      document.getElementById('notifSmtpPass').value = cfg.smtp.pass || '';
+      document.getElementById('notifSmtpFrom').value = cfg.smtp.fromEmail || '';
+      document.getElementById('notifSmtpTo').value = cfg.smtp.toEmail || '';
+      document.getElementById('notifSmtpSecure').checked = !!cfg.smtp.secure;
+    }
+
+    if (cfg.events) {
+      document.getElementById('notifEventUsers').checked = cfg.events.userChanges !== false;
+      document.getElementById('notifEventShares').checked = cfg.events.shareChanges !== false;
+      document.getElementById('notifEventService').checked = cfg.events.serviceAlerts !== false;
+      document.getElementById('notifEventStorage').checked = cfg.events.storageAlerts !== false;
+    }
+  } catch (e) {
+    console.error('Notification settings load error:', e);
+  }
+}
+
+async function saveNotificationSettings() {
+  const body = {
+    discord: {
+      enabled: document.getElementById('notifDiscordEnabled').checked,
+      webhookUrl: document.getElementById('notifDiscordUrl').value.trim()
+    },
+    smtp: {
+      enabled: document.getElementById('notifSmtpEnabled').checked,
+      host: document.getElementById('notifSmtpHost').value.trim(),
+      port: parseInt(document.getElementById('notifSmtpPort').value) || 587,
+      user: document.getElementById('notifSmtpUser').value.trim(),
+      pass: document.getElementById('notifSmtpPass').value,
+      fromEmail: document.getElementById('notifSmtpFrom').value.trim(),
+      toEmail: document.getElementById('notifSmtpTo').value.trim(),
+      secure: document.getElementById('notifSmtpSecure').checked
+    },
+    events: {
+      userChanges: document.getElementById('notifEventUsers').checked,
+      shareChanges: document.getElementById('notifEventShares').checked,
+      serviceAlerts: document.getElementById('notifEventService').checked,
+      storageAlerts: document.getElementById('notifEventStorage').checked
+    }
+  };
+
+  try {
+    const res = await apiPut('/api/notifications/config', body);
+    toast(res.message || 'Értesítési beállítások elmentve!', 'success');
+  } catch (e) {
+    toast('Hiba a mentéskor: ' + e.message, 'error');
+  }
+}
+
+async function sendTestNotification() {
+  try {
+    toast('Teszt értesítés küldése folyamatban...', 'info');
+    const res = await apiPost('/api/notifications/test', {});
+    toast(res.message || 'Teszt értesítés elküldve!', 'success');
+  } catch (e) {
+    toast('Értesítési hiba: ' + e.message, 'error');
+  }
 }
 
 // =========================================================
