@@ -1233,6 +1233,9 @@ async function loadSettings() {
     await checkAppVersion(false);
     const data = await apiGet('/api/settings');
   } catch (e) {}
+  // Auto-load changelog & releases
+  loadChangelog();
+  loadReleasesList();
 }
 
 // =========================================================
@@ -1302,47 +1305,6 @@ async function applyAppUpdate() {
   }
 }
 
-async function pushToGitHub() {
-  const message = document.getElementById('pushCommitMsg').value.trim();
-  if (!message) return toast('Kérlek adj meg egy commit üzenetet!', 'error');
-
-  if (!confirm(`Push végrehajtása a GitHub-ra?\nCommit üzenet: "${message}"`)) return;
-
-  try {
-    toast('Push folyamatban...', 'info');
-    const res = await apiPost('/api/version/push', { message });
-    toast(res.message || 'Sikeresen push-olva!', 'success');
-    document.getElementById('pushCommitMsg').value = '';
-    checkAppVersion(false);
-  } catch (e) {
-    toast('Push hiba: ' + e.message, 'error');
-  }
-}
-
-async function createGitHubRelease() {
-  const tag = document.getElementById('releaseTag').value.trim();
-  const name = document.getElementById('releaseName').value.trim();
-  const body = document.getElementById('releaseBody').value.trim();
-  const prerelease = document.getElementById('releasePrerelease').checked;
-
-  if (!tag) return toast('A tag név megadása kötelező (pl. v2.1.0)!', 'error');
-
-  if (!confirm(`Új GitHub release létrehozása: ${tag}?`)) return;
-
-  try {
-    toast('Release létrehozása...', 'info');
-    const res = await apiPost('/api/version/release', { tag, name, body, prerelease });
-    toast(res.message || 'Release sikeresen létrehozva!', 'success');
-    document.getElementById('releaseTag').value = '';
-    document.getElementById('releaseName').value = '';
-    document.getElementById('releaseBody').value = '';
-    document.getElementById('releasePrerelease').checked = false;
-    loadReleasesList();
-  } catch (e) {
-    toast('Release hiba: ' + e.message, 'error');
-  }
-}
-
 async function loadChangelog() {
   const tbody = document.getElementById('changelogTableBody');
   tbody.innerHTML = '<tr><td colspan="4" class="text-muted">Betöltés...</td></tr>';
@@ -1378,7 +1340,7 @@ async function loadReleasesList() {
     const releases = data.releases || [];
 
     if (releases.length === 0) {
-      container.innerHTML = '<p class="text-muted">Nincsenek GitHub release-ek. Hozz létre egyet fent!</p>';
+      container.innerHTML = '<p class="text-muted">Nincsenek GitHub release-ek.</p>';
       return;
     }
 

@@ -14,7 +14,7 @@ const { getRecycleFiles, restoreRecycleFile, restoreRecycleFiles, deleteRecycleF
 const { getSnapshots, createSnapshot, restoreSnapshot, deleteSnapshot } = require('./lib/snapshots');
 const { getSambaGlobalConfig, saveSambaGlobalConfig, ensureDefaultHomesSection } = require('./lib/sambaConfig');
 const { getSettings, saveSettings, exportFullConfig, importFullConfig } = require('./lib/settings');
-const { checkVersion, getChangelog, getReleases, applySystemUpdate, createRelease, pushToGitHub } = require('./lib/version');
+const { checkVersion, getChangelog, getReleases, applySystemUpdate } = require('./lib/version');
 const audit = require('./lib/audit');
 
 const app = express();
@@ -101,7 +101,7 @@ app.post('/api/users', async (req, res) => {
   try {
     const result = await createUser(req.body);
     if (req.body.quotaMB !== undefined) {
-      await setUserQuota(req.body.username, req.body.quotaMB);
+      await setUserQuota(result.username || req.body.username, req.body.quotaMB);
     }
     res.json(result);
   } catch (e) {
@@ -414,7 +414,7 @@ app.post('/api/recycle/empty', async (req, res) => {
 app.get('/api/file-browser', async (req, res) => {
   try {
     let reqPath = req.query.path ? path.resolve(req.query.path) : SAMBA_BASE;
-    if (!fs.existsSync(reqPath)) {
+    if (!reqPath.startsWith(SAMBA_BASE) || !fs.existsSync(reqPath)) {
       reqPath = SAMBA_BASE;
     }
 
@@ -436,7 +436,7 @@ app.get('/api/file-browser', async (req, res) => {
       } catch (e) {}
     }
 
-    const parentPath = reqPath !== '/' ? path.dirname(reqPath) : null;
+    const parentPath = (reqPath !== SAMBA_BASE && reqPath.startsWith(SAMBA_BASE)) ? path.dirname(reqPath) : null;
     res.json({ currentPath: reqPath, parentPath, items });
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -449,7 +449,11 @@ app.post('/api/folders/create', async (req, res) => {
     if (!name || !/^[a-zA-Z0-9_.-]+$/.test(name.trim())) {
       return res.status(400).json({ error: 'Érvénytelen mappanév!' });
     }
-    const targetDir = path.join(path.resolve(basePath || SAMBA_BASE), name.trim());
+    const resolvedBase = path.resolve(basePath || SAMBA_BASE);
+    if (!resolvedBase.startsWith(SAMBA_BASE)) {
+      return res.status(403).json({ error: 'Mappa csak a Samba gyökérkönyvtárban hozható létre!' });
+    }
+    const targetDir = path.join(resolvedBase, name.trim());
     if (!fs.existsSync(targetDir)) {
       fs.mkdirSync(targetDir, { recursive: true });
       await run(`chmod 2775 "${targetDir}" 2>/dev/null`).catch(() => {});
@@ -466,8 +470,8 @@ app.delete('/api/folders/delete', async (req, res) => {
     const { folderPath } = req.query;
     if (!folderPath) return res.status(400).json({ error: 'folderPath megadása kötelező!' });
     const absPath = path.resolve(folderPath);
-    if (!absPath.startsWith(SAMBA_BASE) && !absPath.startsWith('/srv/samba')) {
-      return res.status(403).json({ error: 'Csak a Samba mappák törölhetők!' });
+    if (!absPath.startsWith(SAMBA_BASE) || absPath === SAMBA_BASE) {
+      return res.status(403).json({ error: 'Csak a Samba almappák törölhetők!' });
     }
     await run(`rm -rf "${absPath}" 2>&1`);
     audit.logEvent('files', `Mappa törölve: ${absPath}`, 'admin');
@@ -616,30 +620,11 @@ app.post('/api/version/update', async (req, res) => {
   }
 });
 
-app.post('/api/version/push', async (req, res) => {
-  try {
-    const { message } = req.body;
-    const result = await pushToGitHub(message || 'Update from SMB Manager Dashboard');
-    res.json(result);
-  } catch (e) {
-    res.status(400).json({ error: e.message });
-  }
-});
-
-app.post('/api/version/release', async (req, res) => {
-  try {
-    const { tag, name, body, prerelease } = req.body;
-    if (!tag) return res.status(400).json({ error: 'Tag név megadása kötelező!' });
-    const result = await createRelease(tag, name, body, prerelease);
-    res.json(result);
-  } catch (e) {
-    res.status(400).json({ error: e.message });
-  }
-});
 
 // ============================
 // START SERVER
 // ============================
+const pkg = require('./package.json');
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`\n  🚀 NAS SMB Manager v2.0 running at http://localhost:${PORT}\n`);
+  console.log(`\n  🚀 NAS SMB Manager v${pkg.version} running at http://localhost:${PORT}\n`);
 });
