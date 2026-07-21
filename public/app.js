@@ -1269,7 +1269,12 @@ async function loadPrintersView() {
     const tbody = document.getElementById('printersTableBody');
     const badge = document.getElementById('printerCountBadge');
     const select = document.getElementById('printerDefaultSelect');
+    const cupsBanner = document.getElementById('cupsMissingBanner');
     const config = data.config || {};
+
+    if (cupsBanner) {
+      cupsBanner.style.display = data.cupsInstalled === false ? 'block' : 'none';
+    }
 
     if (document.getElementById('printerServiceEnabled')) {
       document.getElementById('printerServiceEnabled').checked = !!config.enabled;
@@ -1283,23 +1288,91 @@ async function loadPrintersView() {
 
     if (select) {
       select.innerHTML = '<option value="">Rendszer alapértelmezett</option>' +
-        printers.map(p => `<option value="${p.name}" ${config.defaultPrinter === p.name ? 'selected' : ''}>${p.name}</option>`).join('');
+        printers.map(p => `<option value="${p.id || p.name}" ${(config.defaultPrinter === p.id || config.defaultPrinter === p.name) ? 'selected' : ''}>${p.name}</option>`).join('');
     }
 
     if (!printers || printers.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="3" class="text-muted">Nem található felderített nyomtató a rendszerben (CUPS / lpstat)</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" class="text-muted">Nem található felderített nyomtató. Kattints a "🔍 Wi-Fi / LAN Keresés" vagy "➕ IP Nyomtató Hozzáadása" gombra!</td></tr>';
       return;
     }
 
     tbody.innerHTML = printers.map(p => `
       <tr>
         <td><strong>🜁 ${p.name}</strong></td>
+        <td><code>${p.ip ? p.ip + ':' + (p.port || 9100) : 'Helyi CUPS'}</code></td>
         <td><span class="badge ${p.status === 'Printing' ? 'badge-amber' : 'badge-green'}">${p.status}</span></td>
-        <td>${data.defaultPrinter === p.name ? '<span class="badge badge-purple">Alapértelmezett</span>' : '—'}</td>
+        <td>${(data.defaultPrinter === p.name || data.defaultPrinter === p.id) ? '<span class="badge badge-purple">Alapértelmezett</span>' : '—'}</td>
+        <td>
+          ${p.type !== 'cups' ? `<button class="btn btn-ghost btn-sm" style="color:var(--red);" onclick="deleteManualPrinter('${p.id || p.ip}')">Törlés</button>` : '<span class="text-muted">Rendszer</span>'}
+        </td>
       </tr>
     `).join('');
   } catch (e) {
     toast('Hiba a nyomtatók betöltésekor: ' + e.message, 'error');
+  }
+}
+
+async function scanNetworkPrintersUi() {
+  try {
+    toast('Wi-Fi / LAN hálózati nyomtatók keresése folyamatban...', 'info');
+    const res = await apiPost('/api/printers/scan', {});
+    const found = res.printers || [];
+    if (found.length === 0) {
+      toast('Nem található nyomtató az alhálózaton a 9100 / 631 porton. Próbáld meg kézzel megadni az IP címét!', 'info');
+    } else {
+      for (const p of found) {
+        await apiPost('/api/printers/add-manual', p).catch(() => {});
+      }
+      toast(`${found.length} hálózati nyomtató felderítve és hozzáadva!`, 'success');
+      loadPrintersView();
+    }
+  } catch (e) {
+    toast('Keresési hiba: ' + e.message, 'error');
+  }
+}
+
+function openAddManualPrinterModal() {
+  document.getElementById('manualPrinterName').value = '';
+  document.getElementById('manualPrinterIp').value = '';
+  document.getElementById('manualPrinterPort').value = '9100';
+  document.getElementById('addPrinterModal').classList.add('open');
+}
+
+async function saveManualPrinterFromModal() {
+  const name = document.getElementById('manualPrinterName').value.trim();
+  const ip = document.getElementById('manualPrinterIp').value.trim();
+  const port = parseInt(document.getElementById('manualPrinterPort').value) || 9100;
+
+  if (!ip) return toast('Kérlek add meg a nyomtató IP címét!', 'error');
+
+  try {
+    await apiPost('/api/printers/add-manual', { name, ip, port });
+    toast('Hálózati nyomtató sikeresen hozzáadva!', 'success');
+    closeModal('addPrinterModal');
+    loadPrintersView();
+  } catch (e) {
+    toast('Hiba: ' + e.message, 'error');
+  }
+}
+
+async function deleteManualPrinter(id) {
+  try {
+    await apiDelete(`/api/printers/manual/${id}`);
+    toast('Hálózati nyomtató eltávolítva!', 'success');
+    loadPrintersView();
+  } catch (e) {
+    toast('Hiba: ' + e.message, 'error');
+  }
+}
+
+async function installCupsUi() {
+  try {
+    toast('CUPS nyomtatási csomagok telepítése folyamatban...', 'info');
+    const res = await apiPost('/api/printers/install-cups', {});
+    toast(res.message || 'CUPS sikeresen telepítve!', 'success');
+    loadPrintersView();
+  } catch (e) {
+    toast('Telepítési hiba: ' + e.message, 'error');
   }
 }
 

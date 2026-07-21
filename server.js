@@ -833,6 +833,42 @@ app.post('/api/printers/print', async (req, res) => {
   }
 });
 
+app.post('/api/printers/scan', async (req, res) => {
+  try {
+    const found = await scanNetworkPrinters();
+    res.json({ success: true, printers: found });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post('/api/printers/add-manual', (req, res) => {
+  try {
+    const result = addManualPrinter(req.body);
+    res.json(result);
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.delete('/api/printers/manual/:id', (req, res) => {
+  try {
+    const result = removeManualPrinter(req.params.id);
+    res.json(result);
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.post('/api/printers/install-cups', async (req, res) => {
+  try {
+    const result = await installCupsPackages();
+    res.json(result);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ============================
 // 12. SERVICE CONTROL
 // ============================

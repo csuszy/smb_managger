@@ -732,18 +732,34 @@
       <div class="section-title-bar">
         <div>
           <h1>🜁 Nyomtatók & Nyomtatási Központ</h1>
-          <p class="subtitle">Rendszernyomtatók automatikus felderítése, mappából nyomtatás és e-mail nyomtatás</p>
+          <p class="subtitle">Rendszernyomtatók automatikus felderítése, otthoni hálózati nyomtató hozzáadása IP alapján és mappából nyomtatás</p>
         </div>
-        <button class="btn btn-outline" onclick="loadPrintersView()">
-          🔄 Frissítés
-        </button>
+        <div class="flex-gap">
+          <button class="btn btn-outline" onclick="scanNetworkPrintersUi()">
+            🔍 Wi-Fi / LAN Keresés
+          </button>
+          <button class="btn btn-primary" onclick="openAddManualPrinterModal()">
+            ➕ IP Nyomtató Hozzáadása
+          </button>
+        </div>
+      </div>
+
+      <!-- CUPS missing banner if applicable -->
+      <div class="card mb-24" id="cupsMissingBanner" style="display:none;background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3);">
+        <div class="card-header-flex">
+          <div>
+            <h4 style="color:var(--amber);">⚠️ CUPS Nyomtatási Szolgáltatás Nincs Telepítve</h4>
+            <p class="text-muted mt-4">A helyi nyomtatóillesztők használatához telepítsd a CUPS nyomtatási csomagokat egy kattintással.</p>
+          </div>
+          <button class="btn btn-warning" onclick="installCupsUi()">⚡ CUPS Automatkus Telepítése</button>
+        </div>
       </div>
 
       <!-- Printers Status Overview -->
       <div class="dashboard-row">
         <div class="card flex-1">
           <div class="card-header-flex">
-            <h3>🜁 Felderített Rendszernyomtatók</h3>
+            <h3>🜁 Felderített Rendszer & Hálózati Nyomtatók</h3>
             <span class="badge badge-purple" id="printerCountBadge">0 Nyomtató</span>
           </div>
           <div class="table-wrap mt-16">
@@ -751,12 +767,14 @@
               <thead>
                 <tr>
                   <th>Nyomtató Neve</th>
+                  <th>IP / Típus</th>
                   <th>Állapot</th>
                   <th>Alapértelmezett</th>
+                  <th>Műveletek</th>
                 </tr>
               </thead>
               <tbody id="printersTableBody">
-                <tr><td colspan="3" class="text-muted">Kattints a "Frissítés" gombra a nyomtatók kereséséhez</td></tr>
+                <tr><td colspan="5" class="text-muted">Kattints a "Wi-Fi / LAN Keresés" gombra a hálózati nyomtatók felderítéséhez</td></tr>
               </tbody>
             </table>
           </div>
@@ -1333,6 +1351,30 @@
           Bejelentkezés ➔
         </button>
       </form>
+    </div>
+  </div>
+
+  <!-- Add Manual Printer Modal -->
+  <div class="modal-overlay" id="addPrinterModal">
+    <div class="modal">
+      <h3>➕ Hálózati Nyomtató Hozzáadása (Wi-Fi / LAN IP)</h3>
+      <p class="text-muted mt-8">Add meg az otthoni nyomtatód IP címét (pl. 192.168.1.100 vagy 192.168.1.50).</p>
+      <div class="form-group mt-16">
+        <label>Nyomtató Elnevezése *</label>
+        <input type="text" id="manualPrinterName" class="form-control" placeholder="pl. Otthoni HP / Canon Nyomtató">
+      </div>
+      <div class="form-group mt-12">
+        <label>Nyomtató IP Címe *</label>
+        <input type="text" id="manualPrinterIp" class="form-control" placeholder="192.168.1.100">
+      </div>
+      <div class="form-group mt-12">
+        <label>Port (Alapértelmezett: 9100 JetDirect / Raw)</label>
+        <input type="number" id="manualPrinterPort" class="form-control" value="9100">
+      </div>
+      <div class="modal-actions mt-24">
+        <button class="btn btn-ghost" onclick="closeModal('addPrinterModal')">Mégse</button>
+        <button class="btn btn-primary" onclick="saveManualPrinterFromModal()">Mentés & Hozzáadás</button>
+      </div>
     </div>
   </div>
 
