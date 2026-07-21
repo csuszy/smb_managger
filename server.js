@@ -48,6 +48,7 @@ const {
   saveConfig,
   hashPassword,
   verifyPassword,
+  verifyAdminCredentials,
   createSession,
   validateSession,
   destroySession
@@ -150,9 +151,9 @@ app.post('/api/auth/login', (req, res) => {
     return res.status(400).json({ error: 'Felhasználónév és jelszó kötelező!' });
   }
 
-  if (username.trim() !== cfg.adminUsername || !verifyPassword(password, cfg.passwordHash, cfg.salt)) {
+  if (!verifyAdminCredentials(username.trim(), password)) {
     audit.logEvent('auth', `Hibás bejelentkezési kísérlet: ${username}`, 'guest');
-    return res.status(401).json({ error: 'Hibás felhasználónév vagy jelszó!' });
+    return res.status(401).json({ error: 'Hibás felhasználónév vagy jelszó, vagy nincs Admin bejelentkezési jogosultságod!' });
   }
 
   const token = createSession(username.trim());

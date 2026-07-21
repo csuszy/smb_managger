@@ -271,10 +271,15 @@ function renderUsersTable(users) {
       ? u.groups.map(g => `<span class="badge badge-purple">${g}</span>`).join(' ')
       : '<span class="text-muted">—</span>';
 
+    const roleBadge = u.isAdmin
+      ? '<span class="badge badge-purple">🔐 Web Admin</span>'
+      : '<span class="badge badge-cyan">📁 Samba User</span>';
+
     return `
       <tr>
         <td><strong>${u.username}</strong></td>
         <td>${u.fullName || '—'}</td>
+        <td>${roleBadge}</td>
         <td>${groupsBadges}</td>
         <td>${u.quotaMB ? u.quotaMB + ' MB' : '<span class="text-muted">Korlátlan</span>'}</td>
         <td>${u.lastLogon || '<span class="text-muted">Ismeretlen</span>'}</td>
@@ -317,6 +322,7 @@ async function openAddUserModal() {
   document.getElementById('uModalPassword').value = '';
   document.getElementById('uModalPassGroup').style.display = '';
   document.getElementById('uModalQuota').value = '0';
+  if (document.getElementById('uModalRole')) document.getElementById('uModalRole').value = 'user';
 
   // Render groups checkboxes
   const groups = await apiGet('/api/groups').catch(() => ({ groups: [] }));
@@ -339,6 +345,7 @@ async function openEditUserModal(username) {
   document.getElementById('uModalFullName').value = u.fullName || '';
   document.getElementById('uModalPassGroup').style.display = 'none';
   document.getElementById('uModalQuota').value = u.quotaMB || '0';
+  if (document.getElementById('uModalRole')) document.getElementById('uModalRole').value = u.isAdmin ? 'admin' : 'user';
 
   const groups = await apiGet('/api/groups').catch(() => ({ groups: [] }));
   const container = document.getElementById('uModalGroupsCheckboxes');
@@ -356,18 +363,20 @@ async function saveUserFromModal() {
   const fullName = document.getElementById('uModalFullName').value.trim();
   const password = document.getElementById('uModalPassword').value;
   const quotaMB = parseInt(document.getElementById('uModalQuota').value) || 0;
+  const role = document.getElementById('uModalRole') ? document.getElementById('uModalRole').value : 'user';
+  const isAdmin = role === 'admin';
 
   const chks = document.querySelectorAll('#uModalGroupsCheckboxes .group-chk:checked');
   const groups = Array.from(chks).map(c => c.value);
 
   try {
     if (currentEditUser) {
-      await apiPut(`/api/users/${currentEditUser}`, { fullName, groups, quotaMB });
+      await apiPut(`/api/users/${currentEditUser}`, { fullName, groups, quotaMB, isAdmin });
       toast(`Felhasználó '${currentEditUser}' frissítve!`, 'success');
     } else {
       if (!username || !password) return toast('Felhasználónév és jelszó kötelező!', 'error');
-      await apiPost('/api/users', { username, password, fullName, groups, quotaMB });
-      toast(`Felhasználó '${username}' létrehozva!`, 'success');
+      await apiPost('/api/users', { username, password, fullName, groups, quotaMB, isAdmin, role });
+      toast(`Felhasználó '${username}' (${isAdmin ? 'Web Admin' : 'Samba Felhasználó'}) létrehozva!`, 'success');
     }
     closeModal('userModal');
     loadUsers();
@@ -1581,7 +1590,6 @@ function switchSettingsSubTab(subtabId) {
   if (activeContent) activeContent.classList.add('active');
 
   // Load sub-tab specific data
-  if (subtabId === 'samba') loadSambaGuiConfig2();
   if (subtabId === 'updates') { loadChangelog(); loadReleasesList(); }
   if (subtabId === 'notifications') loadNotificationSettings();
 }
@@ -1615,35 +1623,12 @@ async function handleChangeAdminPasswordSubmit(e) {
   }
 }
 
-async function loadSambaGuiConfig2() {
+async function saveRawSambaConfig() {
+  const content = document.getElementById('rawConfigTextarea').value;
   try {
-    const data = await apiGet('/api/samba-config');
-    const s = data.settings || {};
-
-    if (document.getElementById('cfgWorkgroup2')) document.getElementById('cfgWorkgroup2').value = s.workgroup || 'WORKGROUP';
-    if (document.getElementById('cfgNetbiosName2')) document.getElementById('cfgNetbiosName2').value = s.netbiosName || 'NAS-SERVER';
-    if (document.getElementById('cfgServerString2')) document.getElementById('cfgServerString2').value = s.serverString || 'NAS Samba Server';
-    if (document.getElementById('cfgMinProto2')) document.getElementById('cfgMinProto2').value = s.serverMinProtocol || 'SMB2_10';
-    if (document.getElementById('cfgMaxProto2')) document.getElementById('cfgMaxProto2').value = s.serverMaxProtocol || 'SMB3_11';
-    if (document.getElementById('cfgGuestOk2')) document.getElementById('cfgGuestOk2').value = s.guestOk || 'yes';
-    if (document.getElementById('cfgEncrypt2')) document.getElementById('cfgEncrypt2').value = s.smbEncrypt || 'auto';
-  } catch (e) {}
-}
-
-async function saveSambaGuiSettings2() {
-  const body = {
-    workgroup: document.getElementById('cfgWorkgroup2').value.trim(),
-    netbiosName: document.getElementById('cfgNetbiosName2').value.trim(),
-    serverString: document.getElementById('cfgServerString2').value.trim(),
-    serverMinProtocol: document.getElementById('cfgMinProto2').value,
-    serverMaxProtocol: document.getElementById('cfgMaxProto2').value,
-    guestOk: document.getElementById('cfgGuestOk2').value,
-    smbEncrypt: document.getElementById('cfgEncrypt2').value
-  };
-
-  try {
-    await apiPut('/api/samba-config', body);
-    toast('Samba globális beállítások frissítve!', 'success');
+    await apiPut('/api/samba-config/raw', { content });
+    toast('smb.conf sikeresen elmentve és Samba újraindítva!', 'success');
+    loadSambaGuiConfig();
   } catch (e) {
     toast('Hiba a mentéskor: ' + e.message, 'error');
   }

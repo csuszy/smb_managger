@@ -323,6 +323,7 @@
               <tr>
                 <th>Felhasználónév</th>
                 <th>Teljes Név</th>
+                <th>Szerepkör</th>
                 <th>Csoportok</th>
                 <th>Tárhely Kvóta</th>
                 <th>Utolsó Belépés</th>
@@ -894,8 +895,6 @@
           <button class="btn btn-primary" onclick="savePrinterSettings()">
             💾 Nyomtatási Beállítások Mentése
           </button>
-        </div>
-      </div>
       </div>
     </section>
 
@@ -905,20 +904,23 @@
     <section class="content-section" id="section-samba-config">
       <div class="section-title-bar">
         <div>
-          <h1>Samba Grafikus Konfiguráció</h1>
-          <p class="subtitle">SMB protokoll verziók, titkosítás, vendég hozzáférés és raw smb.conf szerkesztő</p>
+          <h1>⚙️ Samba Grafikus & Nyers Konfiguráció</h1>
+          <p class="subtitle">SMB protokoll verziók, titkosítás, vendég hozzáférés és közvetlen /etc/samba/smb.conf szerkesztő</p>
         </div>
+        <button class="btn btn-outline" onclick="loadSambaGuiConfig()">
+          🔄 Frissítés
+        </button>
       </div>
 
-      <div class="card mb-24">
-        <h3>Grafikus Beállítások</h3>
+      <div class="card mb-24" style="border-color:rgba(6,182,212,0.3);">
+        <h3>⚙️ Grafikus Beállítások</h3>
         <div class="form-grid mt-16">
           <div class="form-group">
             <label>Munkacsoport (Workgroup)</label>
             <input type="text" id="cfgWorkgroup" class="form-control">
           </div>
           <div class="form-group">
-            <label>Szerver Hálózati Név (NetBIOS Name / Név a hálózaton)</label>
+            <label>Szerver Hálózati Név (NetBIOS Name)</label>
             <input type="text" id="cfgNetbiosName" class="form-control" placeholder="pl. NAS-SERVER">
           </div>
           <div class="form-group">
@@ -958,17 +960,23 @@
           </div>
         </div>
         <div class="form-actions mt-16">
-          <button class="btn btn-primary" onclick="saveSambaGuiSettings()">Beállítások Mentése</button>
+          <button class="btn btn-primary" onclick="saveSambaGuiSettings()">💾 Beállítások Mentése</button>
         </div>
       </div>
 
       <!-- Raw Config Editor -->
-      <div class="card editor-card">
-        <div class="editor-toolbar">
-          <span class="editor-filename">📄 /etc/samba/smb.conf</span>
-          <span class="editor-status" id="rawConfigStatus">Betöltve</span>
+      <div class="card editor-card mt-24" style="border-color:rgba(139,92,246,0.3);">
+        <div class="editor-toolbar card-header-flex">
+          <div>
+            <span class="editor-filename" style="font-weight:700;">📄 Nyers Konfigurációs Szerkesztő: <code>/etc/samba/smb.conf</code></span>
+          </div>
+          <div class="flex-gap">
+            <span class="badge badge-purple" id="rawConfigStatus">Betöltve</span>
+            <button class="btn btn-outline btn-sm" onclick="loadSambaGuiConfig()">🔄 Újratöltés</button>
+            <button class="btn btn-primary btn-sm" onclick="saveRawSambaConfig()">💾 smb.conf Mentése</button>
+          </div>
         </div>
-        <textarea class="code-editor" id="rawConfigTextarea" spellcheck="false"></textarea>
+        <textarea class="code-editor mt-16" id="rawConfigTextarea" spellcheck="false" style="width:100%;height:380px;font-family:'JetBrains Mono',monospace;font-size:0.9rem;background:var(--bg-input);color:var(--text-primary);padding:16px;border:1px solid var(--border);border-radius:var(--radius-sm);"></textarea>
       </div>
     </section>
 
@@ -1171,55 +1179,15 @@
 
       <!-- TAB 3: SAMBA & SERVER -->
       <div class="subtab-content" id="subtab-content-samba">
-        <div class="card mb-24">
-          <h3>Samba Grafikus Beállítások</h3>
-          <div class="form-grid mt-16">
-            <div class="form-group">
-              <label>Munkacsoport (Workgroup)</label>
-              <input type="text" id="cfgWorkgroup2" class="form-control">
+        <div class="card mb-24" style="border-color:rgba(6,182,212,0.3);">
+          <div class="card-header-flex">
+            <div>
+              <h3>⚙️ Samba SMB Szerver Beállítások</h3>
+              <p class="text-muted mt-4">A Samba globális hálózati paramétereit, munkacsoportját és a nyers smb.conf szerkesztőt a Samba Beállítások menüben érheted el.</p>
             </div>
-            <div class="form-group">
-              <label>Szerver Hálózati Név (NetBIOS Name)</label>
-              <input type="text" id="cfgNetbiosName2" class="form-control" placeholder="pl. NAS-SERVER">
-            </div>
-            <div class="form-group">
-              <label>Szerver Leírás / Fejléc</label>
-              <input type="text" id="cfgServerString2" class="form-control">
-            </div>
-            <div class="form-group">
-              <label>Minimális SMB Protokoll</label>
-              <select id="cfgMinProto2" class="form-control">
-                <option value="SMB2_10">SMB2_10 (Ajánlott)</option>
-                <option value="SMB2">SMB2</option>
-                <option value="SMB3">SMB3</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Maximális SMB Protokoll</label>
-              <select id="cfgMaxProto2" class="form-control">
-                <option value="SMB3_11">SMB3_11 (Legújabb)</option>
-                <option value="SMB3">SMB3</option>
-                <option value="SMB2">SMB2</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Globális Vendég Hozzáférés</label>
-              <select id="cfgGuestOk2" class="form-control">
-                <option value="no">Tiltva (Biztonságos)</option>
-                <option value="yes">Engedélyezve (Bad User)</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>SMB Titkosítás (Encryption)</label>
-              <select id="cfgEncrypt2" class="form-control">
-                <option value="auto">Automatikus (Auto)</option>
-                <option value="required">Kötelező (Required)</option>
-                <option value="off">Kikapcsolva (Off)</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-actions mt-16">
-            <button class="btn btn-primary" onclick="saveSambaGuiSettings2()">Samba Beállítások Mentése</button>
+            <button class="btn btn-primary" onclick="switchSection('samba-config')">
+              ⚙️ Samba Konfiguráció Megnyitása ➔
+            </button>
           </div>
         </div>
       </div>
@@ -1310,6 +1278,14 @@
       <div class="form-group">
         <label>Teljes Név</label>
         <input type="text" id="uModalFullName" class="form-control" placeholder="pl. Kovács János">
+      </div>
+      <div class="form-group mt-12">
+        <label>Felhasználói Szerepkör (Role) *</label>
+        <select id="uModalRole" class="form-control">
+          <option value="user" selected>📁 Hagyományos Samba Felhasználó (SMB elérés)</option>
+          <option value="admin">🔐 Web Adminisztrátor (SambaHub Bejelentkezés)</option>
+        </select>
+        <small class="text-muted mt-4" style="display:block;">A Web Adminisztrátorok be tudnak jelentkezni a SambaHub felületre és kezelni a szervert.</small>
       </div>
       <div class="form-group" id="uModalPassGroup">
         <label>Jelszó *</label>
