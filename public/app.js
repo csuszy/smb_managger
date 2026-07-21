@@ -1366,13 +1366,31 @@ async function deleteManualPrinter(id) {
 }
 
 async function installCupsUi() {
+  const modal = document.getElementById('installProgressModal');
+  if (modal) modal.classList.add('open');
+
+  updateProgressBar('installProgressBarFill', 'installProgressStatusText', 'installProgressPercentText', 10, 'Csomaglista frissítése (apt update)...');
+
   try {
-    toast('CUPS nyomtatási csomagok telepítése folyamatban...', 'info');
-    const res = await apiPost('/api/printers/install-cups', {});
-    toast(res.message || 'CUPS sikeresen telepítve!', 'success');
+    await new Promise(r => setTimeout(r, 500));
+    updateProgressBar('installProgressBarFill', 'installProgressStatusText', 'installProgressPercentText', 35, 'CUPS nyomtatási illesztők letöltése & telepítése...');
+
+    const resPromise = apiPost('/api/printers/install-cups', {});
+
+    await new Promise(r => setTimeout(r, 1200));
+    updateProgressBar('installProgressBarFill', 'installProgressStatusText', 'installProgressPercentText', 75, 'CUPS szolgáltatások elindítása & konfigurálása...');
+
+    const res = await resPromise;
+
+    updateProgressBar('installProgressBarFill', 'installProgressStatusText', 'installProgressPercentText', 100, 'CUPS telepítés sikeres!');
+    await new Promise(r => setTimeout(r, 800));
+
+    toast(res.message || 'CUPS nyomtató csomagok sikeresen telepítve!', 'success');
     loadPrintersView();
   } catch (e) {
     toast('Telepítési hiba: ' + e.message, 'error');
+  } finally {
+    if (modal) modal.classList.remove('open');
   }
 }
 
@@ -1788,6 +1806,16 @@ async function checkAuthStatus() {
   }
 }
 
+function updateProgressBar(fillId, statusId, percentId, percent, statusText) {
+  const fill = document.getElementById(fillId);
+  const status = document.getElementById(statusId);
+  const perc = document.getElementById(percentId);
+
+  if (fill) fill.style.width = `${percent}%`;
+  if (status && statusText) status.textContent = statusText;
+  if (perc) perc.textContent = `${percent}%`;
+}
+
 async function handleSetupSubmit(e) {
   e.preventDefault();
   const username = document.getElementById('setupUsername').value.trim();
@@ -1799,15 +1827,37 @@ async function handleSetupSubmit(e) {
     return toast('A megadott jelszavak nem egyeznek!', 'error');
   }
 
+  const pBox = document.getElementById('setupProgressBox');
+  const btn = document.getElementById('setupSubmitBtn');
+
+  if (pBox) pBox.style.display = 'block';
+  if (btn) btn.disabled = true;
+
+  updateProgressBar('setupProgressBarFill', 'setupProgressStatusText', 'setupProgressPercentText', 15, 'Rendszerbeállítások ellenőrzése...');
+
   try {
+    await new Promise(r => setTimeout(r, 400));
+    updateProgressBar('setupProgressBarFill', 'setupProgressStatusText', 'setupProgressPercentText', 45, 'Adminisztrátori fiók & biztonsági kulcs generálása...');
+
     const res = await apiPost('/api/auth/setup', { username, password, storageBasePath });
+
+    updateProgressBar('setupProgressBarFill', 'setupProgressStatusText', 'setupProgressPercentText', 85, 'Tárhely könyvtár inicializálása...');
+    await new Promise(r => setTimeout(r, 400));
+
     if (res.token) {
       localStorage.setItem('nas_auth_token', res.token);
     }
-    toast('Rendszer sikeresen telepítve és konfigurálva!', 'success');
+
+    updateProgressBar('setupProgressBarFill', 'setupProgressStatusText', 'setupProgressPercentText', 100, 'Telepítés sikeres! Bejelentkezés...');
+    await new Promise(r => setTimeout(r, 600));
+
+    toast('SambaHub sikeresen telepítve és konfigurálva!', 'success');
     await checkAuthStatus();
   } catch (err) {
     toast('Telepítési hiba: ' + err.message, 'error');
+  } finally {
+    if (pBox) pBox.style.display = 'none';
+    if (btn) btn.disabled = false;
   }
 }
 

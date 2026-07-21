@@ -1319,7 +1319,19 @@
           <input type="text" id="setupStoragePath" class="form-control" value="/srv/samba" placeholder="/srv/samba vagy /mnt/storage">
           <small class="text-muted mt-4" style="display:block;">Ezt az útvonalat fogja figyelni a rendszer a tárhely statisztikákhoz és fájlböngészéshez.</small>
         </div>
-        <button type="submit" class="btn btn-primary btn-block mt-24" style="width:100%;padding:12px;font-size:1rem;">
+
+        <!-- Setup Progress Bar -->
+        <div class="progress-bar-container" id="setupProgressBox" style="display:none;">
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="setupProgressBarFill"></div>
+          </div>
+          <div class="progress-bar-label">
+            <span id="setupProgressStatusText">Telepítés előkészítése...</span>
+            <span id="setupProgressPercentText">0%</span>
+          </div>
+        </div>
+
+        <button type="submit" id="setupSubmitBtn" class="btn btn-primary btn-block mt-24" style="width:100%;padding:12px;font-size:1rem;">
           ✨ Telepítés & Bejelentkezés
         </button>
       </form>
@@ -1374,6 +1386,24 @@
       <div class="modal-actions mt-24">
         <button class="btn btn-ghost" onclick="closeModal('addPrinterModal')">Mégse</button>
         <button class="btn btn-primary" onclick="saveManualPrinterFromModal()">Mentés & Hozzáadás</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Installation Progress Modal -->
+  <div class="modal-overlay" id="installProgressModal">
+    <div class="modal" style="max-width:480px;">
+      <h3 id="installModalTitle">⚡ Telepítés Folyamatban...</h3>
+      <p class="text-muted mt-8" id="installModalSub">Kérlek várj, a SambaHub végrehajtja a telepítést.</p>
+      
+      <div class="progress-bar-container mt-24">
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="installProgressBarFill"></div>
+        </div>
+        <div class="progress-bar-label">
+          <span id="installProgressStatusText">Csomagok előkészítése...</span>
+          <span id="installProgressPercentText">0%</span>
+        </div>
       </div>
     </div>
   </div>
