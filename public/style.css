@@ -572,3 +572,86 @@ tr:hover td { background: rgba(139,92,246,0.025); }
   margin-top: 6px; color: var(--text-secondary);
 }
 
+/* Profile Dropdown Menu */
+.user-profile:hover {
+  background: var(--bg-hover);
+}
+.profile-dropdown-menu {
+  position: absolute;
+  top: 100%; right: 0;
+  margin-top: 8px;
+  width: 260px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-modal);
+  padding: 8px 0;
+  z-index: 500;
+  animation: fadeInDown 0.15s ease-out;
+}
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.dropdown-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px;
+  font-size: 0.88rem;
+}
+.dropdown-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 6px 0;
+}
+.dropdown-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px;
+  font-size: 0.85rem; font-weight: 500;
+  color: var(--text-primary);
+  cursor: pointer;
+  text-decoration: none;
+  transition: var(--transition);
+}
+.dropdown-item:hover {
+  background: var(--bg-hover);
+  color: var(--purple);
+}
+.dropdown-item.style-danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--red);
+}
+
+/* Categorized Sub-Tabs */
+.subtabs-bar {
+  display: flex; gap: 8px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+  overflow-x: auto;
+}
+.subtab-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.88rem; font-weight: 600;
+  padding: 8px 16px; border-radius: var(--radius-sm);
+  cursor: pointer; transition: var(--transition);
+  white-space: nowrap;
+}
+.subtab-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+.subtab-btn.active {
+  background: var(--gradient-purple);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+.subtab-content {
+  display: none;
+  animation: fadeIn 0.2s ease-out;
+}
+.subtab-content.active {
+  display: block;
+}
+

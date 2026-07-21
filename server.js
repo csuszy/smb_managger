@@ -172,6 +172,31 @@ app.post('/api/auth/logout', (req, res) => {
   res.json({ success: true });
 });
 
+app.put('/api/auth/change-admin-password', (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const cfg = loadConfig();
+
+    if (!verifyPassword(currentPassword, cfg.passwordHash, cfg.salt)) {
+      return res.status(400).json({ error: 'A jelenlegi jelszó helytelen!' });
+    }
+
+    if (!newPassword || newPassword.length < 4) {
+      return res.status(400).json({ error: 'Az új jelszónak legalább 4 karakteresnek kell lennie!' });
+    }
+
+    const { hash, salt } = hashPassword(newPassword);
+    cfg.passwordHash = hash;
+    cfg.salt = salt;
+    saveConfig(cfg);
+
+    audit.logEvent('auth', 'Adminisztrátori jelszó sikeresen módosítva', cfg.adminUsername || 'admin');
+    res.json({ success: true, message: 'Adminisztrátori jelszó sikeresen megváltoztatva!' });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.put('/api/auth/storage-path', (req, res) => {
   const { storageBasePath } = req.body;
   if (!storageBasePath || !storageBasePath.trim()) {

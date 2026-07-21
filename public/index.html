@@ -129,12 +129,40 @@
         <span class="status-dot offline"></span>
         <span id="topStatusLabel">Betöltés...</span>
       </div>
-      <div class="user-profile" id="topUserProfile" style="display:flex;align-items:center;gap:10px;">
-        <div class="avatar" id="topUserAvatar">A</div>
-        <span class="user-name" id="topUserName">Administrator</span>
-        <button class="btn btn-ghost btn-sm" onclick="logoutApp()" title="Kijelentkezés" style="padding:4px 8px;font-size:0.8rem;color:var(--text-muted);">
-          🚪 Kijelentkezés
-        </button>
+      <div class="user-profile-wrap" style="position:relative;">
+        <div class="user-profile" id="topUserProfile" onclick="toggleProfileDropdown(event)" style="display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;padding:6px 12px;border-radius:8px;border:1px solid var(--border);">
+          <div class="avatar" id="topUserAvatar">A</div>
+          <span class="user-name" id="topUserName">Administrator</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+
+        <!-- Profile Dropdown Menu -->
+        <div class="profile-dropdown-menu" id="profileDropdownMenu" style="display:none;">
+          <div class="dropdown-header">
+            <strong id="dropdownUserName">Adminisztrátor</strong>
+            <span class="badge badge-purple">Admin</span>
+          </div>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" onclick="openSettingsSubTab('notifications')">
+            <span>🔔 Értesítések Beállításai</span>
+          </a>
+          <a class="dropdown-item" onclick="openSettingsSubTab('updates')">
+            <span>📦 Verzió & Frissítések</span>
+          </a>
+          <a class="dropdown-item" onclick="openSettingsSubTab('samba')">
+            <span>⚙️ Samba SMB Beállítások</span>
+          </a>
+          <a class="dropdown-item" onclick="openSettingsSubTab('storage')">
+            <span>💾 Tárhely Útvonal & Mentés</span>
+          </a>
+          <a class="dropdown-item" onclick="openSettingsSubTab('profile')">
+            <span>🔐 Profil & Jelszó Módosítás</span>
+          </a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item style-danger" onclick="logoutApp()">
+            <span>🚪 Kijelentkezés</span>
+          </a>
+        </div>
       </div>
     </div>
   </header>
@@ -945,208 +973,324 @@
     </section>
 
     <!-- ========================================================= -->
-    <!-- 12. SYSTEM SETTINGS & IMPORT/EXPORT -->
+    <!-- 12. SYSTEM SETTINGS & PROFILES -->
     <!-- ========================================================= -->
     <section class="content-section" id="section-settings">
       <div class="section-title-bar">
         <div>
-          <h1>Rendszer Beállítások & Export/Import</h1>
-          <p class="subtitle">Konfiguráció mentése, visszaállítása és alkalmazás beállítások</p>
+          <h1>⚙️ Profil & Rendszer Beállítási Központ</h1>
+          <p class="subtitle">Kategóriákra bontott fiók, értesítés, verzió frissítés és SMB szerver beállítások</p>
         </div>
       </div>
 
-      <div class="dashboard-row">
-        <!-- Version Control & Auto Update Widget -->
-        <div class="card flex-1" style="border-color:var(--border-accent);">
+      <!-- Sub-Tabs Navigation Bar -->
+      <div class="subtabs-bar mb-24">
+        <button class="subtab-btn active" id="subtab-btn-notifications" onclick="switchSettingsSubTab('notifications')">
+          🔔 Értesítések
+        </button>
+        <button class="subtab-btn" id="subtab-btn-updates" onclick="switchSettingsSubTab('updates')">
+          📦 Frissítések & GitHub
+        </button>
+        <button class="subtab-btn" id="subtab-btn-samba" onclick="switchSettingsSubTab('samba')">
+          ⚙️ SMB & Szerver
+        </button>
+        <button class="subtab-btn" id="subtab-btn-storage" onclick="switchSettingsSubTab('storage')">
+          💾 Tárhely & Export
+        </button>
+        <button class="subtab-btn" id="subtab-btn-profile" onclick="switchSettingsSubTab('profile')">
+          🔐 Profil & Biztonság
+        </button>
+      </div>
+
+      <!-- TAB 1: NOTIFICATIONS -->
+      <div class="subtab-content active" id="subtab-content-notifications">
+        <div class="card" style="border-color:rgba(139,92,246,0.3);">
           <div class="card-header-flex">
             <div>
-              <h3>🐙 Verziókezelés & GitHub Frissítés</h3>
-              <p class="text-muted mt-8">Automatikusan felismeri a legújabb kiadásokat a GitHub repozitóriumból (<code id="versionRepoLinkText">csuszy/smb_managger</code>).</p>
+              <h3>🔔 Rendszer Értesítések (Discord Webhook & SMTP Email)</h3>
+              <p class="text-muted mt-4">Kapj automatikus értesítést a rendszereseményekről Discord csatornán vagy e-mailben.</p>
             </div>
-            <span class="badge badge-purple" id="versionStatusBadge">Ellenőrzés...</span>
-          </div>
-
-          <div class="sys-info-list mt-16">
-            <div class="sys-info-item"><span>Telepített Verzió:</span> <strong id="verCurrentText">v0.2.0</strong></div>
-            <div class="sys-info-item"><span>Jelenlegi Git Commit:</span> <code id="verCommitText">—</code></div>
-            <div class="sys-info-item"><span>GitHub Legújabb Verzió:</span> <strong id="verLatestText">—</strong></div>
-            <div class="sys-info-item"><span>Legutóbbi Commit Üzenet:</span> <small class="text-muted" id="verCommitMsg">—</small></div>
-            <div class="sys-info-item"><span>Utolsó Frissítés:</span> <small class="text-muted" id="verPublishedAt">—</small></div>
-          </div>
-
-          <div class="flex-gap mt-16" style="align-items:center;flex-wrap:wrap;">
-            <button class="btn btn-outline" onclick="checkAppVersion(true)">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-              Frissítések Ellenőrzése
+            <button class="btn btn-outline btn-sm" onclick="sendTestNotification()">
+              🧪 Teszt Értesítés Küldése
             </button>
-            <button class="btn btn-primary" id="verApplyBtn" style="display:none;" onclick="applyAppUpdate()">
-              🚀 1-Kattintásos Rendszer Frissítése
-            </button>
-            <a href="https://github.com/csuszy/smb_managger" target="_blank" class="btn btn-ghost btn-sm">🐙 GitHub Repozitórium ↗</a>
           </div>
-        </div>
 
-        <!-- Storage Path Configuration Widget -->
-        <div class="card flex-1" style="border-color:rgba(6,182,212,0.3);">
-          <h3>💾 Megfigyelt Tárhely Könyvtár (Storage Base Path)</h3>
-          <p class="text-muted mt-8">Itt adhatod meg azt az útvonalat, ahol a csatolt tároló vagy SMB megosztási mappák találhatók (pl. <code>/srv/samba</code> vagy <code>/mnt/storage</code>).</p>
-          <div class="form-group mt-16">
-            <label>Megfigyelt Tárhely Útvonal *</label>
-            <div style="display:flex;gap:10px;">
-              <input type="text" id="settingsStoragePath" class="form-control" placeholder="/srv/samba">
-              <button class="btn btn-primary" onclick="saveStoragePathFromSettings()">Mentés</button>
+          <div class="dashboard-row mt-16">
+            <!-- Discord Webhook Box -->
+            <div class="card flex-1" style="background:var(--bg-input);">
+              <div class="card-header-flex mb-12">
+                <strong style="display:flex;align-items:center;gap:8px;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.093.252-.192.372-.291a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.009c.12.099.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+                  Discord Webhook Értesítés
+                </strong>
+                <label class="checkbox-row" style="margin:0;">
+                  <input type="checkbox" id="notifDiscordEnabled"> Engedélyezve
+                </label>
+              </div>
+              <div class="form-group">
+                <label>Discord Webhook URL</label>
+                <input type="text" id="notifDiscordUrl" class="form-control" placeholder="https://discord.com/api/webhooks/...">
+              </div>
+            </div>
+
+            <!-- SMTP Email Box -->
+            <div class="card flex-1" style="background:var(--bg-input);">
+              <div class="card-header-flex mb-12">
+                <strong style="display:flex;align-items:center;gap:8px;">
+                  ✉️ SMTP E-mail Értesítés
+                </strong>
+                <label class="checkbox-row" style="margin:0;">
+                  <input type="checkbox" id="notifSmtpEnabled"> Engedélyezve
+                </label>
+              </div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>SMTP Szerver Host *</label>
+                  <input type="text" id="notifSmtpHost" class="form-control" placeholder="smtp.gmail.com">
+                </div>
+                <div class="form-group">
+                  <label>Port (pl. 587 / 465)</label>
+                  <input type="number" id="notifSmtpPort" class="form-control" value="587">
+                </div>
+                <div class="form-group">
+                  <label>SMTP Felhasználó / E-mail</label>
+                  <input type="text" id="notifSmtpUser" class="form-control" placeholder="user@gmail.com">
+                </div>
+                <div class="form-group">
+                  <label>SMTP Jelszó / App Password</label>
+                  <input type="password" id="notifSmtpPass" class="form-control" placeholder="••••••••">
+                </div>
+                <div class="form-group">
+                  <label>Küldő E-mail (From)</label>
+                  <input type="email" id="notifSmtpFrom" class="form-control" placeholder="nas-alert@domain.com">
+                </div>
+                <div class="form-group">
+                  <label>Fogadó E-mail (To) *</label>
+                  <input type="email" id="notifSmtpTo" class="form-control" placeholder="admin@domain.com">
+                </div>
+              </div>
+              <div class="mt-8">
+                <label class="checkbox-row"><input type="checkbox" id="notifSmtpSecure"> SSL/TLS Titkosítás (Port 465)</label>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Export / Import Widget -->
-        <div class="card flex-1">
-          <h3>Konfiguráció Export / Import</h3>
-          <p class="text-muted mt-8">Töltsd le a teljes NAS konfigurációt JSON-ben, vagy állítsd vissza egy mentésből.</p>
-          <div class="flex-gap mt-16">
-            <a href="/api/settings/export" class="btn btn-primary" download>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              Konfiguráció Letöltése (Export)
-            </a>
-            <button class="btn btn-outline" onclick="triggerImportConfig()">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              Importálás (Restore)
+          <!-- Event Toggles -->
+          <div class="mt-16">
+            <label style="font-size:0.85rem;font-weight:700;color:var(--text-secondary);">MELY ESEMÉNYEKRŐL KÉRSZ ÉRTESÍTÉST?</label>
+            <div class="checkbox-options-grid mt-8">
+              <label class="checkbox-row"><input type="checkbox" id="notifEventUsers" checked> 👤 Felhasználó műveletek (Létrehozás, Törlés)</label>
+              <label class="checkbox-row"><input type="checkbox" id="notifEventShares" checked> 📁 SMB Megosztás változások</label>
+              <label class="checkbox-row"><input type="checkbox" id="notifEventService" checked> ⚡ Samba Szolgáltatás állapotváltozás</label>
+              <label class="checkbox-row"><input type="checkbox" id="notifEventStorage" checked> 💾 Tárhely és Kvóta riasztások</label>
+            </div>
+          </div>
+
+          <div class="form-actions mt-16">
+            <button class="btn btn-primary" onclick="saveNotificationSettings()">
+              💾 Értesítési Beállítások Mentése
             </button>
-            <input type="file" id="importFileInput" style="display:none;" onchange="handleImportConfig(event)">
           </div>
         </div>
       </div>
 
-      <!-- Notification System Settings Card -->
-      <div class="card mt-24" style="border-color:rgba(139,92,246,0.3);">
-        <div class="card-header-flex">
-          <div>
-            <h3>🔔 Rendszer Értesítések (Discord Webhook & SMTP Email)</h3>
-            <p class="text-muted mt-4">Kapj automatikus értesítést a rendszereseményekről Discord csatornán vagy e-mailben.</p>
+      <!-- TAB 2: UPDATES & GITHUB -->
+      <div class="subtab-content" id="subtab-content-updates">
+        <div class="dashboard-row">
+          <!-- Version Control & Auto Update Widget -->
+          <div class="card flex-1" style="border-color:var(--border-accent);">
+            <div class="card-header-flex">
+              <div>
+                <h3>🐙 Verziókezelés & GitHub Frissítés</h3>
+                <p class="text-muted mt-8">Automatikusan felismeri a legújabb kiadásokat a GitHub repozitóriumból (<code id="versionRepoLinkText">csuszy/smb_managger</code>).</p>
+              </div>
+              <span class="badge badge-purple" id="versionStatusBadge">Ellenőrzés...</span>
+            </div>
+
+            <div class="sys-info-list mt-16">
+              <div class="sys-info-item"><span>Telepített Verzió:</span> <strong id="verCurrentText">v0.2.0</strong></div>
+              <div class="sys-info-item"><span>Jelenlegi Git Commit:</span> <code id="verCommitText">—</code></div>
+              <div class="sys-info-item"><span>GitHub Legújabb Verzió:</span> <strong id="verLatestText">—</strong></div>
+              <div class="sys-info-item"><span>Legutóbbi Commit Üzenet:</span> <small class="text-muted" id="verCommitMsg">—</small></div>
+              <div class="sys-info-item"><span>Utolsó Frissítés:</span> <small class="text-muted" id="verPublishedAt">—</small></div>
+            </div>
+
+            <div class="flex-gap mt-16" style="align-items:center;flex-wrap:wrap;">
+              <button class="btn btn-outline" onclick="checkAppVersion(true)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                Frissítések Ellenőrzése
+              </button>
+              <button class="btn btn-primary" id="verApplyBtn" style="display:none;" onclick="applyAppUpdate()">
+                🚀 1-Kattintásos Rendszer Frissítése
+              </button>
+              <a href="https://github.com/csuszy/smb_managger" target="_blank" class="btn btn-ghost btn-sm">🐙 GitHub Repozitórium ↗</a>
+            </div>
           </div>
-          <button class="btn btn-outline btn-sm" onclick="sendTestNotification()">
-            🧪 Teszt Értesítés Küldése
-          </button>
         </div>
 
-        <div class="dashboard-row mt-16">
-          <!-- Discord Webhook Box -->
-          <div class="card flex-1" style="background:var(--bg-input);">
-            <div class="card-header-flex mb-12">
-              <strong style="display:flex;align-items:center;gap:8px;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.093.252-.192.372-.291a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.009c.12.099.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
-                Discord Webhook Értesítés
-              </strong>
-              <label class="checkbox-row" style="margin:0;">
-                <input type="checkbox" id="notifDiscordEnabled"> Engedélyezve
-              </label>
+        <!-- Changelog -->
+        <div class="card mt-24" style="border-color:rgba(6,182,212,0.3);">
+          <div class="card-header-flex">
+            <h3>📋 Git Változási Napló (Changelog)</h3>
+            <button class="btn btn-ghost btn-sm" onclick="loadChangelog()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              Frissítés
+            </button>
+          </div>
+          <div class="table-wrap mt-12">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:80px;">Commit</th>
+                  <th>Üzenet</th>
+                  <th>Szerző</th>
+                  <th>Dátum</th>
+                </tr>
+              </thead>
+              <tbody id="changelogTableBody">
+                <tr><td colspan="4" class="text-muted">Kattints a "Frissítés" gombra a changelog betöltéséhez</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Releases List -->
+        <div class="card mt-24" style="border-color:rgba(245,158,11,0.3);">
+          <div class="card-header-flex">
+            <h3>🏷️ GitHub Kiadások (Releases)</h3>
+            <button class="btn btn-ghost btn-sm" onclick="loadReleasesList()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              Frissítés
+            </button>
+          </div>
+          <div id="releasesListContainer" class="mt-12">
+            <p class="text-muted">Kattints a "Frissítés" gombra a kiadások betöltéséhez</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: SAMBA & SERVER -->
+      <div class="subtab-content" id="subtab-content-samba">
+        <div class="card mb-24">
+          <h3>Samba Grafikus Beállítások</h3>
+          <div class="form-grid mt-16">
+            <div class="form-group">
+              <label>Munkacsoport (Workgroup)</label>
+              <input type="text" id="cfgWorkgroup2" class="form-control">
             </div>
             <div class="form-group">
-              <label>Discord Webhook URL</label>
-              <input type="text" id="notifDiscordUrl" class="form-control" placeholder="https://discord.com/api/webhooks/...">
+              <label>Szerver Hálózati Név (NetBIOS Name)</label>
+              <input type="text" id="cfgNetbiosName2" class="form-control" placeholder="pl. NAS-SERVER">
+            </div>
+            <div class="form-group">
+              <label>Szerver Leírás / Fejléc</label>
+              <input type="text" id="cfgServerString2" class="form-control">
+            </div>
+            <div class="form-group">
+              <label>Minimális SMB Protokoll</label>
+              <select id="cfgMinProto2" class="form-control">
+                <option value="SMB2_10">SMB2_10 (Ajánlott)</option>
+                <option value="SMB2">SMB2</option>
+                <option value="SMB3">SMB3</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Maximális SMB Protokoll</label>
+              <select id="cfgMaxProto2" class="form-control">
+                <option value="SMB3_11">SMB3_11 (Legújabb)</option>
+                <option value="SMB3">SMB3</option>
+                <option value="SMB2">SMB2</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Globális Vendég Hozzáférés</label>
+              <select id="cfgGuestOk2" class="form-control">
+                <option value="no">Tiltva (Biztonságos)</option>
+                <option value="yes">Engedélyezve (Bad User)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>SMB Titkosítás (Encryption)</label>
+              <select id="cfgEncrypt2" class="form-control">
+                <option value="auto">Automatikus (Auto)</option>
+                <option value="required">Kötelező (Required)</option>
+                <option value="off">Kikapcsolva (Off)</option>
+              </select>
             </div>
           </div>
-
-          <!-- SMTP Email Box -->
-          <div class="card flex-1" style="background:var(--bg-input);">
-            <div class="card-header-flex mb-12">
-              <strong style="display:flex;align-items:center;gap:8px;">
-                ✉️ SMTP E-mail Értesítés
-              </strong>
-              <label class="checkbox-row" style="margin:0;">
-                <input type="checkbox" id="notifSmtpEnabled"> Engedélyezve
-              </label>
-            </div>
-            <div class="form-grid">
-              <div class="form-group">
-                <label>SMTP Szerver Host *</label>
-                <input type="text" id="notifSmtpHost" class="form-control" placeholder="smtp.gmail.com">
-              </div>
-              <div class="form-group">
-                <label>Port (pl. 587 / 465)</label>
-                <input type="number" id="notifSmtpPort" class="form-control" value="587">
-              </div>
-              <div class="form-group">
-                <label>SMTP Felhasználó / E-mail</label>
-                <input type="text" id="notifSmtpUser" class="form-control" placeholder="user@gmail.com">
-              </div>
-              <div class="form-group">
-                <label>SMTP Jelszó / App Password</label>
-                <input type="password" id="notifSmtpPass" class="form-control" placeholder="••••••••">
-              </div>
-              <div class="form-group">
-                <label>Küldő E-mail (From)</label>
-                <input type="email" id="notifSmtpFrom" class="form-control" placeholder="nas-alert@domain.com">
-              </div>
-              <div class="form-group">
-                <label>Fogadó E-mail (To) *</label>
-                <input type="email" id="notifSmtpTo" class="form-control" placeholder="admin@domain.com">
-              </div>
-            </div>
-            <div class="mt-8">
-              <label class="checkbox-row"><input type="checkbox" id="notifSmtpSecure"> SSL/TLS Titkosítás (Port 465)</label>
-            </div>
+          <div class="form-actions mt-16">
+            <button class="btn btn-primary" onclick="saveSambaGuiSettings2()">Samba Beállítások Mentése</button>
           </div>
-        </div>
-
-        <!-- Event Toggles -->
-        <div class="mt-16">
-          <label style="font-size:0.85rem;font-weight:700;color:var(--text-secondary);">MELY ESEMÉNYEKRŐL KÉRSZ ÉRTESÍTÉST?</label>
-          <div class="checkbox-options-grid mt-8">
-            <label class="checkbox-row"><input type="checkbox" id="notifEventUsers" checked> 👤 Felhasználó műveletek (Létrehozás, Törlés)</label>
-            <label class="checkbox-row"><input type="checkbox" id="notifEventShares" checked> 📁 SMB Megosztás változások</label>
-            <label class="checkbox-row"><input type="checkbox" id="notifEventService" checked> ⚡ Samba Szolgáltatás állapotváltozás</label>
-            <label class="checkbox-row"><input type="checkbox" id="notifEventStorage" checked> 💾 Tárhely és Kvóta riasztások</label>
-          </div>
-        </div>
-
-        <div class="form-actions mt-16">
-          <button class="btn btn-primary" onclick="saveNotificationSettings()">
-            💾 Értesítési Beállítások Mentése
-          </button>
         </div>
       </div>
 
-      <!-- Changelog -->
-      <div class="card mt-24" style="border-color:rgba(6,182,212,0.3);">
-        <div class="card-header-flex">
-          <h3>📋 Git Változási Napló (Changelog)</h3>
-          <button class="btn btn-ghost btn-sm" onclick="loadChangelog()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-            Frissítés
-          </button>
-        </div>
-        <div class="table-wrap mt-12">
-          <table>
-            <thead>
-              <tr>
-                <th style="width:80px;">Commit</th>
-                <th>Üzenet</th>
-                <th>Szerző</th>
-                <th>Dátum</th>
-              </tr>
-            </thead>
-            <tbody id="changelogTableBody">
-              <tr><td colspan="4" class="text-muted">Kattints a "Frissítés" gombra a changelog betöltéséhez</td></tr>
-            </tbody>
-          </table>
+      <!-- TAB 4: STORAGE & EXPORT -->
+      <div class="subtab-content" id="subtab-content-storage">
+        <div class="dashboard-row">
+          <!-- Storage Path Configuration Widget -->
+          <div class="card flex-1" style="border-color:rgba(6,182,212,0.3);">
+            <h3>💾 Megfigyelt Tárhely Könyvtár (Storage Base Path)</h3>
+            <p class="text-muted mt-8">Itt adhatod meg azt az útvonalat, ahol a csatolt tároló vagy SMB megosztási mappák találhatók (pl. <code>/srv/samba</code> vagy <code>/mnt/storage</code>).</p>
+            <div class="form-group mt-16">
+              <label>Megfigyelt Tárhely Útvonal *</label>
+              <div style="display:flex;gap:10px;">
+                <input type="text" id="settingsStoragePath" class="form-control" placeholder="/srv/samba">
+                <button class="btn btn-primary" onclick="saveStoragePathFromSettings()">Mentés</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Export / Import Widget -->
+          <div class="card flex-1">
+            <h3>Konfiguráció Export / Import</h3>
+            <p class="text-muted mt-8">Töltsd le a teljes NAS konfigurációt JSON-ben, vagy állítsd vissza egy mentésből.</p>
+            <div class="flex-gap mt-16">
+              <a href="/api/settings/export" class="btn btn-primary" download>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Konfiguráció Letöltése (Export)
+              </a>
+              <button class="btn btn-outline" onclick="triggerImportConfig()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Importálás (Restore)
+              </button>
+              <input type="file" id="importFileInput" style="display:none;" onchange="handleImportConfig(event)">
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Releases List -->
-      <div class="card mt-24" style="border-color:rgba(245,158,11,0.3);">
-        <div class="card-header-flex">
-          <h3>🏷️ GitHub Kiadások (Releases)</h3>
-          <button class="btn btn-ghost btn-sm" onclick="loadReleasesList()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-            Frissítés
-          </button>
-        </div>
-        <div id="releasesListContainer" class="mt-12">
-          <p class="text-muted">Kattints a "Frissítés" gombra a kiadások betöltéséhez</p>
+      <!-- TAB 5: PROFILE & SECURITY -->
+      <div class="subtab-content" id="subtab-content-profile">
+        <div class="card" style="max-width:540px;border-color:rgba(139,92,246,0.3);">
+          <h3>🔐 Adminisztrátori Fiók & Jelszó Módosítása</h3>
+          <p class="text-muted mt-8">Itt módosíthatod a SambaHub felületre való bejelentkezéshez használt adminisztrátori jelszót.</p>
+
+          <div class="sys-info-list mt-16">
+            <div class="sys-info-item"><span>Adminisztrátor Felhasználónév:</span> <strong id="profileUsernameDisplay">admin</strong></div>
+            <div class="sys-info-item"><span>Szerepkör:</span> <span class="badge badge-purple">Rendszer Adminisztrátor</span></div>
+          </div>
+
+          <form onsubmit="handleChangeAdminPasswordSubmit(event)" class="mt-24">
+            <div class="form-group">
+              <label>Jelenlegi Admin Jelszó *</label>
+              <input type="password" id="adminCurrentPassword" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+            </div>
+            <div class="form-group mt-12">
+              <label>Új Admin Jelszó *</label>
+              <input type="password" id="adminNewPassword" class="form-control" placeholder="••••••••" required autocomplete="new-password">
+            </div>
+            <div class="form-group mt-12">
+              <label>Új Jelszó Megerősítése *</label>
+              <input type="password" id="adminNewPasswordConfirm" class="form-control" placeholder="••••••••" required autocomplete="new-password">
+            </div>
+            <div class="form-actions mt-24">
+              <button type="submit" class="btn btn-primary">
+                💾 Jelszó Módosítása
+              </button>
+            </div>
+          </form>
         </div>
       </div>
-
     </section>
 
   </main>

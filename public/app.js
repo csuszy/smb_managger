@@ -1549,6 +1549,107 @@ async function saveSambaGuiSettings() {
 }
 
 // =========================================================
+// PROFILE DROPDOWN & SUB-TABS CONTROLLER
+// =========================================================
+function toggleProfileDropdown(e) {
+  if (e) e.stopPropagation();
+  const menu = document.getElementById('profileDropdownMenu');
+  if (!menu) return;
+  const isVisible = menu.style.display === 'block';
+  menu.style.display = isVisible ? 'none' : 'block';
+}
+
+document.addEventListener('click', (e) => {
+  const menu = document.getElementById('profileDropdownMenu');
+  const profileWrap = document.querySelector('.user-profile-wrap');
+  if (menu && profileWrap && !profileWrap.contains(e.target)) {
+    menu.style.display = 'none';
+  }
+});
+
+function switchSettingsSubTab(subtabId) {
+  const buttons = document.querySelectorAll('.subtab-btn');
+  const contents = document.querySelectorAll('.subtab-content');
+
+  buttons.forEach(b => b.classList.remove('active'));
+  contents.forEach(c => c.classList.remove('active'));
+
+  const activeBtn = document.getElementById(`subtab-btn-${subtabId}`);
+  const activeContent = document.getElementById(`subtab-content-${subtabId}`);
+
+  if (activeBtn) activeBtn.classList.add('active');
+  if (activeContent) activeContent.classList.add('active');
+
+  // Load sub-tab specific data
+  if (subtabId === 'samba') loadSambaGuiConfig2();
+  if (subtabId === 'updates') { loadChangelog(); loadReleasesList(); }
+  if (subtabId === 'notifications') loadNotificationSettings();
+}
+
+function openSettingsSubTab(subtabId) {
+  const menu = document.getElementById('profileDropdownMenu');
+  if (menu) menu.style.display = 'none';
+
+  switchSection('settings');
+  switchSettingsSubTab(subtabId);
+}
+
+async function handleChangeAdminPasswordSubmit(e) {
+  e.preventDefault();
+  const currentPassword = document.getElementById('adminCurrentPassword').value;
+  const newPassword = document.getElementById('adminNewPassword').value;
+  const newPasswordConfirm = document.getElementById('adminNewPasswordConfirm').value;
+
+  if (newPassword !== newPasswordConfirm) {
+    return toast('Az új jelszavak nem egyeznek!', 'error');
+  }
+
+  try {
+    const res = await apiPut('/api/auth/change-admin-password', { currentPassword, newPassword });
+    toast(res.message || 'Admin jelszó sikeresen megváltoztatva!', 'success');
+    document.getElementById('adminCurrentPassword').value = '';
+    document.getElementById('adminNewPassword').value = '';
+    document.getElementById('adminNewPasswordConfirm').value = '';
+  } catch (err) {
+    toast('Hiba a jelszómódosításkor: ' + err.message, 'error');
+  }
+}
+
+async function loadSambaGuiConfig2() {
+  try {
+    const data = await apiGet('/api/samba-config');
+    const s = data.settings || {};
+
+    if (document.getElementById('cfgWorkgroup2')) document.getElementById('cfgWorkgroup2').value = s.workgroup || 'WORKGROUP';
+    if (document.getElementById('cfgNetbiosName2')) document.getElementById('cfgNetbiosName2').value = s.netbiosName || 'NAS-SERVER';
+    if (document.getElementById('cfgServerString2')) document.getElementById('cfgServerString2').value = s.serverString || 'NAS Samba Server';
+    if (document.getElementById('cfgMinProto2')) document.getElementById('cfgMinProto2').value = s.serverMinProtocol || 'SMB2_10';
+    if (document.getElementById('cfgMaxProto2')) document.getElementById('cfgMaxProto2').value = s.serverMaxProtocol || 'SMB3_11';
+    if (document.getElementById('cfgGuestOk2')) document.getElementById('cfgGuestOk2').value = s.guestOk || 'yes';
+    if (document.getElementById('cfgEncrypt2')) document.getElementById('cfgEncrypt2').value = s.smbEncrypt || 'auto';
+  } catch (e) {}
+}
+
+async function saveSambaGuiSettings2() {
+  const body = {
+    workgroup: document.getElementById('cfgWorkgroup2').value.trim(),
+    netbiosName: document.getElementById('cfgNetbiosName2').value.trim(),
+    serverString: document.getElementById('cfgServerString2').value.trim(),
+    serverMinProtocol: document.getElementById('cfgMinProto2').value,
+    serverMaxProtocol: document.getElementById('cfgMaxProto2').value,
+    guestOk: document.getElementById('cfgGuestOk2').value,
+    smbEncrypt: document.getElementById('cfgEncrypt2').value
+  };
+
+  try {
+    await apiPut('/api/samba-config', body);
+    toast('Samba globális beállítások frissítve!', 'success');
+  } catch (e) {
+    toast('Hiba a mentéskor: ' + e.message, 'error');
+  }
+}
+
+// =========================================================
 // 12. SYSTEM SETTINGS & IMPORT/EXPORT
 // =========================================================
 async function loadSettings() {
@@ -1556,7 +1657,6 @@ async function loadSettings() {
     await checkAppVersion(false);
     const data = await apiGet('/api/settings');
   } catch (e) {}
-  // Auto-load changelog, releases & notification settings
   loadChangelog();
   loadReleasesList();
   loadNotificationSettings();
