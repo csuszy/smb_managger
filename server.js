@@ -34,6 +34,10 @@ const {
   loadPrinterConfig,
   savePrinterConfig,
   getPrinters,
+  scanNetworkPrinters,
+  addManualPrinter,
+  removeManualPrinter,
+  installCupsPackages,
   printFile,
   startFolderPrintWatcher
 } = require('./lib/printers');
