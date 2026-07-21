@@ -454,17 +454,19 @@ async function loadGroups() {
         : '<span class="text-muted">Nincsenek tagok</span>';
 
       return `
-        <div class="card">
-          <div class="card-header-flex">
-            <h3>👥 ${g.name}</h3>
-            <span class="badge badge-cyan">GID: ${g.gid}</span>
+        <div class="card" style="display:flex;flex-direction:column;justify-space:between;border-color:rgba(6,182,212,0.25);">
+          <div>
+            <div class="card-header-flex">
+              <h3 style="font-size:1.1rem;color:var(--cyan);margin:0;">👥 ${g.name}</h3>
+              <span class="badge badge-cyan">GID: ${g.gid}</span>
+            </div>
+            <div class="mt-16">
+              <div class="metric-label" style="margin-bottom:8px;">Csoport Tagok:</div>
+              <div class="flex-gap">${membersHtml}</div>
+            </div>
           </div>
-          <div class="mt-12">
-            <div class="metric-label">Tagok:</div>
-            <div class="flex-gap mt-8">${membersHtml}</div>
-          </div>
-          <div class="form-actions mt-16">
-            <button class="btn btn-ghost btn-sm" style="color:var(--red)" onclick="confirmDeleteGroup('${g.name}')">Csoport Törlése</button>
+          <div class="form-actions mt-24 flex-gap" style="border-top:1px solid var(--border);padding-top:16px;">
+            <button class="btn btn-ghost btn-sm" style="color:var(--red)" onclick="confirmDeleteGroup('${g.name}')">🗑️ Csoport Törlése</button>
           </div>
         </div>
       `;
@@ -525,29 +527,31 @@ async function loadShares() {
 
     grid.innerHTML = globalShares.map(s => {
       let badges = '';
-      if (s.isPublic) badges += '<span class="badge badge-green">Publikus</span> ';
-      else badges += '<span class="badge badge-purple">Privát</span> ';
-      if (s.readOnly) badges += '<span class="badge badge-amber">Csak Olvasható</span> ';
-      if (s.disabled) badges += '<span class="badge badge-red">Inaktív</span> ';
-      if (s.recycle) badges += '<span class="badge badge-cyan">Lomtár</span> ';
+      if (s.isPublic) badges += '<span class="badge badge-green">Publikus</span>';
+      else badges += '<span class="badge badge-purple">Privát</span>';
+      if (s.readOnly) badges += '<span class="badge badge-amber">Csak Olvasható</span>';
+      if (s.disabled) badges += '<span class="badge badge-red">Inaktív</span>';
+      if (s.recycle) badges += '<span class="badge badge-cyan">Lomtár</span>';
 
       return `
-        <div class="card">
-          <div class="card-header-flex">
-            <h3>📁 [${s.name}]</h3>
-            <div class="flex-gap">${badges}</div>
+        <div class="card" style="display:flex;flex-direction:column;justify-space:between;border-color:rgba(139,92,246,0.25);">
+          <div>
+            <div class="card-header-flex">
+              <h3 style="font-size:1.1rem;color:var(--purple);margin:0;">📁 [${s.name}]</h3>
+              <div class="flex-gap">${badges}</div>
+            </div>
+            <p class="text-muted mt-8">${s.comment || 'Nincs megadva leírás'}</p>
+            <div class="mt-16 sys-info-list" style="gap:10px;">
+              <div class="sys-info-item"><span>Útvonal:</span> <code style="padding:4px 8px;background:var(--bg-input);border-radius:6px;">${s.path}</code></div>
+              <div class="sys-info-item"><span>Engedélyezett userek:</span> <strong>${s.validUsers || 'Mindenki'}</strong></div>
+            </div>
           </div>
-          <p class="text-muted mt-8">${s.comment || 'Nincs leírás'}</p>
-          <div class="mt-12 sys-info-list">
-            <div class="sys-info-item"><span>Útvonal:</span> <code>${s.path}</code></div>
-            <div class="sys-info-item"><span>Engedélyezett userek:</span> <strong>${s.validUsers || 'Mindenki'}</strong></div>
-          </div>
-          <div class="form-actions mt-16">
-            <button class="btn btn-ghost btn-sm" onclick="openEditShareModal('${s.name}')">Szerkesztés</button>
+          <div class="form-actions mt-24 flex-gap" style="border-top:1px solid var(--border);padding-top:16px;">
+            <button class="btn btn-ghost btn-sm" onclick="openEditShareModal('${s.name}')">✏️ Szerkesztés</button>
             <button class="btn btn-ghost btn-sm" onclick="toggleShareStatus('${s.name}', ${s.disabled})">
-              ${s.disabled ? 'Engedélyezés' : 'Tiltás'}
+              ${s.disabled ? '⚡ Engedélyezés' : '⏸️ Tiltás'}
             </button>
-            <button class="btn btn-ghost btn-sm" style="color:var(--red)" onclick="confirmDeleteShare('${s.name}')">Törlés</button>
+            <button class="btn btn-ghost btn-sm" style="color:var(--red)" onclick="confirmDeleteShare('${s.name}')">🗑️ Törlés</button>
           </div>
         </div>
       `;

@@ -902,84 +902,109 @@
     </section>
 
     <!-- ========================================================= -->
-    <!-- 11. SAMBA CONFIGURATION GUI -->
+    <!-- 11. SAMBA CONFIGURATION GUI & RAW GRID -->
     <!-- ========================================================= -->
     <section class="content-section" id="section-samba-config">
-      <div class="section-title-bar">
+      <div class="section-title-bar mb-24">
         <div>
-          <h1>⚙️ Samba Grafikus & Nyers Konfiguráció</h1>
-          <p class="subtitle">SMB protokoll verziók, titkosítás, vendég hozzáférés és közvetlen /etc/samba/smb.conf szerkesztő</p>
+          <h1>⚙️ Samba Grafikus & Nyers Konfigurációs Központ</h1>
+          <p class="subtitle">Hálózati protokollok, biztonsági szintek és a nyers /etc/samba/smb.conf fájl párhuzamos kezelése</p>
         </div>
         <button class="btn btn-outline" onclick="loadSambaGuiConfig()">
-          🔄 Frissítés
+          🔄 Konfiguráció Újratöltése
         </button>
       </div>
 
-      <div class="card mb-24" style="border-color:rgba(6,182,212,0.3);">
-        <h3>⚙️ Grafikus Beállítások</h3>
-        <div class="form-grid mt-16">
-          <div class="form-group">
-            <label>Munkacsoport (Workgroup)</label>
-            <input type="text" id="cfgWorkgroup" class="form-control">
-          </div>
-          <div class="form-group">
-            <label>Szerver Hálózati Név (NetBIOS Name)</label>
-            <input type="text" id="cfgNetbiosName" class="form-control" placeholder="pl. NAS-SERVER">
-          </div>
-          <div class="form-group">
-            <label>Szerver Leírás / Fejléc</label>
-            <input type="text" id="cfgServerString" class="form-control">
-          </div>
-          <div class="form-group">
-            <label>Minimális SMB Protokoll</label>
-            <select id="cfgMinProto" class="form-control">
-              <option value="SMB2_10">SMB2_10 (Ajánlott)</option>
-              <option value="SMB2">SMB2</option>
-              <option value="SMB3">SMB3</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Maximális SMB Protokoll</label>
-            <select id="cfgMaxProto" class="form-control">
-              <option value="SMB3_11">SMB3_11 (Legújabb)</option>
-              <option value="SMB3">SMB3</option>
-              <option value="SMB2">SMB2</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Globális Vendég Hozzáférés</label>
-            <select id="cfgGuestOk" class="form-control">
-              <option value="no">Tiltva (Biztonságos)</option>
-              <option value="yes">Engedélyezve (Bad User)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>SMB Titkosítás (Encryption)</label>
-            <select id="cfgEncrypt" class="form-control">
-              <option value="auto">Automatikus (Auto)</option>
-              <option value="required">Kötelező (Required)</option>
-              <option value="off">Kikapcsolva (Off)</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-actions mt-16">
-          <button class="btn btn-primary" onclick="saveSambaGuiSettings()">💾 Beállítások Mentése</button>
-        </div>
-      </div>
-
-      <!-- Raw Config Editor -->
-      <div class="card editor-card mt-24" style="border-color:rgba(139,92,246,0.3);">
-        <div class="editor-toolbar card-header-flex">
+      <!-- 2-Column Responsive Grid -->
+      <div class="dashboard-row" style="gap:24px;align-items:stretch;">
+        <!-- Left Column: Graphical Settings Grid Card -->
+        <div class="card flex-1" style="border-color:rgba(6,182,212,0.3);display:flex;flex-direction:column;justify-content:space-between;">
           <div>
-            <span class="editor-filename" style="font-weight:700;">📄 Nyers Konfigurációs Szerkesztő: <code>/etc/samba/smb.conf</code></span>
+            <div class="card-header-flex mb-16">
+              <div>
+                <h3>🎛️ Samba Globális Hálózati Beállítások</h3>
+                <p class="text-muted mt-4">Munkacsoport, gépnév és SMB biztonsági protokollok</p>
+              </div>
+              <span class="badge badge-cyan">Grafikus GUI</span>
+            </div>
+
+            <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
+              <div class="form-group">
+                <label>Munkacsoport (Workgroup) *</label>
+                <input type="text" id="cfgWorkgroup" class="form-control">
+              </div>
+              <div class="form-group">
+                <label>NetBIOS Név (Szerver Név) *</label>
+                <input type="text" id="cfgNetbiosName" class="form-control" placeholder="pl. NAS-SERVER">
+              </div>
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label>Szerver Leírás / Címke</label>
+                <input type="text" id="cfgServerString" class="form-control">
+              </div>
+              <div class="form-group">
+                <label>Minimális SMB Protokoll</label>
+                <select id="cfgMinProto" class="form-control">
+                  <option value="SMB2_10">SMB2_10 (Ajánlott)</option>
+                  <option value="SMB2">SMB2</option>
+                  <option value="SMB3">SMB3</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Maximális SMB Protokoll</label>
+                <select id="cfgMaxProto" class="form-control">
+                  <option value="SMB3_11">SMB3_11 (Legújabb)</option>
+                  <option value="SMB3">SMB3</option>
+                  <option value="SMB2">SMB2</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Globális Vendég Hozzáférés</label>
+                <select id="cfgGuestOk" class="form-control">
+                  <option value="no">Tiltva (Biztonságos)</option>
+                  <option value="yes">Engedélyezve (Bad User)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>SMB Titkosítás (Encryption)</label>
+                <select id="cfgEncrypt" class="form-control">
+                  <option value="auto">Automatikus (Auto)</option>
+                  <option value="required">Kötelező (Required)</option>
+                  <option value="off">Kikapcsolva (Off)</option>
+                </select>
+              </div>
+            </div>
           </div>
-          <div class="flex-gap">
-            <span class="badge badge-purple" id="rawConfigStatus">Betöltve</span>
-            <button class="btn btn-outline btn-sm" onclick="loadSambaGuiConfig()">🔄 Újratöltés</button>
-            <button class="btn btn-primary btn-sm" onclick="saveRawSambaConfig()">💾 smb.conf Mentése</button>
+
+          <div class="form-actions mt-24">
+            <button class="btn btn-primary" onclick="saveSambaGuiSettings()" style="width:100%;padding:12px;">
+              💾 Beállítások Mentése & Újraindítás
+            </button>
           </div>
         </div>
-        <textarea class="code-editor mt-16" id="rawConfigTextarea" spellcheck="false" style="width:100%;height:380px;font-family:'JetBrains Mono',monospace;font-size:0.9rem;background:var(--bg-input);color:var(--text-primary);padding:16px;border:1px solid var(--border);border-radius:var(--radius-sm);"></textarea>
+
+        <!-- Right Column: Raw Config Editor Card -->
+        <div class="card editor-card flex-1" style="border-color:rgba(139,92,246,0.3);display:flex;flex-direction:column;justify-content:space-between;">
+          <div>
+            <div class="editor-toolbar card-header-flex mb-16">
+              <div>
+                <strong style="font-size:1rem;display:block;">📄 Nyers Konfigurációs Szerkesztő</strong>
+                <p class="text-muted mt-4">Közvetlen <code>/etc/samba/smb.conf</code> fájl szerkesztése</p>
+              </div>
+              <div class="flex-gap">
+                <span class="badge badge-purple" id="rawConfigStatus">Betöltve</span>
+                <button class="btn btn-outline btn-sm" onclick="loadSambaGuiConfig()">🔄 Frissítés</button>
+              </div>
+            </div>
+
+            <textarea class="code-editor" id="rawConfigTextarea" spellcheck="false" style="width:100%;height:340px;font-family:'JetBrains Mono',monospace;font-size:0.88rem;background:var(--bg-input);color:var(--text-primary);padding:16px;border:1px solid var(--border);border-radius:var(--radius-sm);resize:vertical;"></textarea>
+          </div>
+
+          <div class="form-actions mt-16">
+            <button class="btn btn-primary" onclick="saveRawSambaConfig()" style="width:100%;padding:12px;">
+              💾 Nyers smb.conf Mentése & Újraindítás
+            </button>
+          </div>
+        </div>
       </div>
     </section>
 
