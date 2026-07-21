@@ -67,7 +67,7 @@ function getSambaBase() {
 }
 
 // Guarantee default [homes] section and permissions
-ensureDefaultHomesSection().catch(e => console.error(e));
+ensureDefaultHomesSection(getSambaBase()).catch(e => console.error(e));
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -134,6 +134,12 @@ app.post('/api/auth/setup', async (req, res) => {
   saveConfig(cfg);
 
   try {
+    await ensureDefaultHomesSection(baseDir);
+  } catch (e) {
+    console.error('Failed to configure default homes section during setup:', e);
+  }
+
+  try {
     await createUser({ username: username.trim(), password, fullName: 'System Administrator' }).catch(() => {});
   } catch (e) {}
 
@@ -177,7 +183,7 @@ app.post('/api/auth/login', (req, res) => {
 });
 
 app.post('/api/auth/logout', (req, res) => {
-  const token = req.headers['x-auth-token'] || req.query.token;
+  const token = extractToken(req);
   destroySession(token);
   res.json({ success: true });
 });
@@ -225,6 +231,9 @@ app.put('/api/auth/storage-path', (req, res) => {
   const cfg = loadConfig();
   cfg.storageBasePath = absPath;
   saveConfig(cfg);
+
+  // Apply new storage path to Samba [homes] config immediately
+  ensureDefaultHomesSection(absPath).catch(e => console.error(e));
 
   audit.logEvent('config', `Megfigyelt tárhely útvonala módosítva: ${absPath}`, 'admin');
   res.json({ success: true, storageBasePath: absPath });

@@ -13,6 +13,33 @@ let currentPermFolder = '';
 let currentEditUser = null;
 let currentEditShare = null;
 let currentQuotaUser = null;
+let currentSettings = { appName: 'SambaHub' };
+
+const sectionTitles = {
+  'dashboard': 'Áttekintés',
+  'users': 'Felhasználók',
+  'groups': 'Csoportok',
+  'shares': 'SMB Megosztások',
+  'folder-manager': 'Mappa Kezelő',
+  'permissions': 'Jogosultságok',
+  'connections': 'Aktív Kapcsolatok',
+  'storage': 'Tárhely & Kvóták',
+  'recycle': 'Lomtár',
+  'snapshots': 'Pillanatképek',
+  'printers': 'Nyomtatók & Nyomtatás',
+  'samba-config': 'Samba Beállítások',
+  'audit': 'Audit Naplók',
+  'settings': 'Rendszer Beállítások'
+};
+
+function updateDocumentTitle() {
+  const appName = (currentSettings && currentSettings.appName) ? currentSettings.appName : 'SambaHub';
+  const secName = sectionTitles[currentSection] || 'Áttekintés';
+  document.title = `${secName} — ${appName}`;
+
+  const logoTextEl = document.querySelector('.logo-text');
+  if (logoTextEl) logoTextEl.textContent = appName;
+}
 
 // --- Theme Toggle ---
 const htmlEl = document.documentElement;
@@ -55,6 +82,9 @@ function switchSection(sectionId) {
   sections.forEach(s => {
     s.classList.toggle('active', s.id === `section-${sectionId}`);
   });
+
+  // Update Page Title
+  updateDocumentTitle();
 
   // Close mobile sidebar
   document.getElementById('sidebar').classList.remove('open');
@@ -628,7 +658,7 @@ async function openAddShareModal() {
   document.getElementById('shareModalTitle').textContent = 'Új SMB Megosztás Létrehozása';
   document.getElementById('sModalName').value = '';
   document.getElementById('sModalName').disabled = false;
-  document.getElementById('sModalPath').value = '/srv/samba/';
+  document.getElementById('sModalPath').value = (currentAuthStatus.storageBasePath || '/srv/samba') + '/';
   document.getElementById('sModalComment').value = '';
   document.getElementById('sModalPublic').checked = false;
   document.getElementById('sModalReadOnly').checked = false;
@@ -718,7 +748,10 @@ let currentExplorerPath = '/srv/samba';
 let currentExplorerParent = null;
 
 async function loadInteractiveExplorer(targetPath = null) {
-  const pathUrl = targetPath || currentExplorerPath;
+  let pathUrl = targetPath || currentExplorerPath;
+  if (!targetPath && currentExplorerPath === '/srv/samba' && currentAuthStatus.storageBasePath) {
+    pathUrl = currentAuthStatus.storageBasePath;
+  }
   try {
     const data = await apiGet(`/api/file-browser?path=${encodeURIComponent(pathUrl)}`);
     currentExplorerPath = data.currentPath;
@@ -829,7 +862,8 @@ async function loadPermissionsView() {
 
     const select = document.getElementById('permFolderSelect');
     let html = '<option value="">-- Mappa / Megosztás kiválasztása --</option>';
-    html += '<option value="/srv/samba">📁 Samba Tárhely Gyökér (/srv/samba)</option>';
+    const base = currentAuthStatus.storageBasePath || '/srv/samba';
+    html += `<option value="${base}">📁 Samba Tárhely Gyökér (${base})</option>`;
 
     if (sharesData.shares && sharesData.shares.length > 0) {
       html += '<optgroup label="SMB Megosztások">';
@@ -842,7 +876,7 @@ async function loadPermissionsView() {
     if (usersData.users && usersData.users.length > 0) {
       html += '<optgroup label="Felhasználói Mappák">';
       usersData.users.forEach(u => {
-        const uPath = `/srv/samba/${u.username}`;
+        const uPath = `${base}/${u.username}`;
         html += `<option value="${uPath}">👤 ${u.username} mappája (${uPath})</option>`;
       });
       html += '</optgroup>';
@@ -998,9 +1032,11 @@ async function saveCurrentFolderPermissions() {
 let fbCurrentPath = '/srv/samba';
 let fbParentPath = null;
 
-async function openFileBrowserModal(initialPath = '/srv/samba') {
+async function openFileBrowserModal(initialPath = null) {
+  const base = currentAuthStatus.storageBasePath || '/srv/samba';
+  const path = initialPath || base;
   document.getElementById('fileBrowserModal').classList.add('open');
-  await loadFileBrowserPath(initialPath);
+  await loadFileBrowserPath(path);
 }
 
 async function loadFileBrowserPath(targetPath) {
@@ -1326,6 +1362,19 @@ async function loadPrintersView() {
     const cupsBanner = document.getElementById('cupsMissingBanner');
     const config = data.config || {};
 
+    // Update folder print paths in UI based on storageBasePath
+    const basePath = currentAuthStatus.storageBasePath || '/srv/samba';
+    const monitoredFolder = (config.folderPrint && config.folderPrint.monitoredFolder) || (basePath + '/Print/nyomtatas');
+    const archiveFolder = (config.folderPrint && config.folderPrint.archiveFolder) || (basePath + '/Print/archive');
+
+    const descEl = document.getElementById('printerDescText');
+    const monitoredEl = document.getElementById('printerMonitoredPath');
+    const archiveEl = document.getElementById('printerArchivePath');
+
+    if (descEl) descEl.innerHTML = `A <code>${monitoredFolder}</code> mappába helyezett dokumentumok automatikusan kinyomtatódnak és az <code>archive</code> mappába kerülnek.`;
+    if (monitoredEl) monitoredEl.textContent = monitoredFolder;
+    if (archiveEl) archiveEl.textContent = archiveFolder;
+
     if (cupsBanner) {
       cupsBanner.style.display = data.cupsInstalled === false ? 'block' : 'none';
     }
@@ -1481,13 +1530,14 @@ async function testEmailImapUi() {
 }
 
 async function savePrinterSettings() {
+  const basePath = currentAuthStatus.storageBasePath || '/srv/samba';
   const body = {
     enabled: document.getElementById('printerServiceEnabled').checked,
     defaultPrinter: document.getElementById('printerDefaultSelect').value,
     folderPrint: {
       enabled: document.getElementById('printerServiceEnabled').checked,
-      monitoredFolder: '/srv/samba/Print/nyomtatas',
-      archiveFolder: '/srv/samba/Print/archive',
+      monitoredFolder: basePath + '/Print/nyomtatas',
+      archiveFolder: basePath + '/Print/archive',
       checkIntervalSec: parseInt(document.getElementById('printerFolderInterval').value) || 10
     },
     emailPrint: {
@@ -1686,6 +1736,14 @@ async function loadSettings() {
   try {
     await checkAppVersion(false);
     const data = await apiGet('/api/settings');
+    if (data && data.settings) {
+      currentSettings = { ...currentSettings, ...data.settings };
+      updateDocumentTitle();
+      const appNameInput = document.getElementById('settingsAppName');
+      if (appNameInput && currentSettings.appName) {
+        appNameInput.value = currentSettings.appName;
+      }
+    }
   } catch (e) {}
   loadChangelog();
   loadReleasesList();
@@ -1976,6 +2034,7 @@ async function checkAuthStatus() {
     if (document.getElementById('topUserAvatar')) document.getElementById('topUserAvatar').textContent = (data.username || 'A').charAt(0).toUpperCase();
 
     refreshDashboard();
+    loadSettings();
     return true;
   } catch (e) {
     console.error('Auth status check error:', e);
@@ -2071,6 +2130,28 @@ async function logoutApp() {
   await checkAuthStatus();
 }
 
+async function saveAppNameFromSettings() {
+  const input = document.getElementById('settingsAppName');
+  const appName = input ? input.value.trim() : '';
+
+  if (!appName) {
+    return toast('Kérlek add meg az alkalmazás nevét!', 'error');
+  }
+
+  try {
+    const res = await apiPut('/api/settings', { appName });
+    if (res && res.settings) {
+      currentSettings = { ...currentSettings, ...res.settings };
+    } else {
+      currentSettings.appName = appName;
+    }
+    updateDocumentTitle();
+    toast('Alkalmazás címe sikeresen elmentve!', 'success');
+  } catch (e) {
+    toast('Hiba a mentéskor: ' + e.message, 'error');
+  }
+}
+
 async function saveStoragePathFromSettings() {
   const pathInput = document.getElementById('settingsStoragePath');
   const storageBasePath = pathInput ? pathInput.value.trim() : '';
@@ -2080,7 +2161,10 @@ async function saveStoragePathFromSettings() {
   }
 
   try {
-    await apiPut('/api/auth/storage-path', { storageBasePath });
+    const res = await apiPut('/api/auth/storage-path', { storageBasePath });
+    if (res && res.storageBasePath) {
+      currentAuthStatus.storageBasePath = res.storageBasePath;
+    }
     toast('Megfigyelt tárhely útvonala sikeresen elmentve!', 'success');
     refreshDashboard();
   } catch (e) {

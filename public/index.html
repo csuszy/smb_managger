@@ -821,7 +821,7 @@
         <div class="card-header-flex">
           <div>
             <h3>📁 Mappából Nyomtatás & Beállítások</h3>
-            <p class="text-muted mt-4">A <code>/srv/samba/Print/nyomtatas</code> mappába helyezett dokumentumok automatikusan kinyomtatódnak és az <code>archive</code> mappába kerülnek.</p>
+            <p class="text-muted mt-4" id="printerDescText">A <code>/srv/samba/Print/nyomtatas</code> mappába helyezett dokumentumok automatikusan kinyomtatódnak és az <code>archive</code> mappába kerülnek.</p>
           </div>
           <label class="checkbox-row">
             <input type="checkbox" id="printerServiceEnabled" onchange="savePrinterSettings()"> <strong>Funkció Bekapcsolása</strong>
@@ -843,8 +843,8 @@
           </div>
 
           <div class="sys-info-list mt-16">
-            <div class="sys-info-item"><span>📁 Nyomtatási Mappa (SMB Megosztás):</span> <code>/srv/samba/Print/nyomtatas</code></div>
-            <div class="sys-info-item"><span>📦 Archívum Mappa:</span> <code>/srv/samba/Print/archive</code></div>
+            <div class="sys-info-item"><span>📁 Nyomtatási Mappa (SMB Megosztás):</span> <code id="printerMonitoredPath">/srv/samba/Print/nyomtatas</code></div>
+            <div class="sys-info-item"><span>📦 Archívum Mappa:</span> <code id="printerArchivePath">/srv/samba/Print/archive</code></div>
           </div>
 
           <div class="form-actions mt-16">
@@ -1226,6 +1226,19 @@
       <!-- TAB 4: STORAGE & EXPORT -->
       <div class="subtab-content" id="subtab-content-storage">
         <div class="dashboard-row">
+          <!-- App Name & General System Settings Widget -->
+          <div class="card flex-1" style="border-color:rgba(139,92,246,0.3);">
+            <h3>🏷️ Alkalmazás Neve & Címe (App Name)</h3>
+            <p class="text-muted mt-8">Itt módosíthatod az alkalmazás megjelenített nevét, amely a böngésző lap címsorában (Title) és az oldalsó menüben is látható.</p>
+            <div class="form-group mt-16">
+              <label>Alkalmazás Címe / Neve *</label>
+              <div style="display:flex;gap:10px;">
+                <input type="text" id="settingsAppName" class="form-control" placeholder="SambaHub" value="SambaHub">
+                <button class="btn btn-primary" onclick="saveAppNameFromSettings()">Mentés</button>
+              </div>
+            </div>
+          </div>
+
           <!-- Storage Path Configuration Widget -->
           <div class="card flex-1" style="border-color:rgba(6,182,212,0.3);">
             <h3>💾 Megfigyelt Tárhely Könyvtár (Storage Base Path)</h3>
@@ -1238,7 +1251,9 @@
               </div>
             </div>
           </div>
+        </div>
 
+        <div class="dashboard-row mt-24">
           <!-- Export / Import Widget -->
           <div class="card flex-1">
             <h3>Konfiguráció Export / Import</h3>
