@@ -39,7 +39,8 @@ const {
   removeManualPrinter,
   installCupsPackages,
   printFile,
-  startFolderPrintWatcher
+  startFolderPrintWatcher,
+  checkImapEmailAccount
 } = require('./lib/printers');
 
 const {
@@ -870,6 +871,15 @@ app.post('/api/printers/install-cups', async (req, res) => {
     res.json(result);
   } catch (e) {
     res.status(500).json({ error: e.message });
+  }
+});
+
+app.post('/api/printers/test-email', async (req, res) => {
+  try {
+    const result = await checkImapEmailAccount(req.body);
+    res.json({ success: true, message: 'IMAP E-mail kapcsolat teszt sikeres!', details: result });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
   }
 });
 

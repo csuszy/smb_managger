@@ -819,6 +819,56 @@
           </div>
         </div>
       </div>
+
+      <!-- Email-to-Print Configuration Card -->
+      <div class="card mt-24" style="border-color:rgba(139,92,246,0.3);">
+        <div class="card-header-flex">
+          <div>
+            <h3>✉️ E-mailen Keresztüli Nyomtatás (Email-to-Print)</h3>
+            <p class="text-muted mt-4">A megadott e-mail fiókot figyeli a rendszer. Ha a megadott tárggyal (pl. <code>NYOMTATAS</code>) érkezik level, a csatolmányt automatikusan kinyomtatja és elmenti a nyomtatási mappába.</p>
+          </div>
+          <label class="checkbox-row">
+            <input type="checkbox" id="emailPrintEnabled"> <strong>E-mail Nyomtatás Bekapcsolása</strong>
+          </label>
+        </div>
+
+        <div class="form-grid mt-16">
+          <div class="form-group">
+            <label>IMAP Szerver Címe *</label>
+            <input type="text" id="emailPrintHost" class="form-control" placeholder="pl. imap.gmail.com vagy imap.freemail.hu">
+          </div>
+          <div class="form-group">
+            <label>IMAP Port</label>
+            <input type="number" id="emailPrintPort" class="form-control" value="993">
+          </div>
+          <div class="form-group">
+            <label>E-mail Cím (Felhasználónév) *</label>
+            <input type="email" id="emailPrintUser" class="form-control" placeholder="nyomtatashoz@gmail.com">
+          </div>
+          <div class="form-group">
+            <label>E-mail Jelszó / App Jelszó *</label>
+            <input type="password" id="emailPrintPassword" class="form-control" placeholder="••••••••">
+          </div>
+          <div class="form-group">
+            <label>Keresett Levelek Tárgya (Subject Filter)</label>
+            <input type="text" id="emailPrintFilter" class="form-control" value="NYOMTATAS" placeholder="NYOMTATAS">
+          </div>
+          <div class="form-group">
+            <label>Ellenőrzési Időköz (perc)</label>
+            <input type="number" id="emailPrintInterval" class="form-control" value="2">
+          </div>
+        </div>
+
+        <div class="form-actions mt-16 flex-gap">
+          <button class="btn btn-outline" onclick="testEmailImapUi()">
+            🧪 E-mail Fiók Tesztelése
+          </button>
+          <button class="btn btn-primary" onclick="savePrinterSettings()">
+            💾 Nyomtatási Beállítások Mentése
+          </button>
+        </div>
+      </div>
+      </div>
     </section>
 
     <!-- ========================================================= -->

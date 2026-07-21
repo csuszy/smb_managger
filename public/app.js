@@ -1283,6 +1283,16 @@ async function loadPrintersView() {
       document.getElementById('printerFolderInterval').value = (config.folderPrint && config.folderPrint.checkIntervalSec) || 10;
     }
 
+    // Populate Email-to-Print settings
+    const emailCfg = config.emailPrint || {};
+    if (document.getElementById('emailPrintEnabled')) document.getElementById('emailPrintEnabled').checked = !!emailCfg.enabled;
+    if (document.getElementById('emailPrintHost')) document.getElementById('emailPrintHost').value = emailCfg.host || '';
+    if (document.getElementById('emailPrintPort')) document.getElementById('emailPrintPort').value = emailCfg.port || 993;
+    if (document.getElementById('emailPrintUser')) document.getElementById('emailPrintUser').value = emailCfg.user || '';
+    if (document.getElementById('emailPrintPassword')) document.getElementById('emailPrintPassword').value = emailCfg.password || '';
+    if (document.getElementById('emailPrintFilter')) document.getElementById('emailPrintFilter').value = emailCfg.subjectFilter || 'NYOMTATAS';
+    if (document.getElementById('emailPrintInterval')) document.getElementById('emailPrintInterval').value = emailCfg.checkIntervalMin || 2;
+
     const printers = data.printers || [];
     if (badge) badge.textContent = `${printers.length} Nyomtató`;
 
@@ -1394,6 +1404,28 @@ async function installCupsUi() {
   }
 }
 
+async function testEmailImapUi() {
+  const emailCfg = {
+    host: document.getElementById('emailPrintHost').value.trim(),
+    port: parseInt(document.getElementById('emailPrintPort').value) || 993,
+    user: document.getElementById('emailPrintUser').value.trim(),
+    password: document.getElementById('emailPrintPassword').value,
+    subjectFilter: document.getElementById('emailPrintFilter').value.trim() || 'NYOMTATAS'
+  };
+
+  if (!emailCfg.host || !emailCfg.user || !emailCfg.password) {
+    return toast('Kérlek töltsd ki az IMAP Szerver, Felhasználónév és Jelszó mezőket!', 'error');
+  }
+
+  try {
+    toast('IMAP E-mail fiók tesztelése...', 'info');
+    const res = await apiPost('/api/printers/test-email', emailCfg);
+    toast(res.message || 'Sikeres IMAP kapcsolódás!', 'success');
+  } catch (e) {
+    toast('IMAP Teszt Hiba: ' + e.message, 'error');
+  }
+}
+
 async function savePrinterSettings() {
   const body = {
     enabled: document.getElementById('printerServiceEnabled').checked,
@@ -1403,6 +1435,16 @@ async function savePrinterSettings() {
       monitoredFolder: '/srv/samba/Print/nyomtatas',
       archiveFolder: '/srv/samba/Print/archive',
       checkIntervalSec: parseInt(document.getElementById('printerFolderInterval').value) || 10
+    },
+    emailPrint: {
+      enabled: document.getElementById('emailPrintEnabled').checked,
+      host: document.getElementById('emailPrintHost').value.trim(),
+      port: parseInt(document.getElementById('emailPrintPort').value) || 993,
+      tls: true,
+      user: document.getElementById('emailPrintUser').value.trim(),
+      password: document.getElementById('emailPrintPassword').value,
+      subjectFilter: document.getElementById('emailPrintFilter').value.trim() || 'NYOMTATAS',
+      checkIntervalMin: parseInt(document.getElementById('emailPrintInterval').value) || 2
     }
   };
 
