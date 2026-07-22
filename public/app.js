@@ -1401,6 +1401,8 @@ async function loadPrintersView() {
     if (document.getElementById('emailPrintFilter')) document.getElementById('emailPrintFilter').value = emailCfg.subjectFilter || 'NYOMTATAS';
     if (document.getElementById('emailPrintInterval')) document.getElementById('emailPrintInterval').value = emailCfg.checkIntervalMin || 2;
 
+    loadRecentEmails();
+
     const printers = data.printers || [];
     if (badge) badge.textContent = `${printers.length} Nyomtató`;
 
@@ -1483,6 +1485,33 @@ async function deleteManualPrinter(id) {
   }
 }
 
+async function loadRecentEmails() {
+  const tbody = document.getElementById('recentEmailsTableBody');
+  if (!tbody) return;
+  try {
+    const data = await apiGet('/api/printers/recent-emails');
+    const emails = data.emails || [];
+    if (emails.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" class="text-muted" style="padding:16px;text-align:center;">Nincsenek feldolgozott levelek.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = emails.map(e => `
+      <tr>
+        <td style="padding:10px;"><strong>${escapeHtml(e.from)}</strong></td>
+        <td style="padding:10px;">${escapeHtml(e.subject)}</td>
+        <td style="padding:10px;white-space:nowrap;"><small class="text-muted">${escapeHtml(e.date)}</small></td>
+        <td style="padding:10px;text-align:center;">
+          ${e.files && e.files.length > 0 
+            ? e.files.map(f => `<span class="badge badge-purple" style="margin:2px;font-size:0.75rem;">📄 ${escapeHtml(f)}</span>`).join('') 
+            : '<span class="text-muted">—</span>'}
+        </td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    console.error('Hiba a levelek betöltésekor:', err);
+  }
+}
+
 async function installCupsUi() {
   const modal = document.getElementById('installProgressModal');
   if (modal) modal.classList.add('open');
@@ -1529,6 +1558,7 @@ async function testEmailImapUi() {
     toast('IMAP E-mail fiók tesztelése...', 'info');
     const res = await apiPost('/api/printers/test-email', emailCfg);
     toast(res.message || 'Sikeres IMAP kapcsolódás!', 'success');
+    loadRecentEmails();
   } catch (e) {
     toast('IMAP Teszt Hiba: ' + e.message, 'error');
   }

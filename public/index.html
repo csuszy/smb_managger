@@ -901,8 +901,32 @@
           <button class="btn btn-primary" onclick="savePrinterSettings()">
             💾 Nyomtatási Beállítások Mentése
           </button>
-      </div>
-    </section>
+        </div>
+
+        <!-- Recent Emails List Section -->
+        <div class="mt-24">
+          <h4 style="margin:0 0 12px;font-weight:600;display:flex;align-items:center;gap:6px;">
+            📨 Legutóbbi Feldolgozott Levelek (Nyomtatási Előzmények)
+          </h4>
+          <div class="table-wrap" style="background:var(--bg-input);border-radius:var(--radius-sm);border:1px solid var(--border);">
+            <table style="width:100%;font-size:0.88rem;">
+              <thead>
+                <tr>
+                  <th style="padding:10px;text-align:left;">Küldő</th>
+                  <th style="padding:10px;text-align:left;">Tárgy</th>
+                  <th style="padding:10px;text-align:left;white-space:nowrap;">Dátum</th>
+                  <th style="padding:10px;text-align:center;">Fájlok</th>
+                </tr>
+              </thead>
+              <tbody id="recentEmailsTableBody">
+                <tr>
+                  <td colspan="4" class="text-muted" style="padding:16px;text-align:center;">Nincsenek feldolgozott levelek.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
 
     <!-- ========================================================= -->
     <!-- 11. SAMBA CONFIGURATION GUI & RAW GRID -->

@@ -964,6 +964,15 @@ app.post('/api/printers/test-email', async (req, res) => {
   }
 });
 
+app.get('/api/printers/recent-emails', (req, res) => {
+  try {
+    const { getRecentEmailsLog } = require('./lib/printers');
+    res.json({ emails: getRecentEmailsLog() });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ============================
 // 12. SERVICE CONTROL
 // ============================
