@@ -571,6 +571,43 @@ app.put('/api/samba-config', async (req, res) => {
   }
 });
 
+app.put('/api/samba-config/raw', async (req, res) => {
+  const { content } = req.body;
+  if (content === undefined || content === null) {
+    return res.status(400).json({ error: 'A konfiguráció tartalmának megadása kötelező!' });
+  }
+
+  const SMB_CONF = '/etc/samba/smb.conf';
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const backupPath = `${SMB_CONF}.backup-${timestamp}`;
+
+  try {
+    // Backup existing
+    fs.copyFileSync(SMB_CONF, backupPath);
+
+    // Write new content
+    fs.writeFileSync(SMB_CONF, content, 'utf8');
+
+    // Validate with testparm
+    try {
+      await run('testparm -s 2>&1');
+    } catch (e) {
+      // Restore on failure
+      fs.copyFileSync(backupPath, SMB_CONF);
+      return res.status(400).json({ error: 'A konfiguráció érvénytelen (testparm hiba): ' + e.message });
+    }
+
+    // Reload Samba service
+    await run('systemctl reload smbd 2>/dev/null || systemctl restart smbd 2>/dev/null').catch(() => {});
+
+    audit.logEvent('config', 'Samba konfigurációs fájl manuálisan módosítva (smb.conf)', req.user || 'admin');
+
+    res.json({ success: true, message: 'Konfiguráció elmentve és Samba újraindítva!' });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ============================
 // 10. RECYCLE BIN
 // ============================
