@@ -973,6 +973,20 @@ app.get('/api/printers/recent-emails', (req, res) => {
   }
 });
 
+app.post('/api/printers/check-email-now', async (req, res) => {
+  try {
+    const { loadPrinterConfig, checkImapEmailAccount } = require('./lib/printers');
+    const cfg = loadPrinterConfig();
+    if (!cfg.emailPrint || !cfg.emailPrint.enabled) {
+      return res.status(400).json({ error: 'Az e-mail nyomtatás funkció nincs bekapcsolva!' });
+    }
+    const result = await checkImapEmailAccount(cfg.emailPrint);
+    res.json({ success: true, savedFilesCount: result.savedFilesCount });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ============================
 // 12. SERVICE CONTROL
 // ============================

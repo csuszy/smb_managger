@@ -1564,6 +1564,21 @@ async function testEmailImapUi() {
   }
 }
 
+async function triggerEmailCheckNow() {
+  try {
+    toast('E-mailek lekérdezése folyamatban...', 'info');
+    const res = await apiPost('/api/printers/check-email-now', {});
+    if (res.savedFilesCount > 0) {
+      toast(`Sikeres lekérdezés! ${res.savedFilesCount} új dokumentum letöltve és nyomtatásra küldve.`, 'success');
+    } else {
+      toast('Nincs új nyomtatandó levél az e-mail fiókban.', 'info');
+    }
+    loadRecentEmails();
+  } catch (e) {
+    toast('Lekérdezési hiba: ' + e.message, 'error');
+  }
+}
+
 async function savePrinterSettings() {
   const basePath = currentAuthStatus.storageBasePath || '/srv/samba';
   const body = {
