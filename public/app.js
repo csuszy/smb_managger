@@ -39,6 +39,11 @@ function updateDocumentTitle() {
 
   const logoTextEl = document.querySelector('.logo-text');
   if (logoTextEl) logoTextEl.textContent = appName;
+
+  // Dynamically update references to appName in the DOM
+  document.querySelectorAll('.app-name-text').forEach(el => {
+    el.textContent = appName;
+  });
 }
 
 // --- Theme Toggle ---
@@ -1880,15 +1885,33 @@ async function checkAppVersion(showToast = false) {
 
 async function applyAppUpdate() {
   if (!confirm('Biztosan frissíteni szeretnéd a rendszert a GitHub legújabb verziójára?')) return;
+  
+  const overlay = document.getElementById('updateProgressOverlay');
+  if (overlay) overlay.style.display = 'flex';
+  
+  updateProgressBar('updateProgressBarFill', 'updateProgressStatusText', 'updateProgressPercentText', 10, 'Frissítés előkészítése...');
+  
   try {
-    toast('Frissítés indítása... A rendszer hamarosan újraindul.', 'info');
-    const res = await apiPost('/api/version/update');
+    await new Promise(r => setTimeout(r, 600));
+    updateProgressBar('updateProgressBarFill', 'updateProgressStatusText', 'updateProgressPercentText', 45, 'Frissítési csomagok letöltése...');
+    
+    const resPromise = apiPost('/api/version/update');
+    
+    await new Promise(r => setTimeout(r, 1200));
+    updateProgressBar('updateProgressBarFill', 'updateProgressStatusText', 'updateProgressPercentText', 75, 'Szolgáltatások újraindítása...');
+    
+    const res = await resPromise;
+    
+    updateProgressBar('updateProgressBarFill', 'updateProgressStatusText', 'updateProgressPercentText', 100, 'Frissítés sikeres! Rendszer újraindul...');
+    await new Promise(r => setTimeout(r, 1200));
+    
     toast(res.message || 'Frissítés sikeres!', 'success');
     setTimeout(() => {
       location.reload();
-    }, 4000);
+    }, 1500);
   } catch (e) {
     toast('Frissítési hiba: ' + e.message, 'error');
+    if (overlay) overlay.style.display = 'none';
   }
 }
 
@@ -1897,8 +1920,8 @@ async function loadChangelog() {
   tbody.innerHTML = '<tr><td colspan="4" class="text-muted">Betöltés...</td></tr>';
 
   try {
-    const data = await apiGet('/api/version/changelog?limit=20');
-    const changelog = data.changelog || [];
+    const data = await apiGet('/api/version/changelog?limit=1');
+    const changelog = (data.changelog || []).slice(0, 1);
 
     if (changelog.length === 0) {
       tbody.innerHTML = '<tr><td colspan="4" class="text-muted">Nincsenek commit-ok</td></tr>';
@@ -1924,7 +1947,7 @@ async function loadReleasesList() {
 
   try {
     const data = await apiGet('/api/version/releases');
-    const releases = data.releases || [];
+    const releases = (data.releases || []).slice(0, 1);
 
     if (releases.length === 0) {
       container.innerHTML = '<p class="text-muted">Nincsenek GitHub release-ek.</p>';

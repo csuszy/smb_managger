@@ -597,8 +597,8 @@ app.put('/api/samba-config/raw', async (req, res) => {
       return res.status(400).json({ error: 'A konfiguráció érvénytelen (testparm hiba): ' + e.message });
     }
 
-    // Reload Samba service
-    await run('systemctl reload smbd 2>/dev/null || systemctl restart smbd 2>/dev/null').catch(() => {});
+    // Restart Samba service to apply changes
+    await run('systemctl restart smbd nmbd 2>/dev/null || service smbd restart 2>/dev/null').catch(() => {});
 
     audit.logEvent('config', 'Samba konfigurációs fájl manuálisan módosítva (smb.conf)', req.user || 'admin');
 
