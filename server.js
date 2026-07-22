@@ -1003,6 +1003,35 @@ app.put('/api/settings', (req, res) => {
   }
 });
 
+app.get('/api/settings/github-token', (req, res) => {
+  try {
+    const TOKEN_FILE = path.join(__dirname, 'data', 'github_token.json');
+    if (fs.existsSync(TOKEN_FILE)) {
+      const parsed = JSON.parse(fs.readFileSync(TOKEN_FILE, 'utf8'));
+      return res.json({ token: parsed.token || '' });
+    }
+  } catch (e) {}
+  res.json({ token: '' });
+});
+
+app.put('/api/settings/github-token', (req, res) => {
+  try {
+    const { token } = req.body;
+    if (token === undefined) {
+      return res.status(400).json({ error: 'Token megadása kötelező!' });
+    }
+    const TOKEN_FILE = path.join(__dirname, 'data', 'github_token.json');
+    const dir = path.dirname(TOKEN_FILE);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(TOKEN_FILE, JSON.stringify({ token: token.trim() }, null, 2), 'utf8');
+    
+    audit.logEvent('config', 'GitHub hozzáférési token frissítve (GUI)', req.user || 'admin');
+    res.json({ success: true, message: 'GitHub token sikeresen frissítve!' });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.get('/api/settings/export', async (req, res) => {
   try {
     const data = await exportFullConfig();

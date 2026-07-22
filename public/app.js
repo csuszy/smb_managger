@@ -1748,6 +1748,7 @@ async function loadSettings() {
   loadChangelog();
   loadReleasesList();
   loadNotificationSettings();
+  loadGithubToken();
 }
 
 async function loadNotificationSettings() {
@@ -2167,6 +2168,32 @@ async function saveStoragePathFromSettings() {
     }
     toast('Megfigyelt tárhely útvonala sikeresen elmentve!', 'success');
     refreshDashboard();
+  } catch (e) {
+    toast('Hiba a mentéskor: ' + e.message, 'error');
+  }
+}
+
+async function loadGithubToken() {
+  try {
+    const data = await apiGet('/api/settings/github-token');
+    const input = document.getElementById('githubTokenInput');
+    if (input) {
+      input.value = data.token || '';
+    }
+  } catch (e) {
+    console.error('Hiba a GitHub token betöltésekor:', e);
+  }
+}
+
+async function saveGithubToken() {
+  const token = document.getElementById('githubTokenInput').value.trim();
+  try {
+    await apiPut('/api/settings/github-token', { token });
+    toast('GitHub hozzáférési token sikeresen elmentve!', 'success');
+    // Refresh version info since we now have a token
+    checkAppVersion(false);
+    loadChangelog();
+    loadReleasesList();
   } catch (e) {
     toast('Hiba a mentéskor: ' + e.message, 'error');
   }

@@ -1135,7 +1135,7 @@
 
       <!-- TAB 2: UPDATES & GITHUB -->
       <div class="subtab-content" id="subtab-content-updates">
-        <div class="dashboard-row">
+        <div class="dashboard-row flex-gap" style="display:flex;gap:24px;">
           <!-- Version Control & Auto Update Widget -->
           <div class="card flex-1" style="border-color:var(--border-accent);">
             <div class="card-header-flex">
@@ -1163,6 +1163,21 @@
                 🚀 1-Kattintásos Rendszer Frissítése
               </button>
               <a href="https://github.com/csuszy/smb_managger" target="_blank" class="btn btn-ghost btn-sm">🐙 GitHub Repozitórium ↗</a>
+            </div>
+          </div>
+
+          <!-- GitHub Credentials Card -->
+          <div class="card flex-1" style="border-color:rgba(139,92,246,0.3);">
+            <h3>🔑 GitHub Hozzáférési Token (PAT)</h3>
+            <p class="text-muted mt-8">Mivel a projekt forráskódja zárt (privát) repozitórium, a frissítések ellenőrzéséhez és a változások letöltéséhez meg kell adnod egy olvasási jogosultságú GitHub Personal Access Token-t.</p>
+            <div class="form-group mt-16">
+              <label>GitHub Personal Access Token (token)</label>
+              <input type="password" id="githubTokenInput" class="form-control" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxx">
+            </div>
+            <div class="form-actions mt-16">
+              <button class="btn btn-primary" onclick="saveGithubToken()">
+                💾 Token Mentése
+              </button>
             </div>
           </div>
         </div>
