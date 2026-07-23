@@ -187,12 +187,12 @@
       <div class="section-title-bar">
         <div>
           <h1 data-i18n="h1_dashboard">NAS Vezérlőpult Áttekintés</h1>
-          <p class="subtitle" data-i18n="dash_subtitle">Samba szerver és rendszer állapota valós időben</p>
+          <p class="subtitle">Samba szerver és rendszer állapota valós időben</p>
         </div>
         <div class="title-actions">
           <button class="btn btn-ghost" onclick="refreshDashboard()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-            <span data-i18n="btn_refresh">Frissítés</span>
+            Frissítés
           </button>
         </div>
       </div>
@@ -204,7 +204,7 @@
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           </div>
           <div class="metric-body">
-            <div class="metric-label" data-i18n="menu_users">Felhasználók</div>
+            <div class="metric-label">Felhasználók</div>
             <div class="metric-value" id="dashUsersCount">0</div>
           </div>
         </div>
@@ -214,7 +214,7 @@
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           </div>
           <div class="metric-body">
-            <div class="metric-label" data-i18n="menu_groups">Csoportok</div>
+            <div class="metric-label">Csoportok</div>
             <div class="metric-value" id="dashGroupsCount">0</div>
           </div>
         </div>
@@ -224,7 +224,7 @@
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
           </div>
           <div class="metric-body">
-            <div class="metric-label" data-i18n="menu_shares">SMB Megosztások</div>
+            <div class="metric-label">SMB Megosztások</div>
             <div class="metric-value" id="dashSharesCount">0</div>
           </div>
         </div>
@@ -234,7 +234,7 @@
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
           </div>
           <div class="metric-body">
-            <div class="metric-label" data-i18n="active_sessions">Aktív Kapcsolatok</div>
+            <div class="metric-label">Aktív Kapcsolatok</div>
             <div class="metric-value" id="dashConnCount">0</div>
           </div>
         </div>
@@ -244,15 +244,15 @@
       <div class="card mb-24" style="background:linear-gradient(135deg, rgba(6,182,212,0.12), rgba(139,92,246,0.12));border-color:var(--border-accent);">
         <div class="card-header-flex">
           <div>
-            <h3 data-i18n="dash_ip_title">🌐 Hálózati SMB Szerver Cím</h3>
-            <p class="text-muted" style="margin-top:4px;" data-i18n="dash_ip_desc">Ezen az IP-címen éred el az összes SMB megosztást a helyi hálózaton.</p>
+            <h3>🌐 Hálózati SMB Szerver Cím</h3>
+            <p class="text-muted" style="margin-top:4px;">Ezen az IP-címen éred el az összes SMB megosztást a helyi hálózaton.</p>
           </div>
           <span class="badge badge-cyan" style="font-size:1rem;padding:6px 14px;" id="dashSmbIpBadge">192.168.1.22</span>
         </div>
         <div class="mt-12 flex-gap" style="align-items:center;">
           <div style="flex:1;min-width:280px;background:var(--bg-input);padding:10px 14px;border-radius:8px;font-size:0.9rem;display:flex;align-items:center;justify-content:space-between;">
-            <div><span data-i18n="dash_win_mac_path">Windows / Mac Hálózati Útvonal:</span> <code id="dashSmbPathCode">\\192.168.1.22</code></div>
-            <button class="btn btn-ghost btn-sm" onclick="copySmbPathToClipboard()" data-i18n="btn_copy">📋 Másolás</button>
+            <div><span>Windows / Mac Hálózati Útvonal:</span> <code id="dashSmbPathCode">\\192.168.1.22</code></div>
+            <button class="btn btn-ghost btn-sm" onclick="copySmbPathToClipboard()">📋 Másolás</button>
           </div>
         </div>
       </div>
@@ -262,34 +262,34 @@
         <!-- Service Control Widget -->
         <div class="card flex-1">
           <div class="card-header-flex">
-            <h3 data-i18n="dash_service_title">Samba Szolgáltatás</h3>
+            <h3>Samba Szolgáltatás</h3>
             <span class="badge badge-green" id="dashServiceBadge">Aktív</span>
           </div>
           <div class="service-actions-grid mt-16">
             <button class="btn btn-success" onclick="serviceAction('start')">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-              <span data-i18n="btn_start">Indítás</span>
+              Indítás
             </button>
             <button class="btn btn-danger" onclick="serviceAction('stop')">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
-              <span data-i18n="btn_stop">Leállítás</span>
+              Leállítás
             </button>
             <button class="btn btn-warning" onclick="serviceAction('restart')">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-              <span data-i18n="btn_restart">Újraindítás</span>
+              Újraindítás
             </button>
           </div>
           <div class="sys-info-list mt-16">
-            <div class="sys-info-item"><span data-i18n="sys_hostname">Gépnév:</span> <strong id="sysHostname">—</strong></div>
-            <div class="sys-info-item"><span data-i18n="sys_platform">OS / Arch:</span> <strong id="sysPlatform">—</strong></div>
-            <div class="sys-info-item"><span data-i18n="sys_uptime">Futásidő:</span> <strong id="sysUptime">—</strong></div>
-            <div class="sys-info-item"><span data-i18n="cpu_usage">CPU Terhelés:</span> <strong id="sysLoad">—</strong></div>
+            <div class="sys-info-item"><span>Gépnév:</span> <strong id="sysHostname">—</strong></div>
+            <div class="sys-info-item"><span>OS / Arch:</span> <strong id="sysPlatform">—</strong></div>
+            <div class="sys-info-item"><span>Futásidő:</span> <strong id="sysUptime">—</strong></div>
+            <div class="sys-info-item"><span>CPU Terhelés:</span> <strong id="sysLoad">—</strong></div>
           </div>
         </div>
 
         <!-- Storage Gauge Widget -->
         <div class="card flex-1">
-          <h3 data-i18n="disk_usage">Tárhely Használat</h3>
+          <h3>Tárhely Használat</h3>
           <div class="storage-gauge-box mt-16">
             <div class="gauge-labels">
               <span id="dashStorageUsed">0 GB használt</span>
@@ -301,8 +301,8 @@
             <div class="gauge-footer text-muted" id="dashStorageFree">0 GB szabad tárhely</div>
           </div>
           <div class="sys-info-list mt-16">
-            <div class="sys-info-item"><span data-i18n="sys_filesystem">Fájlrendszer:</span> <strong id="sysFilesystem">—</strong></div>
-            <div class="sys-info-item"><span data-i18n="memory_usage">Memória:</span> <strong id="sysMemory">—</strong></div>
+            <div class="sys-info-item"><span>Fájlrendszer:</span> <strong id="sysFilesystem">—</strong></div>
+            <div class="sys-info-item"><span>Memória:</span> <strong id="sysMemory">—</strong></div>
           </div>
         </div>
       </div>
@@ -315,43 +315,52 @@
       <div class="section-title-bar">
         <div>
           <h1 data-i18n="h1_users">Felhasználók Kezelése</h1>
-          <p class="subtitle" data-i18n="users_subtitle">Samba & Rendszer felhasználók, csoportokhoz rendelés, kvóták és tiltás</p>
+          <p class="subtitle">Samba & Rendszer felhasználók, csoportokhoz rendelés, kvóták és tiltás</p>
         </div>
         <button class="btn btn-primary" onclick="openAddUserModal()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
-          <span data-i18n="btn_new_user">Új Felhasználó</span>
+          Új Felhasználó
         </button>
       </div>
 
       <div class="card">
         <div class="table-toolbar">
-          <input type="text" id="usersSearchInput" placeholder="Szűrés felhasználónév vagy név alapján..." data-i18n-placeholder="search_user_placeholder" class="input-search">
+          <input type="text" id="usersSearchInput" placeholder="Szűrés felhasználónév vagy név alapján..." class="input-search">
         </div>
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
-                <th data-i18n="th_username">Felhasználónév</th>
-                <th data-i18n="th_fullname">Teljes Név</th>
-                <th data-i18n="th_role">Szerepkör</th>
-                <th data-i18n="th_groups">Csoportok</th>
-                <th data-i18n="th_quota">Tárhely Kvóta</th>
-                <th data-i18n="th_last_login">Utolsó Belépés</th>
-                <th data-i18n="th_status">Állapot</th>
-                <th data-i18n="th_actions">Műveletek</th>
+                <th>Felhasználónév</th>
+                <th>Teljes Név</th>
+                <th>Szerepkör</th>
+                <th>Csoportok</th>
+                <th>Tárhely Kvóta</th>
+                <th>Utolsó Belépés</th>
+                <th>Állapot</th>
+                <th>Műveletek</th>
               </tr>
-           <!-- ========================================================= -->
+            </thead>
+            <tbody id="usersTableBody">
+              <tr><td colspan="7" class="text-muted">Betöltés...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
     <!-- 3. GROUPS MANAGEMENT -->
     <!-- ========================================================= -->
     <section class="content-section" id="section-groups">
       <div class="section-title-bar">
         <div>
           <h1 data-i18n="h1_groups">Csoportok Kezelése</h1>
-          <p class="subtitle" data-i18n="groups_subtitle">Felhasználói csoportok létrehozása és tagok kezelése</p>
+          <p class="subtitle">Felhasználói csoportok létrehozása és tagok kezelése</p>
         </div>
         <button class="btn btn-primary" onclick="openAddGroupModal()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
-          <span data-i18n="btn_new_group">Új Csoport</span>
+          Új Csoport
         </button>
       </div>
 
@@ -367,11 +376,11 @@
       <div class="section-title-bar">
         <div>
           <h1 data-i18n="h1_shares">SMB Megosztások Kezelése</h1>
-          <p class="subtitle" data-i18n="shares_subtitle">Megosztott mappák, publikus/privát hozzáférés és lomtár funkció</p>
+          <p class="subtitle">Megosztott mappák, publikus/privát hozzáférés és lomtár funkció</p>
         </div>
         <button class="btn btn-primary" onclick="openAddShareModal()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
-          <span data-i18n="btn_new_share">Új Megosztás</span>
+          Új Megosztás
         </button>
       </div>
 
@@ -387,16 +396,16 @@
       <div class="section-title-bar">
         <div>
           <h1 data-i18n="h1_folder_manager">Interaktív Mappa & Tárhely Kezelő</h1>
-          <p class="subtitle" data-i18n="fm_subtitle">Böngészd a szerver könyvtárait, állíts be jogosultságokat vagy alakíts tetszőleges mappát SMB megosztássá egy kattintással!</p>
+          <p class="subtitle">Böngészd a szerver könyvtárait, állíts be jogosultságokat vagy alakíts tetszőleges mappát SMB megosztássá egy kattintással!</p>
         </div>
         <div class="flex-gap">
           <button class="btn btn-outline" onclick="loadInteractiveExplorer('/srv/samba')">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-            <span data-i18n="fm_server_default">Szerver Alapértelmezés (/srv/samba)</span>
+            Szerver Alapértelmezés (/srv/samba)
           </button>
           <button class="btn btn-primary" onclick="promptCreateSubfolder()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
-            <span data-i18n="fm_new_folder">Új Mappa Létrehozása</span>
+            Új Mappa Létrehozása
           </button>
         </div>
       </div>
@@ -405,10 +414,10 @@
       <div class="card mb-24" style="background:linear-gradient(135deg, rgba(139,92,246,0.1), rgba(6,182,212,0.1));border-color:var(--border-accent);">
         <div class="card-header-flex">
           <div>
-            <h3 data-i18n="fm_user_homes_title">🏠 Felhasználói Saját Tárhely Mappák</h3>
-            <p class="text-muted" style="margin-top:4px;" data-i18n="fm_user_homes_desc">A felhasználók saját mappái a <code>/srv/samba/&lt;felhasználónév&gt;</code> útvonalon érhetőek el.</p>
+            <h3>🏠 Felhasználói Saját Tárhely Mappák</h3>
+            <p class="text-muted" style="margin-top:4px;">A felhasználók saját mappái a <code>/srv/samba/&lt;felhasználónév&gt;</code> útvonalon érhetőek el.</p>
           </div>
-          <button class="btn btn-outline btn-sm" onclick="loadInteractiveExplorer('/srv/samba')" data-i18n="fm_open_homes">
+          <button class="btn btn-outline btn-sm" onclick="loadInteractiveExplorer('/srv/samba')">
             📂 Tárhely Mappák Megnyitása
           </button>
         </div>
@@ -422,9 +431,9 @@
       <!-- Breadcrumbs & Path Bar -->
       <div class="card mb-16">
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-          <button class="btn btn-ghost btn-sm" id="fmParentBtn" onclick="navigateExplorerUp()" data-i18n="fm_parent_folder">⬆️ Vissza / Szülő Mappa</button>
+          <button class="btn btn-ghost btn-sm" id="fmParentBtn" onclick="navigateExplorerUp()">⬆️ Vissza / Szülő Mappa</button>
           <div style="flex:1;display:flex;align-items:center;gap:8px;">
-            <span class="text-muted" style="font-size:0.85rem;font-weight:700;" data-i18n="fm_path">ÚTVONAL:</span>
+            <span class="text-muted" style="font-size:0.85rem;font-weight:700;">ÚTVONAL:</span>
             <code id="fmCurrentPathBadge" style="font-size:0.9rem;padding:6px 12px;background:var(--bg-input);border-radius:8px;flex:1;">/srv/samba</code>
           </div>
         </div>
@@ -443,28 +452,28 @@
       <div class="section-title-bar">
         <div>
           <h1 data-i18n="h1_permissions">Jogosultság Kezelő (ACL Visual Matrix)</h1>
-          <p class="subtitle" data-i18n="perm_subtitle">Interaktív hozzáférés beállítás felhasználók és csoportok számára — kártyás vizuális felületen</p>
+          <p class="subtitle">Interaktív hozzáférés beállítás felhasználók és csoportok számára — kártyás vizuális felületen</p>
         </div>
       </div>
 
       <div class="card mb-24">
         <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
           <div style="flex:1;min-width:280px;">
-            <label class="form-label" style="font-weight:700;" data-i18n="perm_step1">1. Válaszd ki a megosztást vagy mappát:</label>
+            <label class="form-label" style="font-weight:700;">1. Válaszd ki a megosztást vagy mappát:</label>
             <select id="permFolderSelect" class="form-control" onchange="loadPermissionsForSelectedFolder()">
               <option value="">-- Mappa kiválasztása --</option>
             </select>
           </div>
           <button class="btn btn-outline" onclick="openFileBrowserModal()" style="margin-top:20px;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-            <span data-i18n="perm_browse_btn">📁 Szerver Mappa Tallózó</span>
+            📁 Szerver Mappa Tallózó
           </button>
         </div>
       </div>
 
       <div class="card" id="permMatrixCard" style="display:none;">
         <div class="card-header-flex mb-16">
-          <h3 id="permMatrixTitle" data-i18n="perm_matrix_title">Jogosultságok Kezelése</h3>
+          <h3 id="permMatrixTitle">Jogosultságok Kezelése</h3>
           <span class="badge badge-purple" id="permSelectedPathBadge">Útvonal</span>
         </div>
 
@@ -473,28 +482,28 @@
         
         <!-- Preset quick buttons -->
         <div class="perm-presets-bar mb-24">
-          <span class="text-muted" style="font-size:0.8rem;font-weight:700;margin-right:8px;" data-i18n="perm_quick_preset">GYORS BEÁLLÍTÁSOK (MINDENKIRE):</span>
-          <button class="btn btn-ghost btn-sm" onclick="applyPermPresetAll('none')" data-i18n="perm_preset_none">🔒 Nincs Hozzáférés</button>
-          <button class="btn btn-ghost btn-sm" onclick="applyPermPresetAll('read')" data-i18n="perm_preset_read">👁️ Csak Olvasás</button>
-          <button class="btn btn-ghost btn-sm" onclick="applyPermPresetAll('full')" data-i18n="perm_preset_full">⭐ Teljes Hozzáférés</button>
+          <span class="text-muted" style="font-size:0.8rem;font-weight:700;margin-right:8px;">GYORS BEÁLLÍTÁSOK (MINDENKIRE):</span>
+          <button class="btn btn-ghost btn-sm" onclick="applyPermPresetAll('none')">🔒 Nincs Hozzáférés</button>
+          <button class="btn btn-ghost btn-sm" onclick="applyPermPresetAll('read')">👁️ Csak Olvasás</button>
+          <button class="btn btn-ghost btn-sm" onclick="applyPermPresetAll('full')">⭐ Teljes Hozzáférés</button>
         </div>
 
         <!-- Users Permissions Cards Grid -->
         <div class="perm-section">
-          <h4 style="margin-bottom:12px;color:var(--text-secondary);text-transform:uppercase;font-size:0.8rem;letter-spacing:1px;" data-i18n="perm_user_access">👤 Felhasználói Hozzáférések</h4>
+          <h4 style="margin-bottom:12px;color:var(--text-secondary);text-transform:uppercase;font-size:0.8rem;letter-spacing:1px;">👤 Felhasználói Hozzáférések</h4>
           <div class="perm-cards-grid" id="userPermCardsContainer"></div>
         </div>
 
         <!-- Groups Permissions Cards Grid -->
         <div class="perm-section mt-24">
-          <h4 style="margin-bottom:12px;color:var(--text-secondary);text-transform:uppercase;font-size:0.8rem;letter-spacing:1px;" data-i18n="perm_group_access">👥 Csoportos Hozzáférések</h4>
+          <h4 style="margin-bottom:12px;color:var(--text-secondary);text-transform:uppercase;font-size:0.8rem;letter-spacing:1px;">👥 Csoportos Hozzáférések</h4>
           <div class="perm-cards-grid" id="groupPermCardsContainer"></div>
         </div>
 
         <div class="form-actions mt-24">
           <button class="btn btn-primary" onclick="saveCurrentFolderPermissions()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-            <span data-i18n="perm_save_btn">Jogosultságok Mentése & Alkalmazása</span>
+            Jogosultságok Mentése & Alkalmazása
           </button>
         </div>
       </div>
@@ -507,11 +516,11 @@
       <div class="section-title-bar">
         <div>
           <h1 data-i18n="h1_connections">Aktív SMB Kapcsolatok</h1>
-          <p class="subtitle" data-i18n="conn_subtitle">Csatlakozott munkamenetek, IP címek, megosztások és bontás</p>
+          <p class="subtitle">Csatlakozott munkamenetek, IP címek, megosztások és bontás</p>
         </div>
         <button class="btn btn-ghost" onclick="loadConnections()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-          <span data-i18n="btn_refresh">Frissítés</span>
+          Frissítés
         </button>
       </div>
 
@@ -520,22 +529,10 @@
           <table>
             <thead>
               <tr>
-                <th data-i18n="th_pid">PID</th>
-                <th data-i18n="th_user">Felhasználó</th>
-                <th data-i18n="th_group">Csoport</th>
-                <th data-i18n="th_ip">Gép / IP Cím</th>
-                <th data-i18n="th_share">Használt Megosztás</th>
-                <th data-i18n="th_protocol">Protokoll</th>
-                <th data-i18n="th_action">Művelet</th>
-              </tr>
-            </thead>
-            <tbody id="connectionsTableBody">
-              <tr><td colspan="7" class="text-muted">Betöltés...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>               <th>Gép / IP Cím</th>
+                <th>PID</th>
+                <th>Felhasználó</th>
+                <th>Csoport</th>
+                <th>Gép / IP Cím</th>
                 <th>Használt Megosztás</th>
                 <th>Protokoll</th>
                 <th>Művelet</th>
@@ -556,23 +553,23 @@
       <div class="section-title-bar">
         <div>
           <h1 data-i18n="h1_audit">Audit Naplózás</h1>
-          <p class="subtitle" data-i18n="audit_subtitle">Rendszeresemények, bejelentkezések, jogosultság és konfigurációs módosítások</p>
+          <p class="subtitle">Rendszeresemények, bejelentkezések, jogosultság és konfigurációs módosítások</p>
         </div>
       </div>
 
       <div class="card mb-16">
         <div class="filters-row">
           <select id="auditCategoryFilter" class="form-control flex-1" onchange="loadAuditLogs()">
-            <option value="all" data-i18n="audit_cat_all">Minden kategória</option>
-            <option value="auth" data-i18n="audit_cat_auth">Hitelesítés / Belépés</option>
-            <option value="users" data-i18n="audit_cat_users">Felhasználók</option>
-            <option value="groups" data-i18n="audit_cat_groups">Csoportok</option>
-            <option value="shares" data-i18n="audit_cat_shares">Megosztások</option>
-            <option value="permissions" data-i18n="audit_cat_permissions">Jogosultságok</option>
-            <option value="files" data-i18n="audit_cat_files">Fájlok & Snapshotok</option>
-            <option value="config" data-i18n="audit_cat_config">Konfiguráció</option>
+            <option value="all">Minden kategória</option>
+            <option value="auth">Hitelesítés / Belépés</option>
+            <option value="users">Felhasználók</option>
+            <option value="groups">Csoportok</option>
+            <option value="shares">Megosztások</option>
+            <option value="permissions">Jogosultságok</option>
+            <option value="files">Fájlok & Snapshotok</option>
+            <option value="config">Konfiguráció</option>
           </select>
-          <input type="text" id="auditSearchInput" placeholder="Keresés naplókban..." data-i18n-placeholder="search_audit_placeholder" class="form-control flex-2" onkeyup="loadAuditLogs()">
+          <input type="text" id="auditSearchInput" placeholder="Keresés naplókban..." class="form-control flex-2" onkeyup="loadAuditLogs()">
         </div>
       </div>
 
@@ -581,12 +578,12 @@
           <table>
             <thead>
               <tr>
-                <th data-i18n="th_timestamp">Időpont</th>
-                <th data-i18n="th_category">Kategória</th>
-                <th data-i18n="th_event">Esemény / Művelet</th>
-                <th data-i18n="th_user">Felhasználó</th>
-                <th data-i18n="th_ip">IP Cím</th>
-                <th data-i18n="th_details">Részletek</th>
+                <th>Időpont</th>
+                <th>Kategória</th>
+                <th>Esemény / Művelet</th>
+                <th>Felhasználó</th>
+                <th>IP Cím</th>
+                <th>Részletek</th>
               </tr>
             </thead>
             <tbody id="auditTableBody">
@@ -604,25 +601,25 @@
       <div class="section-title-bar">
         <div>
           <h1 data-i18n="h1_storage">Tárhely & Kvóta Kezelés</h1>
-          <p class="subtitle" data-i18n="storage_subtitle">Kötet tárhelyelemzés, megosztások mérete és felhasználói kvóták</p>
+          <p class="subtitle">Kötet tárhelyelemzés, megosztások mérete és felhasználói kvóták</p>
         </div>
       </div>
 
       <div class="card mb-24">
-        <h3 data-i18n="storage_shares_size_title">Megosztás Mappák Mérete</h3>
+        <h3>Megosztás Mappák Mérete</h3>
         <div class="table-wrap mt-12">
           <table>
-            <thead><tr><th data-i18n="th_folder_name">Mappanév</th><th data-i18n="th_path">Útvonal</th><th data-i18n="th_size">Méret</th></tr></thead>
+            <thead><tr><th>Mappanév</th><th>Útvonal</th><th>Méret</th></tr></thead>
             <tbody id="shareSizesTableBody"></tbody>
           </table>
         </div>
       </div>
 
       <div class="card">
-        <h3 data-i18n="storage_user_quotas_title">Felhasználói Tárhely Limits (Kvóták)</h3>
+        <h3>Felhasználói Tárhely Limits (Kvóták)</h3>
         <div class="table-wrap mt-12">
           <table>
-            <thead><tr><th data-i18n="th_username">Felhasználónév</th><th data-i18n="th_current_limit">Jelenlegi Limit (MB)</th><th data-i18n="th_action">Művelet</th></tr></thead>
+            <thead><tr><th>Felhasználónév</th><th>Jelenlegi Limit (MB)</th><th>Művelet</th></tr></thead>
             <tbody id="userQuotasTableBody"></tbody>
           </table>
         </div>
@@ -636,16 +633,16 @@
       <div class="section-title-bar">
         <div>
           <h1 data-i18n="h1_recycle">Okos Samba Lomtár (Recycle Bin Hub)</h1>
-          <p class="subtitle" data-i18n="recycle_subtitle">Megosztásokból törölt fájlok vizuális kezelése, tömeges visszaállítás és törlés</p>
+          <p class="subtitle">Megosztásokból törölt fájlok vizuális kezelése, tömeges visszaállítás és törlés</p>
         </div>
         <div class="flex-gap">
           <button class="btn btn-outline" onclick="loadRecycleFiles()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-            <span data-i18n="btn_refresh">Frissítés</span>
+            Frissítés
           </button>
           <button class="btn btn-danger" onclick="confirmEmptyRecycle()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-            <span data-i18n="recycle_empty_btn">Lomtár Kiürítése</span>
+            Lomtár Kiürítése
           </button>
         </div>
       </div>
@@ -655,14 +652,14 @@
         <div class="card metric-card">
           <div class="metric-icon purple">🗑️</div>
           <div class="metric-body">
-            <div class="metric-label" data-i18n="recycle_count_label">Törölt Fájlok</div>
+            <div class="metric-label">Törölt Fájlok</div>
             <div class="metric-value" id="recycleCountText">0</div>
           </div>
         </div>
         <div class="card metric-card">
           <div class="metric-icon cyan">💾</div>
           <div class="metric-body">
-            <div class="metric-label" data-i18n="recycle_size_label">Foglalt Tárhely</div>
+            <div class="metric-label">Foglalt Tárhely</div>
             <div class="metric-value" id="recycleSizeText">0 B</div>
           </div>
         </div>
@@ -673,8 +670,8 @@
         <div class="card-header-flex">
           <div><strong id="recycleSelectedCount">0</strong> fájl kijelölve</div>
           <div class="flex-gap">
-            <button class="btn btn-success btn-sm" onclick="bulkRestoreRecycle()" data-i18n="recycle_bulk_restore">Kijelöltek Visszaállítása</button>
-            <button class="btn btn-danger btn-sm" onclick="bulkDeleteRecycle()" data-i18n="recycle_bulk_delete">Kijelöltek Végleges Törlése</button>
+            <button class="btn btn-success btn-sm" onclick="bulkRestoreRecycle()">Kijelöltek Visszaállítása</button>
+            <button class="btn btn-danger btn-sm" onclick="bulkDeleteRecycle()">Kijelöltek Végleges Törlése</button>
           </div>
         </div>
       </div>
@@ -685,12 +682,12 @@
             <thead>
               <tr>
                 <th style="width:40px;"><input type="checkbox" id="selectAllRecycle" onchange="toggleSelectAllRecycle(this)"></th>
-                <th data-i18n="th_filename">Fájlnév</th>
-                <th data-i18n="th_share">Megosztás</th>
-                <th data-i18n="th_orig_path">Eredeti Útvonal</th>
-                <th data-i18n="th_size">Méret</th>
-                <th data-i18n="th_deleted_time">Törölve</th>
-                <th data-i18n="th_actions">Műveletek</th>
+                <th>Fájlnév</th>
+                <th>Megosztás</th>
+                <th>Eredeti Útvonal</th>
+                <th>Méret</th>
+                <th>Törölve</th>
+                <th>Műveletek</th>
               </tr>
             </thead>
             <tbody id="recycleTableBody">
@@ -708,11 +705,11 @@
       <div class="section-title-bar">
         <div>
           <h1 data-i18n="h1_snapshots">Pillanatképek (Snapshots)</h1>
-          <p class="subtitle" data-i18n="snap_subtitle">Samba tárhely állapotának biztonsági mentése és visszaállítása</p>
+          <p class="subtitle">Samba tárhely állapotának biztonsági mentése és visszaállítása</p>
         </div>
         <button class="btn btn-primary" onclick="openCreateSnapshotModal()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-          <span data-i18n="snap_new_btn">Új Pillanatkép</span>
+          Új Pillanatkép
         </button>
       </div>
 
@@ -721,11 +718,11 @@
           <table>
             <thead>
               <tr>
-                <th data-i18n="th_snap_name">Pillanatkép Neve</th>
-                <th data-i18n="th_path">Útvonal</th>
-                <th data-i18n="th_created">Létrehozva</th>
-                <th data-i18n="th_size">Méret</th>
-                <th data-i18n="th_actions">Műveletek</th>
+                <th>Pillanatkép Neve</th>
+                <th>Útvonal</th>
+                <th>Létrehozva</th>
+                <th>Méret</th>
+                <th>Műveletek</th>
               </tr>
             </thead>
             <tbody id="snapshotsTableBody">
@@ -739,16 +736,16 @@
       <div class="card mt-24" style="border-color:rgba(139,92,246,0.3);">
         <div class="card-header-flex">
           <div>
-            <h3 data-i18n="snap_auto_title">⚙️ Automata Pillanatkép Mentések</h3>
+            <h3>⚙️ Automata Pillanatkép Mentések</h3>
             <p class="text-muted mt-4">Beállíthatod, hogy a <span class="app-name-text">SambaHub</span> megadott időközönként automatikusan mentsen pillanatképeket.</p>
           </div>
           <label class="checkbox-row">
-            <input type="checkbox" id="autoSnapEnabled"> <strong data-i18n="snap_auto_enable">Automata Mentés Bekapcsolva</strong>
+            <input type="checkbox" id="autoSnapEnabled"> <strong>Automata Mentés Bekapcsolva</strong>
           </label>
         </div>
         <div class="form-grid mt-16">
           <div class="form-group">
-            <label data-i18n="snap_auto_interval">Mentési Időköz</label>
+            <label>Mentési Időköz</label>
             <select id="autoSnapInterval" class="form-control">
               <option value="1">Óránként (1 óra)</option>
               <option value="6">6 óránként</option>
@@ -758,13 +755,13 @@
             </select>
           </div>
           <div class="form-group">
-            <label data-i18n="snap_auto_max">Megőrzött Automata Mentések Max. Száma</label>
+            <label>Megőrzött Automata Mentések Max. Száma</label>
             <input type="number" id="autoSnapMaxCount" class="form-control" value="10">
           </div>
         </div>
         <div class="form-actions mt-16">
           <button class="btn btn-primary" onclick="saveSnapshotSettings()">
-            <span data-i18n="snap_auto_save_btn">💾 Automatizálási Beállítások Mentése</span>
+            💾 Automatizálási Beállítások Mentése
           </button>
         </div>
       </div>
@@ -777,14 +774,14 @@
       <div class="section-title-bar">
         <div>
           <h1 data-i18n="h1_printers">🜁 Nyomtatók & Nyomtatási Központ</h1>
-          <p class="subtitle" data-i18n="printers_subtitle">Rendszernyomtatók automatikus felderítése, otthoni hálózati nyomtató hozzáadása IP alapján és mappából nyomtatás</p>
+          <p class="subtitle">Rendszernyomtatók automatikus felderítése, otthoni hálózati nyomtató hozzáadása IP alapján és mappából nyomtatás</p>
         </div>
         <div class="flex-gap">
           <button class="btn btn-outline" onclick="scanNetworkPrintersUi()">
-            <span data-i18n="printers_scan_btn">🔍 Wi-Fi / LAN Keresés</span>
+            🔍 Wi-Fi / LAN Keresés
           </button>
           <button class="btn btn-primary" onclick="openAddManualPrinterModal()">
-            <span data-i18n="printers_add_ip_btn">➕ IP Nyomtató Hozzáadása</span>
+            ➕ IP Nyomtató Hozzáadása
           </button>
         </div>
       </div>
@@ -793,10 +790,10 @@
       <div class="card mb-24" id="cupsMissingBanner" style="display:none;background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3);">
         <div class="card-header-flex">
           <div>
-            <h4 style="color:var(--amber);" data-i18n="cups_missing_title">⚠️ CUPS Nyomtatási Szolgáltatás Nincs Telepítve</h4>
-            <p class="text-muted mt-4" data-i18n="cups_missing_desc">A helyi nyomtatóillesztők használatához telepítsd a CUPS nyomtatási csomagokat egy kattintással.</p>
+            <h4 style="color:var(--amber);">⚠️ CUPS Nyomtatási Szolgáltatás Nincs Telepítve</h4>
+            <p class="text-muted mt-4">A helyi nyomtatóillesztők használatához telepítsd a CUPS nyomtatási csomagokat egy kattintással.</p>
           </div>
-          <button class="btn btn-warning" onclick="installCupsUi()" data-i18n="cups_install_btn">⚡ CUPS Automatkus Telepítése</button>
+          <button class="btn btn-warning" onclick="installCupsUi()">⚡ CUPS Automatkus Telepítése</button>
         </div>
       </div>
 
@@ -804,18 +801,18 @@
       <div class="dashboard-row">
         <div class="card flex-1">
           <div class="card-header-flex">
-            <h3 data-i18n="printers_list_title">🜁 Felderített Rendszer & Hálózati Nyomtatók</h3>
+            <h3>🜁 Felderített Rendszer & Hálózati Nyomtatók</h3>
             <span class="badge badge-purple" id="printerCountBadge">0 Nyomtató</span>
           </div>
           <div class="table-wrap mt-16">
             <table>
               <thead>
                 <tr>
-                  <th data-i18n="th_printer_name">Nyomtató Neve</th>
-                  <th data-i18n="th_ip_type">IP / Típus</th>
-                  <th data-i18n="th_status">Állapot</th>
-                  <th data-i18n="th_default">Alapértelmezett</th>
-                  <th data-i18n="th_actions">Műveletek</th>
+                  <th>Nyomtató Neve</th>
+                  <th>IP / Típus</th>
+                  <th>Állapot</th>
+                  <th>Alapértelmezett</th>
+                  <th>Műveletek</th>
                 </tr>
               </thead>
               <tbody id="printersTableBody">
@@ -830,36 +827,36 @@
       <div class="card mt-24" style="border-color:rgba(6,182,212,0.3);">
         <div class="card-header-flex">
           <div>
-            <h3 data-i18n="printers_folder_title">📁 Mappából Nyomtatás & Beállítások</h3>
+            <h3>📁 Mappából Nyomtatás & Beállítások</h3>
             <p class="text-muted mt-4" id="printerDescText">A <code>/srv/samba/Print/nyomtatas</code> mappába helyezett dokumentumok automatikusan kinyomtatódnak és az <code>archive</code> mappába kerülnek.</p>
           </div>
           <label class="checkbox-row">
-            <input type="checkbox" id="printerServiceEnabled" onchange="savePrinterSettings()"> <strong data-i18n="printers_enable_feature">Funkció Bekapcsolása</strong>
+            <input type="checkbox" id="printerServiceEnabled" onchange="savePrinterSettings()"> <strong>Funkció Bekapcsolása</strong>
           </label>
         </div>
 
         <div id="printerConfigDetails" class="mt-16">
           <div class="form-grid">
             <div class="form-group">
-              <label data-i18n="printers_default_label">Alapértelmezett Nyomtató</label>
+              <label>Alapértelmezett Nyomtató</label>
               <select id="printerDefaultSelect" class="form-control">
                 <option value="">Rendszer alapértelmezett</option>
               </select>
             </div>
             <div class="form-group">
-              <label data-i18n="printers_interval_label">Mappavizsgálati Időköz (másodperc)</label>
+              <label>Mappavizsgálati Időköz (másodperc)</label>
               <input type="number" id="printerFolderInterval" class="form-control" value="10">
             </div>
           </div>
 
           <div class="sys-info-list mt-16">
-            <div class="sys-info-item"><span data-i18n="printers_monitored_folder_label">📁 Nyomtatási Mappa (SMB Megosztás):</span> <code id="printerMonitoredPath">/srv/samba/Print/nyomtatas</code></div>
-            <div class="sys-info-item"><span data-i18n="printers_archive_folder_label">📦 Archívum Mappa:</span> <code id="printerArchivePath">/srv/samba/Print/archive</code></div>
+            <div class="sys-info-item"><span>📁 Nyomtatási Mappa (SMB Megosztás):</span> <code id="printerMonitoredPath">/srv/samba/Print/nyomtatas</code></div>
+            <div class="sys-info-item"><span>📦 Archívum Mappa:</span> <code id="printerArchivePath">/srv/samba/Print/archive</code></div>
           </div>
 
           <div class="form-actions mt-16">
             <button class="btn btn-primary" onclick="savePrinterSettings()">
-              <span data-i18n="printers_save_btn">💾 Nyomtatási Beállítások Mentése</span>
+              💾 Nyomtatási Beállítások Mentése
             </button>
           </div>
         </div>
@@ -869,66 +866,66 @@
       <div class="card mt-24" style="border-color:rgba(139,92,246,0.3);">
         <div class="card-header-flex">
           <div>
-            <h3 data-i18n="email_print_title">✉️ E-mailen Keresztüli Nyomtatás (Email-to-Print)</h3>
+            <h3>✉️ E-mailen Keresztüli Nyomtatás (Email-to-Print)</h3>
             <p class="text-muted mt-4">A megadott e-mail fiókot figyeli a rendszer. Ha a megadott tárggyal (pl. <code>NYOMTATAS</code>) érkezik level, a csatolmányt automatikusan kinyomtatja és elmenti a nyomtatási mappába.</p>
           </div>
           <label class="checkbox-row">
-            <input type="checkbox" id="emailPrintEnabled"> <strong data-i18n="email_print_enable">E-mail Nyomtatás Bekapcsolása</strong>
+            <input type="checkbox" id="emailPrintEnabled"> <strong>E-mail Nyomtatás Bekapcsolása</strong>
           </label>
         </div>
 
         <div class="form-grid mt-16">
           <div class="form-group">
-            <label data-i18n="email_imap_host">IMAP Szerver Címe *</label>
+            <label>IMAP Szerver Címe *</label>
             <input type="text" id="emailPrintHost" class="form-control" placeholder="pl. imap.gmail.com vagy imap.freemail.hu">
           </div>
           <div class="form-group">
-            <label data-i18n="email_imap_port">IMAP Port</label>
+            <label>IMAP Port</label>
             <input type="number" id="emailPrintPort" class="form-control" value="993">
           </div>
           <div class="form-group">
-            <label data-i18n="email_imap_user">E-mail Cím (Felhasználónév) *</label>
+            <label>E-mail Cím (Felhasználónév) *</label>
             <input type="email" id="emailPrintUser" class="form-control" placeholder="nyomtatashoz@gmail.com">
           </div>
           <div class="form-group">
-            <label data-i18n="email_imap_pass">E-mail Jelszó / App Jelszó *</label>
+            <label>E-mail Jelszó / App Jelszó *</label>
             <input type="password" id="emailPrintPassword" class="form-control" placeholder="••••••••">
           </div>
           <div class="form-group">
-            <label data-i18n="email_filter">Keresett Levelek Tárgya (Subject Filter)</label>
+            <label>Keresett Levelek Tárgya (Subject Filter)</label>
             <input type="text" id="emailPrintFilter" class="form-control" value="NYOMTATAS" placeholder="NYOMTATAS">
           </div>
           <div class="form-group">
-            <label data-i18n="email_interval">Ellenőrzési Időköz (perc)</label>
+            <label>Ellenőrzési Időköz (perc)</label>
             <input type="number" id="emailPrintInterval" class="form-control" value="2">
           </div>
         </div>
 
         <div class="form-actions mt-16 flex-gap">
-          <button class="btn btn-outline" onclick="testEmailImapUi()" data-i18n="email_test_btn">
+          <button class="btn btn-outline" onclick="testEmailImapUi()">
             🧪 E-mail Fiók Tesztelése
           </button>
-          <button class="btn btn-outline" style="border-color:var(--purple);color:var(--purple);" onclick="triggerEmailCheckNow()" data-i18n="email_check_now_btn">
+          <button class="btn btn-outline" style="border-color:var(--purple);color:var(--purple);" onclick="triggerEmailCheckNow()">
             🔍 Levelek Lekérdezése Most
           </button>
           <button class="btn btn-primary" onclick="savePrinterSettings()">
-            <span data-i18n="printers_save_btn">💾 Nyomtatási Beállítások Mentése</span>
+            💾 Nyomtatási Beállítások Mentése
           </button>
         </div>
 
         <!-- Recent Emails List Section -->
         <div class="mt-24">
-          <h4 style="margin:0 0 12px;font-weight:600;display:flex;align-items:center;gap:6px;" data-i18n="email_recent_title">
+          <h4 style="margin:0 0 12px;font-weight:600;display:flex;align-items:center;gap:6px;">
             📨 Legutóbbi Feldolgozott Levelek (Nyomtatási Előzmények)
           </h4>
           <div class="table-wrap" style="background:var(--bg-input);border-radius:var(--radius-sm);border:1px solid var(--border);">
             <table style="width:100%;font-size:0.88rem;">
               <thead>
                 <tr>
-                  <th style="padding:10px;text-align:left;" data-i18n="th_sender">Küldő</th>
-                  <th style="padding:10px;text-align:left;" data-i18n="th_subject">Tárgy</th>
-                  <th style="padding:10px;text-align:left;white-space:nowrap;" data-i18n="th_date">Dátum</th>
-                  <th style="padding:10px;text-align:center;" data-i18n="th_files">Fájlok</th>
+                  <th style="padding:10px;text-align:left;">Küldő</th>
+                  <th style="padding:10px;text-align:left;">Tárgy</th>
+                  <th style="padding:10px;text-align:left;white-space:nowrap;">Dátum</th>
+                  <th style="padding:10px;text-align:center;">Fájlok</th>
                 </tr>
               </thead>
               <tbody id="recentEmailsTableBody">
