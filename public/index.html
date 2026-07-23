@@ -29,13 +29,13 @@
     </div>
 
     <nav class="sidebar-nav">
-      <div class="nav-section-title">FŐMENÜ</div>
+      <div class="nav-section-title" data-i18n="nav_sec_main">FŐMENÜ</div>
       <a href="#" class="nav-item active" data-section="dashboard" id="nav-dashboard">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
         <span data-i18n="menu_dashboard">Áttekintés</span>
       </a>
 
-      <div class="nav-section-title">HOZZÁFÉRÉS & FELHASZNÁLÓK</div>
+      <div class="nav-section-title" data-i18n="nav_sec_users">HOZZÁFÉRÉS & FELHASZNÁLÓK</div>
       <a href="#" class="nav-item" data-section="users" id="nav-users">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         <span data-i18n="menu_users">Felhasználók</span>
@@ -45,7 +45,7 @@
         <span data-i18n="menu_groups">Csoportok</span>
       </a>
 
-      <div class="nav-section-title">MEGOSZTÁSOK & JOGOK</div>
+      <div class="nav-section-title" data-i18n="nav_sec_shares">MEGOSZTÁSOK & JOGOK</div>
       <a href="#" class="nav-item" data-section="shares" id="nav-shares">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
         <span data-i18n="menu_shares">SMB Megosztások</span>
@@ -64,7 +64,7 @@
         <span class="badge badge-cyan ml-auto" id="navConnCount">0</span>
       </a>
 
-      <div class="nav-section-title">TÁRHELY & RENDSZER</div>
+      <div class="nav-section-title" data-i18n="nav_sec_storage">TÁRHELY & RENDSZER</div>
       <a href="#" class="nav-item" data-section="storage" id="nav-storage">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M21 19c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14"/><path d="M21 5v14"/></svg>
         <span data-i18n="menu_storage">Tárhely & Kvóták</span>
@@ -82,7 +82,7 @@
         <span data-i18n="menu_printers">Nyomtatók & Nyomtatás</span>
       </a>
 
-      <div class="nav-section-title">BEÁLLÍTÁSOK & AUDIT</div>
+      <div class="nav-section-title" data-i18n="nav_sec_settings">BEÁLLÍTÁSOK & AUDIT</div>
       <a href="#" class="nav-item" data-section="samba-config" id="nav-samba-config">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
         <span data-i18n="menu_samba_config">Samba Beállítások</span>
@@ -113,7 +113,7 @@
       </button>
       <div class="search-bar">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" id="globalSearch" placeholder="Gyorskeresés (felhasználók, megosztások, adatok)...">
+        <input type="text" id="globalSearch" placeholder="Gyorskeresés (felhasználók, megosztások, adatok)..." data-i18n-placeholder="search_global_placeholder">
       </div>
     </div>
 
@@ -147,20 +147,35 @@
           </div>
           <div class="dropdown-divider"></div>
           <a class="dropdown-item" onclick="openSettingsSubTab('notifications')">
-            <span>🔔 Értesítések Beállításai</span>
+            <span data-i18n="subtab_notifications">🔔 Értesítések Beállításai</span>
           </a>
           <a class="dropdown-item" onclick="openSettingsSubTab('updates')">
-            <span>📦 Verzió & Frissítések</span>
+            <span data-i18n="subtab_updates">📦 Verzió & Frissítések</span>
           </a>
           <a class="dropdown-item" onclick="openSettingsSubTab('samba')">
-            <span>⚙️ Samba SMB Beállítások</span>
+            <span data-i18n="subtab_samba">⚙️ Samba SMB Beállítások</span>
           </a>
           <a class="dropdown-item" onclick="openSettingsSubTab('storage')">
-            <span>💾 Tárhely Útvonal & Mentés</span>
+            <span data-i18n="subtab_storage">💾 Tárhely Útvonal & Mentés</span>
           </a>
           <a class="dropdown-item" onclick="openSettingsSubTab('profile')">
-            <span>🔐 Profil & Jelszó Módosítás</span>
+            <span data-i18n="subtab_profile">🔐 Profil & Jelszó Módosítás</span>
           </a>
+          <div class="dropdown-divider"></div>
+          <div class="dropdown-item-select" style="padding: 10px 16px; display: flex; flex-direction: column; gap: 6px;">
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;" data-i18n="lang_label">Rendszer Nyelve</label>
+            <select id="topLanguageSelect" onchange="changeLanguageFromTop(this.value)" class="form-control" style="font-size: 0.85rem; padding: 4px 8px; height: auto;">
+              <!-- Loaded dynamically -->
+            </select>
+          </div>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item style-danger" onclick="logoutApp()">
+            <span data-i18n="menu_logout">🚪 Kijelentkezés</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
           <div class="dropdown-divider"></div>
           <div class="dropdown-item-select" style="padding: 10px 16px; display: flex; flex-direction: column; gap: 6px;">
             <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;" data-i18n="lang_label">Rendszer Nyelve</label>
@@ -1080,10 +1095,10 @@
         <div class="card" style="border-color:rgba(139,92,246,0.3);">
           <div class="card-header-flex">
             <div>
-              <h3>🔔 Rendszer Értesítések (Discord Webhook & SMTP Email)</h3>
-              <p class="text-muted mt-4">Kapj automatikus értesítést a rendszereseményekről Discord csatornán vagy e-mailben.</p>
+              <h3 data-i18n="notif_title">🔔 Rendszer Értesítések (Discord Webhook & SMTP Email)</h3>
+              <p class="text-muted mt-4" data-i18n="notif_subtitle">Kapj automatikus értesítést a rendszereseményekről Discord csatornán vagy e-mailben.</p>
             </div>
-            <button class="btn btn-outline btn-sm" onclick="sendTestNotification()">
+            <button class="btn btn-outline btn-sm" onclick="sendTestNotification()" data-i18n="notif_test_btn">
               🧪 Teszt Értesítés Küldése
             </button>
           </div>
@@ -1094,14 +1109,14 @@
               <div class="card-header-flex mb-12">
                 <strong style="display:flex;align-items:center;gap:8px;">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.093.252-.192.372-.291a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.009c.12.099.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
-                  Discord Webhook Értesítés
+                  <span data-i18n="notif_discord_title">Discord Webhook Értesítés</span>
                 </strong>
                 <label class="checkbox-row" style="margin:0;">
-                  <input type="checkbox" id="notifDiscordEnabled"> Engedélyezve
+                  <input type="checkbox" id="notifDiscordEnabled"> <span data-i18n="enabled">Engedélyezve</span>
                 </label>
               </div>
               <div class="form-group">
-                <label>Discord Webhook URL</label>
+                <label data-i18n="notif_discord_url">Discord Webhook URL</label>
                 <input type="text" id="notifDiscordUrl" class="form-control" placeholder="https://discord.com/api/webhooks/...">
               </div>
             </div>
@@ -1109,59 +1124,59 @@
             <!-- SMTP Email Box -->
             <div class="card flex-1" style="background:var(--bg-input);">
               <div class="card-header-flex mb-12">
-                <strong style="display:flex;align-items:center;gap:8px;">
+                <strong style="display:flex;align-items:center;gap:8px;" data-i18n="notif_smtp_title">
                   ✉️ SMTP E-mail Értesítés
                 </strong>
                 <label class="checkbox-row" style="margin:0;">
-                  <input type="checkbox" id="notifSmtpEnabled"> Engedélyezve
+                  <input type="checkbox" id="notifSmtpEnabled"> <span data-i18n="enabled">Engedélyezve</span>
                 </label>
               </div>
               <div class="form-grid">
                 <div class="form-group">
-                  <label>SMTP Szerver Host *</label>
+                  <label data-i18n="notif_smtp_host">SMTP Szerver Host *</label>
                   <input type="text" id="notifSmtpHost" class="form-control" placeholder="smtp.gmail.com">
                 </div>
                 <div class="form-group">
-                  <label>Port (pl. 587 / 465)</label>
+                  <label data-i18n="notif_smtp_port">Port (pl. 587 / 465)</label>
                   <input type="number" id="notifSmtpPort" class="form-control" value="587">
                 </div>
                 <div class="form-group">
-                  <label>SMTP Felhasználó / E-mail</label>
+                  <label data-i18n="notif_smtp_user">SMTP Felhasználó / E-mail</label>
                   <input type="text" id="notifSmtpUser" class="form-control" placeholder="user@gmail.com">
                 </div>
                 <div class="form-group">
-                  <label>SMTP Jelszó / App Password</label>
+                  <label data-i18n="notif_smtp_pass">SMTP Jelszó / App Password</label>
                   <input type="password" id="notifSmtpPass" class="form-control" placeholder="••••••••">
                 </div>
                 <div class="form-group">
-                  <label>Küldő E-mail (From)</label>
+                  <label data-i18n="notif_smtp_from">Küldő E-mail (From)</label>
                   <input type="email" id="notifSmtpFrom" class="form-control" placeholder="nas-alert@domain.com">
                 </div>
                 <div class="form-group">
-                  <label>Fogadó E-mail (To) *</label>
+                  <label data-i18n="notif_smtp_to">Fogadó E-mail (To) *</label>
                   <input type="email" id="notifSmtpTo" class="form-control" placeholder="admin@domain.com">
                 </div>
               </div>
               <div class="mt-8">
-                <label class="checkbox-row"><input type="checkbox" id="notifSmtpSecure"> SSL/TLS Titkosítás (Port 465)</label>
+                <label class="checkbox-row"><input type="checkbox" id="notifSmtpSecure"> <span data-i18n="notif_smtp_secure">SSL/TLS Titkosítás (Port 465)</span></label>
               </div>
             </div>
           </div>
 
           <!-- Event Toggles -->
           <div class="mt-16">
-            <label style="font-size:0.85rem;font-weight:700;color:var(--text-secondary);">MELY ESEMÉNYEKRŐL KÉRSZ ÉRTESÍTÉST?</label>
+            <label style="font-size:0.85rem;font-weight:700;color:var(--text-secondary);" data-i18n="notif_events_label">MELY ESEMÉNYEKRŐL KÉRSZ ÉRTESÍTÉST?</label>
             <div class="checkbox-options-grid mt-8">
-              <label class="checkbox-row"><input type="checkbox" id="notifEventUsers" checked> 👤 Felhasználó műveletek (Létrehozás, Törlés)</label>
-              <label class="checkbox-row"><input type="checkbox" id="notifEventShares" checked> 📁 SMB Megosztás változások</label>
-              <label class="checkbox-row"><input type="checkbox" id="notifEventService" checked> ⚡ Samba Szolgáltatás állapotváltozás</label>
-              <label class="checkbox-row"><input type="checkbox" id="notifEventStorage" checked> 💾 Tárhely és Kvóta riasztások</label>
+              <label class="checkbox-row"><input type="checkbox" id="notifEventUsers" checked> <span data-i18n="notif_evt_users">👤 Felhasználó műveletek (Létrehozás, Törlés)</span></label>
+              <label class="checkbox-row"><input type="checkbox" id="notifEventShares" checked> <span data-i18n="notif_evt_shares">📁 SMB Megosztás változások</span></label>
+              <label class="checkbox-row"><input type="checkbox" id="notifEventService" checked> <span data-i18n="notif_evt_service">⚡ Samba Szolgáltatás állapotváltozás</span></label>
+              <label class="checkbox-row"><input type="checkbox" id="notifEventStorage" checked> <span data-i18n="notif_evt_storage">💾 Tárhely és Kvóta riasztások</span></label>
             </div>
           </div>
 
           <div class="form-actions mt-16">
             <button class="btn btn-primary" onclick="saveNotificationSettings()">
-              💾 Értesítési Beállítások Mentése
+              <span data-i18n="notif_save_btn">💾 Értesítési Beállítások Mentése</span>
             </button>
           </div>
         </div>
@@ -1174,29 +1189,29 @@
           <div class="card flex-1" style="border-color:var(--border-accent);">
             <div class="card-header-flex">
               <div>
-                <h3>🐙 Verziókezelés & GitHub Frissítés</h3>
-                <p class="text-muted mt-8">Automatikusan felismeri a legújabb kiadásokat a GitHub repozitóriumból (<code id="versionRepoLinkText">csuszy/smb_managger</code>).</p>
+                <h3 data-i18n="ver_title">🐙 Verziókezelés & GitHub Frissítés</h3>
+                <p class="text-muted mt-8" data-i18n="ver_subtitle">Automatikusan felismeri a legújabb kiadásokat a GitHub repozitóriumból (<code id="versionRepoLinkText">csuszy/smb_managger</code>).</p>
               </div>
               <span class="badge badge-purple" id="versionStatusBadge">Ellenőrzés...</span>
             </div>
 
             <div class="sys-info-list mt-16">
-              <div class="sys-info-item"><span>Telepített Verzió:</span> <strong id="verCurrentText">v0.2.0</strong></div>
-              <div class="sys-info-item"><span>Jelenlegi Git Commit:</span> <code id="verCommitText">—</code></div>
-              <div class="sys-info-item"><span>GitHub Legújabb Verzió:</span> <strong id="verLatestText">—</strong></div>
-              <div class="sys-info-item"><span>Legutóbbi Commit Üzenet:</span> <small class="text-muted" id="verCommitMsg">—</small></div>
-              <div class="sys-info-item"><span>Utolsó Frissítés:</span> <small class="text-muted" id="verPublishedAt">—</small></div>
+              <div class="sys-info-item"><span data-i18n="ver_installed">Telepített Verzió:</span> <strong id="verCurrentText">v0.2.0</strong></div>
+              <div class="sys-info-item"><span data-i18n="ver_commit">Jelenlegi Git Commit:</span> <code id="verCommitText">—</code></div>
+              <div class="sys-info-item"><span data-i18n="ver_latest">GitHub Legújabb Verzió:</span> <strong id="verLatestText">—</strong></div>
+              <div class="sys-info-item"><span data-i18n="ver_last_commit_msg">Legutóbbi Commit Üzenet:</span> <small class="text-muted" id="verCommitMsg">—</small></div>
+              <div class="sys-info-item"><span data-i18n="ver_last_update">Utolsó Frissítés:</span> <small class="text-muted" id="verPublishedAt">—</small></div>
             </div>
 
             <div class="flex-gap mt-16" style="align-items:center;flex-wrap:wrap;">
               <button class="btn btn-outline" onclick="checkAppVersion(true)">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-                Frissítések Ellenőrzése
+                <span data-i18n="ver_check_btn">Frissítések Ellenőrzése</span>
               </button>
               <button class="btn btn-primary" id="verApplyBtn" style="display:none;" onclick="applyAppUpdate()">
-                🚀 1-Kattintásos Rendszer Frissítése
+                <span data-i18n="ver_apply_btn">🚀 1-Kattintásos Rendszer Frissítése</span>
               </button>
-              <a href="https://github.com/csuszy/smb_managger" target="_blank" class="btn btn-ghost btn-sm">🐙 GitHub Repozitórium ↗</a>
+              <a href="https://github.com/csuszy/smb_managger" target="_blank" class="btn btn-ghost btn-sm" data-i18n="ver_repo_btn">🐙 GitHub Repozitórium ↗</a>
             </div>
           </div>
         </div>
@@ -1204,10 +1219,10 @@
         <!-- Changelog -->
         <div class="card mt-24" style="border-color:rgba(6,182,212,0.3);">
           <div class="card-header-flex">
-            <h3>📋 Git Változási Napló (Changelog)</h3>
+            <h3 data-i18n="changelog_title">📋 Git Változási Napló (Changelog)</h3>
             <button class="btn btn-ghost btn-sm" onclick="loadChangelog()">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-              Frissítés
+              <span data-i18n="btn_refresh">Frissítés</span>
             </button>
           </div>
           <div class="table-wrap mt-12">
@@ -1215,9 +1230,9 @@
               <thead>
                 <tr>
                   <th style="width:80px;">Commit</th>
-                  <th>Üzenet</th>
-                  <th>Szerző</th>
-                  <th>Dátum</th>
+                  <th data-i18n="th_event">Üzenet</th>
+                  <th data-i18n="th_user">Szerző</th>
+                  <th data-i18n="th_date">Dátum</th>
                 </tr>
               </thead>
               <tbody id="changelogTableBody">
@@ -1230,10 +1245,10 @@
         <!-- Releases List -->
         <div class="card mt-24" style="border-color:rgba(245,158,11,0.3);">
           <div class="card-header-flex">
-            <h3>🏷️ GitHub Kiadások (Releases)</h3>
+            <h3 data-i18n="releases_title">🏷️ GitHub Kiadások (Releases)</h3>
             <button class="btn btn-ghost btn-sm" onclick="loadReleasesList()">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-              Frissítés
+              <span data-i18n="btn_refresh">Frissítés</span>
             </button>
           </div>
           <div id="releasesListContainer" class="mt-12">
@@ -1247,10 +1262,10 @@
         <div class="card mb-24" style="border-color:rgba(6,182,212,0.3);">
           <div class="card-header-flex">
             <div>
-              <h3>⚙️ Samba SMB Szerver Beállítások</h3>
-              <p class="text-muted mt-4">A Samba globális hálózati paramétereit, munkacsoportját és a nyers smb.conf szerkesztőt a Samba Beállítások menüben érheted el.</p>
+              <h3 data-i18n="samba_settings_tab_title">⚙️ Samba SMB Szerver Beállítások</h3>
+              <p class="text-muted mt-4" data-i18n="samba_settings_tab_desc">A Samba globális hálózati paramétereit, munkacsoportját és a nyers smb.conf szerkesztőt a Samba Beállítások menüben érheted el.</p>
             </div>
-            <button class="btn btn-primary" onclick="switchSection('samba-config')">
+            <button class="btn btn-primary" onclick="switchSection('samba-config')" data-i18n="samba_settings_open_btn">
               ⚙️ Samba Konfiguráció Megnyitása ➔
             </button>
           </div>
@@ -1262,13 +1277,13 @@
         <div class="dashboard-row">
           <!-- App Name & General System Settings Widget -->
           <div class="card flex-1" style="border-color:rgba(139,92,246,0.3);">
-            <h3>🏷️ Alkalmazás Neve & Címe (App Name)</h3>
-            <p class="text-muted mt-8">Itt módosíthatod az alkalmazás megjelenített nevét, amely a böngésző lap címsorában (Title) és az oldalsó menüben is látható.</p>
+            <h3 data-i18n="app_name_title">🏷️ Alkalmazás Neve & Címe (App Name)</h3>
+            <p class="text-muted mt-8" data-i18n="app_name_desc">Itt módosíthatod az alkalmazás megjelenített nevét, amely a böngésző lap címsorában (Title) és az oldalsó menüben is látható.</p>
             <div class="form-group mt-16">
-              <label>Alkalmazás Címe / Neve *</label>
+              <label data-i18n="app_name_label">Alkalmazás Címe / Neve *</label>
               <div style="display:flex;gap:10px;">
                 <input type="text" id="settingsAppName" class="form-control" placeholder="SambaHub" value="SambaHub">
-                <button class="btn btn-primary" onclick="saveAppNameFromSettings()">Mentés</button>
+                <button class="btn btn-primary" onclick="saveAppNameFromSettings()" data-i18n="save">Mentés</button>
               </div>
             </div>
           </div>
@@ -1276,12 +1291,12 @@
           <!-- Storage Path Configuration Widget -->
           <div class="card flex-1" style="border-color:rgba(6,182,212,0.3);">
             <h3 data-i18n="storage_path_settings">💾 Megfigyelt Tárhely Könyvtár (Storage Base Path)</h3>
-            <p class="text-muted mt-8">Itt adhatod meg azt az útvonalat, ahol a csatolt tároló vagy SMB megosztási mappák találhatók (pl. <code>/srv/samba</code> vagy <code>/mnt/storage</code>).</p>
+            <p class="text-muted mt-8" data-i18n="storage_path_desc">Itt adhatod meg azt az útvonalat, ahol a csatolt tároló vagy SMB megosztási mappák találhatók (pl. <code>/srv/samba</code> vagy <code>/mnt/storage</code>).</p>
             <div class="form-group mt-16">
-              <label>Megfigyelt Tárhely Útvonal *</label>
+              <label data-i18n="storage_path_label">Megfigyelt Tárhely Útvonal *</label>
               <div style="display:flex;gap:10px;">
                 <input type="text" id="settingsStoragePath" class="form-control" placeholder="/srv/samba">
-                <button class="btn btn-primary" onclick="saveStoragePathFromSettings()">Mentés</button>
+                <button class="btn btn-primary" onclick="saveStoragePathFromSettings()" data-i18n="save">Mentés</button>
               </div>
             </div>
           </div>
@@ -1289,14 +1304,14 @@
           <!-- Language Settings Widget -->
           <div class="card flex-1" style="border-color:rgba(245,158,11,0.3);">
             <h3 data-i18n="lang_settings">🌐 Rendszer Nyelve (System Language)</h3>
-            <p class="text-muted mt-8">Válaszd ki a felület nyelvét. Új nyelveket a <code>public/locales/</code> könyvtárba helyezett JSON fájlokkal adhatsz hozzá.</p>
+            <p class="text-muted mt-8" data-i18n="lang_settings_desc">Válaszd ki a felület nyelvét. Új nyelveket a <code>public/locales/</code> könyvtárba helyezett JSON fájlokkal adhatsz hozzá.</p>
             <div class="form-group mt-16">
               <label data-i18n="lang_label">Nyelvválasztás / Language Select *</label>
               <div style="display:flex;gap:10px;">
                 <select id="settingsLanguageSelect" class="form-control">
                   <!-- Loaded dynamically -->
                 </select>
-                <button class="btn btn-primary" onclick="saveLanguageFromSettings()">Mentés</button>
+                <button class="btn btn-primary" onclick="saveLanguageFromSettings()" data-i18n="save">Mentés</button>
               </div>
             </div>
           </div>
@@ -1305,16 +1320,16 @@
         <div class="dashboard-row mt-24">
           <!-- Export / Import Widget -->
           <div class="card flex-1">
-            <h3>Konfiguráció Export / Import</h3>
-            <p class="text-muted mt-8">Töltsd le a teljes NAS konfigurációt JSON-ben, vagy állítsd vissza egy mentésből.</p>
+            <h3 data-i18n="export_title">Konfiguráció Export / Import</h3>
+            <p class="text-muted mt-8" data-i18n="export_desc">Töltsd le a teljes NAS konfigurációt JSON-ben, vagy állítsd vissza egy mentésből.</p>
             <div class="flex-gap mt-16">
               <a href="/api/settings/export" class="btn btn-primary" download>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                Konfiguráció Letöltése (Export)
+                <span data-i18n="export_btn">Konfiguráció Letöltése (Export)</span>
               </a>
               <button class="btn btn-outline" onclick="triggerImportConfig()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                Importálás (Restore)
+                <span data-i18n="import_btn">Importálás (Restore)</span>
               </button>
               <input type="file" id="importFileInput" style="display:none;" onchange="handleImportConfig(event)">
             </div>
@@ -1325,30 +1340,30 @@
       <!-- TAB 5: PROFILE & SECURITY -->
       <div class="subtab-content" id="subtab-content-profile">
         <div class="card" style="max-width:540px;border-color:rgba(139,92,246,0.3);">
-          <h3>🔐 Adminisztrátori Fiók & Jelszó Módosítása</h3>
-          <p class="text-muted mt-8">Itt módosíthatod a <span class="app-name-text">SambaHub</span> felületre való bejelentkezéshez használt adminisztrátori jelszót.</p>
+          <h3 data-i18n="admin_pass_title">🔐 Adminisztrátori Fiók & Jelszó Módosítása</h3>
+          <p class="text-muted mt-8" data-i18n="admin_pass_desc">Itt módosíthatod a <span class="app-name-text">SambaHub</span> felületre való bejelentkezéshez használt adminisztrátori jelszót.</p>
 
           <div class="sys-info-list mt-16">
-            <div class="sys-info-item"><span>Adminisztrátor Felhasználónév:</span> <strong id="profileUsernameDisplay">admin</strong></div>
-            <div class="sys-info-item"><span>Szerepkör:</span> <span class="badge badge-purple">Rendszer Adminisztrátor</span></div>
+            <div class="sys-info-item"><span data-i18n="admin_username_label">Adminisztrátor Felhasználónév:</span> <strong id="profileUsernameDisplay">admin</strong></div>
+            <div class="sys-info-item"><span data-i18n="role_label">Szerepkör:</span> <span class="badge badge-purple" data-i18n="role_sys_admin">Rendszer Adminisztrátor</span></div>
           </div>
 
           <form onsubmit="handleChangeAdminPasswordSubmit(event)" class="mt-24">
             <div class="form-group">
-              <label>Jelenlegi Admin Jelszó *</label>
+              <label data-i18n="admin_curr_pass_label">Jelenlegi Admin Jelszó *</label>
               <input type="password" id="adminCurrentPassword" class="form-control" placeholder="••••••••" required autocomplete="current-password">
             </div>
             <div class="form-group mt-12">
-              <label>Új Admin Jelszó *</label>
+              <label data-i18n="admin_new_pass_label">Új Admin Jelszó *</label>
               <input type="password" id="adminNewPassword" class="form-control" placeholder="••••••••" required autocomplete="new-password">
             </div>
             <div class="form-group mt-12">
-              <label>Új Jelszó Megerősítése *</label>
+              <label data-i18n="admin_new_pass_confirm_label">Új Jelszó Megerősítése *</label>
               <input type="password" id="adminNewPasswordConfirm" class="form-control" placeholder="••••••••" required autocomplete="new-password">
             </div>
             <div class="form-actions mt-24">
               <button type="submit" class="btn btn-primary">
-                💾 Jelszó Módosítása
+                <span data-i18n="admin_pass_save_btn">💾 Jelszó Módosítása</span>
               </button>
             </div>
           </form>
@@ -1367,38 +1382,38 @@
   <!-- User Modal (Add/Edit) -->
   <div class="modal-overlay" id="userModal">
     <div class="modal">
-      <h3 id="userModalTitle">Új Felhasználó Létrehozása</h3>
+      <h3 id="userModalTitle" data-i18n="user_modal_new_title">Új Felhasználó Létrehozása</h3>
       <div class="form-group mt-16">
-        <label>Felhasználónév *</label>
-        <input type="text" id="uModalUsername" class="form-control" placeholder="pl. janos">
+        <label data-i18n="username_label">Felhasználónév *</label>
+        <input type="text" id="uModalUsername" class="form-control" placeholder="pl. janos" data-i18n-placeholder="placeholder_username">
       </div>
       <div class="form-group">
-        <label>Teljes Név</label>
-        <input type="text" id="uModalFullName" class="form-control" placeholder="pl. Kovács János">
+        <label data-i18n="fullname_label">Teljes Név</label>
+        <input type="text" id="uModalFullName" class="form-control" placeholder="pl. Kovács János" data-i18n-placeholder="placeholder_fullname">
       </div>
       <div class="form-group mt-12">
-        <label>Felhasználói Szerepkör (Role) *</label>
+        <label data-i18n="role_select_label">Felhasználói Szerepkör (Role) *</label>
         <select id="uModalRole" class="form-control">
-          <option value="user" selected>📁 Hagyományos Samba Felhasználó (SMB elérés)</option>
-          <option value="admin">🔐 Web Adminisztrátor (SambaHub Bejelentkezés)</option>
+          <option value="user" selected data-i18n="role_option_user">📁 Hagyományos Samba Felhasználó (SMB elérés)</option>
+          <option value="admin" data-i18n="role_option_admin">🔐 Web Adminisztrátor (SambaHub Bejelentkezés)</option>
         </select>
-        <small class="text-muted mt-4" style="display:block;">A Web Adminisztrátorok be tudnak jelentkezni a <span class="app-name-text">SambaHub</span> felületre és kezelni a szervert.</small>
+        <small class="text-muted mt-4" style="display:block;" data-i18n="role_help_text">A Web Adminisztrátorok be tudnak jelentkezni a <span class="app-name-text">SambaHub</span> felületre és kezelni a szervert.</small>
       </div>
       <div class="form-group" id="uModalPassGroup">
-        <label>Jelszó *</label>
-        <input type="password" id="uModalPassword" class="form-control" placeholder="Jelszó">
+        <label data-i18n="password_label">Jelszó *</label>
+        <input type="password" id="uModalPassword" class="form-control" placeholder="Jelszó" data-i18n-placeholder="placeholder_password">
       </div>
       <div class="form-group">
-        <label>Tárhely Limit Kvóta (MB, 0 = korlátlan)</label>
+        <label data-i18n="quota_limit_label">Tárhely Limit Kvóta (MB, 0 = korlátlan)</label>
         <input type="number" id="uModalQuota" class="form-control" value="0">
       </div>
       <div class="form-group">
-        <label>Csoportok Hozzárendelése</label>
+        <label data-i18n="assign_groups_label">Csoportok Hozzárendelése</label>
         <div id="uModalGroupsCheckboxes" class="checkbox-group-list"></div>
       </div>
       <div class="modal-actions">
-        <button class="btn btn-ghost" onclick="closeModal('userModal')">Mégse</button>
-        <button class="btn btn-primary" onclick="saveUserFromModal()">Mentés</button>
+        <button class="btn btn-ghost" onclick="closeModal('userModal')" data-i18n="cancel">Mégse</button>
+        <button class="btn btn-primary" onclick="saveUserFromModal()" data-i18n="save">Mentés</button>
       </div>
     </div>
   </div>
@@ -1406,15 +1421,15 @@
   <!-- Change Password Modal -->
   <div class="modal-overlay" id="userPassModal">
     <div class="modal">
-      <h3>Jelszó Módosítása</h3>
+      <h3 data-i18n="user_pass_modal_title">Jelszó Módosítása</h3>
       <p class="text-muted" id="userPassModalUser"></p>
       <div class="form-group mt-16">
-        <label>Új Jelszó</label>
+        <label data-i18n="new_pass_label">Új Jelszó</label>
         <input type="password" id="uModalNewPass" class="form-control">
       </div>
       <div class="modal-actions">
-        <button class="btn btn-ghost" onclick="closeModal('userPassModal')">Mégse</button>
-        <button class="btn btn-primary" onclick="saveUserPassword()">Jelszó Frissítése</button>
+        <button class="btn btn-ghost" onclick="closeModal('userPassModal')" data-i18n="cancel">Mégse</button>
+        <button class="btn btn-primary" onclick="saveUserPassword()" data-i18n="update_pass_btn">Jelszó Frissítése</button>
       </div>
     </div>
   </div>
@@ -1422,14 +1437,14 @@
   <!-- Group Modal -->
   <div class="modal-overlay" id="groupModal">
     <div class="modal">
-      <h3>Új Csoport Létrehozása</h3>
+      <h3 data-i18n="group_modal_title">Új Csoport Létrehozása</h3>
       <div class="form-group mt-16">
-        <label>Csoportnév *</label>
-        <input type="text" id="gModalName" class="form-control" placeholder="pl. fejlodes">
+        <label data-i18n="group_name_label">Csoportnév *</label>
+        <input type="text" id="gModalName" class="form-control" placeholder="pl. fejlodes" data-i18n-placeholder="placeholder_group_name">
       </div>
       <div class="modal-actions">
-        <button class="btn btn-ghost" onclick="closeModal('groupModal')">Mégse</button>
-        <button class="btn btn-primary" onclick="saveGroupFromModal()">Létrehozás</button>
+        <button class="btn btn-ghost" onclick="closeModal('groupModal')" data-i18n="cancel">Mégse</button>
+        <button class="btn btn-primary" onclick="saveGroupFromModal()" data-i18n="create_btn">Létrehozás</button>
       </div>
     </div>
   </div>
@@ -1437,33 +1452,33 @@
   <!-- Share Modal (Add/Edit) -->
   <div class="modal-overlay" id="shareModal">
     <div class="modal" style="max-width:550px;">
-      <h3 id="shareModalTitle">Új SMB Megosztás Létrehozása</h3>
+      <h3 id="shareModalTitle" data-i18n="share_modal_new_title">Új SMB Megosztás Létrehozása</h3>
       <div class="form-group mt-16">
-        <label>Megosztás Neve *</label>
-        <input type="text" id="sModalName" class="form-control" placeholder="pl. dokumentumok">
+        <label data-i18n="share_name_label">Megosztás Neve *</label>
+        <input type="text" id="sModalName" class="form-control" placeholder="pl. dokumentumok" data-i18n-placeholder="placeholder_share_name">
       </div>
       <div class="form-group">
-        <label>Mappa Útvonal *</label>
-        <input type="text" id="sModalPath" class="form-control" placeholder="pl. /srv/samba/dokumentumok">
+        <label data-i18n="share_path_label">Mappa Útvonal *</label>
+        <input type="text" id="sModalPath" class="form-control" placeholder="pl. /srv/samba/dokumentumok" data-i18n-placeholder="placeholder_share_path">
       </div>
       <div class="form-group">
-        <label>Leírás / Komment</label>
-        <input type="text" id="sModalComment" class="form-control" placeholder="Mappa leírása">
+        <label data-i18n="share_comment_label">Leírás / Komment</label>
+        <input type="text" id="sModalComment" class="form-control" placeholder="Mappa leírása" data-i18n-placeholder="placeholder_share_comment">
       </div>
       <div class="checkbox-options-grid mt-12">
-        <label class="checkbox-row"><input type="checkbox" id="sModalPublic"> Publikus / Vendég hozzáférés</label>
-        <label class="checkbox-row"><input type="checkbox" id="sModalReadOnly"> Csak Olvasható</label>
-        <label class="checkbox-row"><input type="checkbox" id="sModalRecycle" checked> Samba Lomtár Engedélyezése</label>
-        <label class="checkbox-row"><input type="checkbox" id="sModalDisabled"> Tiltva (Inaktív)</label>
+        <label class="checkbox-row"><input type="checkbox" id="sModalPublic"> <span data-i18n="share_public_label">Publikus / Vendég hozzáférés</span></label>
+        <label class="checkbox-row"><input type="checkbox" id="sModalReadOnly"> <span data-i18n="share_read_only_label">Csak Olvasható</span></label>
+        <label class="checkbox-row"><input type="checkbox" id="sModalRecycle" checked> <span data-i18n="share_recycle_label">Samba Lomtár Engedélyezése</span></label>
+        <label class="checkbox-row"><input type="checkbox" id="sModalDisabled"> <span data-i18n="share_disabled_label">Tiltva (Inaktív)</span></label>
       </div>
       <div class="form-group mt-12">
-        <label>👥 Hozzáférésre Engedélyezett Felhasználók & Csoportok (Kijelölés listából)</label>
+        <label data-i18n="share_valid_users_label">👥 Hozzáférésre Engedélyezett Felhasználók & Csoportok (Kijelölés listából)</label>
         <div class="checkbox-picker-grid mt-8" id="sModalValidUsersGrid">
           <span class="text-muted">Betöltés...</span>
         </div>
       </div>
       <div class="form-group mt-12">
-        <label>✏️ Írási Jogosultsággal Rendelkezők (Write List — Kijelölés listából)</label>
+        <label data-i18n="share_write_list_label">✏️ Írási Jogosultsággal Rendelkezők (Write List — Kijelölés listából)</label>
         <div class="checkbox-picker-grid mt-8" id="sModalWriteListGrid">
           <span class="text-muted">Betöltés...</span>
         </div>
@@ -1472,8 +1487,8 @@
       <input type="hidden" id="sModalValidUsers">
       <input type="hidden" id="sModalWriteList">
       <div class="modal-actions">
-        <button class="btn btn-ghost" onclick="closeModal('shareModal')">Mégse</button>
-        <button class="btn btn-primary" onclick="saveShareFromModal()">Megosztás Mentése</button>
+        <button class="btn btn-ghost" onclick="closeModal('shareModal')" data-i18n="cancel">Mégse</button>
+        <button class="btn btn-primary" onclick="saveShareFromModal()" data-i18n="save_share_btn">Megosztás Mentése</button>
       </div>
     </div>
   </div>
@@ -1481,14 +1496,14 @@
   <!-- Snapshot Modal -->
   <div class="modal-overlay" id="snapshotModal">
     <div class="modal">
-      <h3>Új Pillanatkép (Snapshot)</h3>
+      <h3 data-i18n="snap_modal_title">Új Pillanatkép (Snapshot)</h3>
       <div class="form-group mt-16">
-        <label>Snapshot Neve</label>
-        <input type="text" id="snapModalName" class="form-control" placeholder="pl. mentes_2026_07">
+        <label data-i18n="snap_name_label">Snapshot Neve</label>
+        <input type="text" id="snapModalName" class="form-control" placeholder="pl. mentes_2026_07" data-i18n-placeholder="placeholder_snap_name">
       </div>
       <div class="modal-actions">
-        <button class="btn btn-ghost" onclick="closeModal('snapshotModal')">Mégse</button>
-        <button class="btn btn-primary" onclick="saveSnapshotFromModal()">Létrehozás</button>
+        <button class="btn btn-ghost" onclick="closeModal('snapshotModal')" data-i18n="cancel">Mégse</button>
+        <button class="btn btn-primary" onclick="saveSnapshotFromModal()" data-i18n="create_btn">Létrehozás</button>
       </div>
     </div>
   </div>
@@ -1496,15 +1511,15 @@
   <!-- Quota Modal -->
   <div class="modal-overlay" id="quotaModal">
     <div class="modal">
-      <h3>Felhasználó Kvóta Beállítása</h3>
+      <h3 data-i18n="quota_modal_title">Felhasználó Kvóta Beállítása</h3>
       <p class="text-muted" id="quotaModalUser"></p>
       <div class="form-group mt-16">
-        <label>Limit (MB, 0 = korlátlan)</label>
+        <label data-i18n="quota_limit_label">Limit (MB, 0 = korlátlan)</label>
         <input type="number" id="qModalLimit" class="form-control">
       </div>
       <div class="modal-actions">
-        <button class="btn btn-ghost" onclick="closeModal('quotaModal')">Mégse</button>
-        <button class="btn btn-primary" onclick="saveUserQuotaFromModal()">Mentés</button>
+        <button class="btn btn-ghost" onclick="closeModal('quotaModal')" data-i18n="cancel">Mégse</button>
+        <button class="btn btn-primary" onclick="saveUserQuotaFromModal()" data-i18n="save">Mentés</button>
       </div>
     </div>
   </div>
@@ -1513,12 +1528,12 @@
   <div class="modal-overlay" id="fileBrowserModal">
     <div class="modal" style="max-width:700px;">
       <div class="card-header-flex">
-        <h3>📁 Szerver Mappa & Fájl Böngésző</h3>
+        <h3 data-i18n="fb_title">📁 Szerver Mappa & Fájl Böngésző</h3>
         <button class="btn btn-ghost btn-sm" onclick="closeModal('fileBrowserModal')">✕</button>
       </div>
       <div class="mt-12 mb-12">
         <div style="display:flex;gap:8px;align-items:center;">
-          <button class="btn btn-ghost btn-sm" id="fbParentBtn" onclick="navigateFileBrowserParent()">⬆️ Döntés/Vissza</button>
+          <button class="btn btn-ghost btn-sm" id="fbParentBtn" onclick="navigateFileBrowserParent()" data-i18n="fb_parent_btn">⬆️ Döntés/Vissza</button>
           <code id="fbCurrentPathText" style="flex:1;font-size:0.85rem;">/srv/samba</code>
         </div>
       </div>
@@ -1526,10 +1541,10 @@
         <table>
           <thead>
             <tr>
-              <th>Név</th>
-              <th>Típus</th>
-              <th>Méret</th>
-              <th>Művelet</th>
+              <th data-i18n="th_filename">Név</th>
+              <th data-i18n="th_type">Típus</th>
+              <th data-i18n="th_size">Méret</th>
+              <th data-i18n="th_actions">Művelet</th>
             </tr>
           </thead>
           <tbody id="fbTableBody">
@@ -1538,8 +1553,8 @@
         </table>
       </div>
       <div class="modal-actions mt-16">
-        <button class="btn btn-ghost" onclick="closeModal('fileBrowserModal')">Bezárás</button>
-        <button class="btn btn-primary" onclick="selectCurrentFolderForPerms()">Ezen mappa megnyitása a Jogosultság Kezelőben</button>
+        <button class="btn btn-ghost" onclick="closeModal('fileBrowserModal')" data-i18n="close">Bezárás</button>
+        <button class="btn btn-primary" onclick="selectCurrentFolderForPerms()" data-i18n="fb_open_in_perms">Ezen mappa megnyitása a Jogosultság Kezelőben</button>
       </div>
     </div>
   </div>
@@ -1547,11 +1562,11 @@
   <!-- Confirm Modal -->
   <div class="modal-overlay" id="confirmModal">
     <div class="modal">
-      <h3 id="confirmTitle">Megerősítés</h3>
+      <h3 id="confirmTitle" data-i18n="confirm_title">Megerősítés</h3>
       <p id="confirmText" class="mt-8 text-muted"></p>
       <div class="modal-actions mt-24">
-        <button class="btn btn-ghost" onclick="closeModal('confirmModal')">Mégse</button>
-        <button class="btn btn-danger" id="confirmBtn">Folytatás</button>
+        <button class="btn btn-ghost" onclick="closeModal('confirmModal')" data-i18n="cancel">Mégse</button>
+        <button class="btn btn-danger" id="confirmBtn" data-i18n="continue">Folytatás</button>
       </div>
     </div>
   </div>
@@ -1565,26 +1580,26 @@
         <div class="logo-icon" style="margin:0 auto 12px;width:56px;height:56px;">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
         </div>
-        <h2>🚀 <span class="app-name-text">SambaHub</span> Telepítés</h2>
-        <p class="text-muted mt-8">Első használat: Hozd létre az adminisztrátori fiókot és add meg a megfigyelt tárhely útvonalát.</p>
+        <h2>🚀 <span class="app-name-text">SambaHub</span> <span data-i18n="setup_title">Telepítés</span></h2>
+        <p class="text-muted mt-8" data-i18n="setup_desc">Első használat: Hozd létre az adminisztrátori fiókot és add meg a megfigyelt tárhely útvonalát.</p>
       </div>
       <form id="setupForm" onsubmit="handleSetupSubmit(event)" class="mt-24">
         <div class="form-group">
-          <label>Adminisztrátor Felhasználónév *</label>
+          <label data-i18n="admin_username_label">Adminisztrátor Felhasználónév *</label>
           <input type="text" id="setupUsername" class="form-control" placeholder="admin" required autofocus autocomplete="username">
         </div>
         <div class="form-group">
-          <label>Adminisztrátor Jelszó *</label>
+          <label data-i18n="admin_pass_label">Adminisztrátor Jelszó *</label>
           <input type="password" id="setupPassword" class="form-control" placeholder="••••••••" required autocomplete="new-password">
         </div>
         <div class="form-group">
-          <label>Jelszó Megerősítése *</label>
+          <label data-i18n="admin_pass_confirm_label">Jelszó Megerősítése *</label>
           <input type="password" id="setupPasswordConfirm" class="form-control" placeholder="••••••••" required autocomplete="new-password">
         </div>
         <div class="form-group">
-          <label>💾 Megfigyelt Tárhely Útvonal (pl. felcsatolt tároló)</label>
+          <label data-i18n="setup_storage_label">💾 Megfigyelt Tárhely Útvonal (pl. felcsatolt tároló)</label>
           <input type="text" id="setupStoragePath" class="form-control" value="/srv/samba" placeholder="/srv/samba vagy /mnt/storage">
-          <small class="text-muted mt-4" style="display:block;">Ezt az útvonalat fogja figyelni a rendszer a tárhely statisztikákhoz és fájlböngészéshez.</small>
+          <small class="text-muted mt-4" style="display:block;" data-i18n="setup_storage_help">Ezt az útvonalat fogja figyelni a rendszer a tárhely statisztikákhoz és fájlböngészéshez.</small>
         </div>
 
         <!-- Setup Progress Bar -->
@@ -1599,7 +1614,7 @@
         </div>
 
         <button type="submit" id="setupSubmitBtn" class="btn btn-primary btn-block mt-24" style="width:100%;padding:12px;font-size:1rem;">
-          ✨ Telepítés & Bejelentkezés
+          <span data-i18n="setup_btn">✨ Telepítés & Bejelentkezés</span>
         </button>
       </form>
     </div>
@@ -1614,20 +1629,20 @@
         <div class="logo-icon" style="margin:0 auto 12px;width:56px;height:56px;">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
         </div>
-        <h2>🔑 Bejelentkezés</h2>
-        <p class="text-muted mt-8">Adja meg az adminisztrátori azonosítóit a folytatáshoz</p>
+        <h2 data-i18n="login_title">🔑 Bejelentkezés</h2>
+        <p class="text-muted mt-8" data-i18n="login_subtitle">Adja meg az adminisztrátori azonosítóit a folytatáshoz</p>
       </div>
       <form id="loginForm" onsubmit="handleLoginSubmit(event)" class="mt-24">
         <div class="form-group">
-          <label>Felhasználónév</label>
+          <label data-i18n="username_label">Felhasználónév</label>
           <input type="text" id="loginUsername" class="form-control" placeholder="admin" required autofocus autocomplete="username">
         </div>
         <div class="form-group">
-          <label>Jelszó</label>
+          <label data-i18n="password_label">Jelszó</label>
           <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required autocomplete="current-password">
         </div>
         <button type="submit" class="btn btn-primary btn-block mt-24" style="width:100%;padding:12px;font-size:1rem;">
-          Bejelentkezés ➔
+          <span data-i18n="login_btn">Bejelentkezés ➔</span>
         </button>
       </form>
     </div>
@@ -1636,23 +1651,23 @@
   <!-- Add Manual Printer Modal -->
   <div class="modal-overlay" id="addPrinterModal">
     <div class="modal">
-      <h3>➕ Hálózati Nyomtató Hozzáadása (Wi-Fi / LAN IP)</h3>
-      <p class="text-muted mt-8">Add meg az otthoni nyomtatód IP címét (pl. 192.168.1.100 vagy 192.168.1.50).</p>
+      <h3 data-i18n="add_printer_modal_title">➕ Hálózati Nyomtató Hozzáadása (Wi-Fi / LAN IP)</h3>
+      <p class="text-muted mt-8" data-i18n="add_printer_modal_desc">Add meg az otthoni nyomtatód IP címét (pl. 192.168.1.100 vagy 192.168.1.50).</p>
       <div class="form-group mt-16">
-        <label>Nyomtató Elnevezése *</label>
+        <label data-i18n="printer_name_label">Nyomtató Elnevezése *</label>
         <input type="text" id="manualPrinterName" class="form-control" placeholder="pl. Otthoni HP / Canon Nyomtató">
       </div>
       <div class="form-group mt-12">
-        <label>Nyomtató IP Címe *</label>
+        <label data-i18n="printer_ip_label">Nyomtató IP Címe *</label>
         <input type="text" id="manualPrinterIp" class="form-control" placeholder="192.168.1.100">
       </div>
       <div class="form-group mt-12">
-        <label>Port (Alapértelmezett: 9100 JetDirect / Raw)</label>
+        <label data-i18n="printer_port_label">Port (Alapértelmezett: 9100 JetDirect / Raw)</label>
         <input type="number" id="manualPrinterPort" class="form-control" value="9100">
       </div>
       <div class="modal-actions mt-24">
-        <button class="btn btn-ghost" onclick="closeModal('addPrinterModal')">Mégse</button>
-        <button class="btn btn-primary" onclick="saveManualPrinterFromModal()">Mentés & Hozzáadás</button>
+        <button class="btn btn-ghost" onclick="closeModal('addPrinterModal')" data-i18n="cancel">Mégse</button>
+        <button class="btn btn-primary" onclick="saveManualPrinterFromModal()" data-i18n="save_add_btn">Mentés & Hozzáadás</button>
       </div>
     </div>
   </div>
@@ -1680,10 +1695,10 @@
     <div class="auth-card" style="max-width:500px;text-align:center;border:1px solid rgba(139,92,246,0.3);box-shadow:0 0 50px rgba(139,92,246,0.15);background:var(--bg-card);">
       <div class="logo-icon spinner-gear" style="margin:0 auto 24px;width:72px;height:72px;background:linear-gradient(135deg, var(--purple), #ec4899);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 0 30px rgba(139,92,246,0.4);animation:spin 3s linear infinite;">
         <!-- Glowing spinning icon -->
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="#fff" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       </div>
-      <h2 style="font-weight:700;letter-spacing:-0.5px;" class="glowing-text">⚡ Rendszer frissítése folyamatban...</h2>
-      <p class="text-muted mt-8" style="font-size:0.95rem;">Kérlek várj, a <span class="app-name-text">SambaHub</span> letölti a legújabb kiadást és újraindítja a szolgáltatásokat.</p>
+      <h2 style="font-weight:700;letter-spacing:-0.5px;" class="glowing-text" data-i18n="update_progress_title">⚡ Rendszer frissítése folyamatban...</h2>
+      <p class="text-muted mt-8" style="font-size:0.95rem;" data-i18n="update_progress_desc">Kérlek várj, a <span class="app-name-text">SambaHub</span> letölti a legújabb kiadást és újraindítja a szolgáltatásokat.</p>
       
       <div class="progress-bar-container mt-28" style="background:rgba(255,255,255,0.05);border-radius:10px;padding:4px;">
         <div class="progress-bar-track" style="height:12px;border-radius:6px;overflow:hidden;">
