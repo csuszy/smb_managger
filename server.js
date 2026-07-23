@@ -1013,6 +1013,34 @@ app.post('/api/service/:action', async (req, res) => {
 // ============================
 // 13. SETTINGS & EXPORT/IMPORT
 // ============================
+app.get('/api/locales', (req, res) => {
+  try {
+    const localesDir = path.join(__dirname, 'public', 'locales');
+    if (!fs.existsSync(localesDir)) {
+      return res.json({ locales: [{ code: 'hu', name: 'Magyar' }, { code: 'en', name: 'English' }] });
+    }
+    const files = fs.readdirSync(localesDir);
+    const locales = [];
+    for (const file of files) {
+      if (file.endsWith('.json')) {
+        const code = file.replace('.json', '');
+        try {
+          const content = JSON.parse(fs.readFileSync(path.join(localesDir, file), 'utf8'));
+          locales.push({
+            code,
+            name: content.lang_name || code
+          });
+        } catch (e) {
+          locales.push({ code, name: code });
+        }
+      }
+    }
+    res.json({ locales });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.get('/api/settings', (req, res) => {
   res.json({ settings: getSettings() });
 });

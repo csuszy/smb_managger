@@ -1782,9 +1782,21 @@ async function saveRawSambaConfig() {
 // =========================================================
 // 12. SYSTEM SETTINGS & IMPORT/EXPORT
 // =========================================================
+let currentLanguage = 'hu';
+let currentLocaleData = {};
+
 async function loadSettings() {
   try {
     await checkAppVersion(false);
+    
+    // Load available locales
+    const localesRes = await apiGet('/api/locales');
+    const locales = localesRes.locales || [];
+    const select = document.getElementById('settingsLanguageSelect');
+    if (select) {
+      select.innerHTML = locales.map(l => `<option value="${l.code}">${l.name}</option>`).join('');
+    }
+
     const data = await apiGet('/api/settings');
     if (data && data.settings) {
       currentSettings = { ...currentSettings, ...data.settings };
@@ -1793,11 +1805,72 @@ async function loadSettings() {
       if (appNameInput && currentSettings.appName) {
         appNameInput.value = currentSettings.appName;
       }
+      
+      currentLanguage = currentSettings.language || 'hu';
+      if (select) {
+        select.value = currentLanguage;
+      }
+      await loadLanguageFile(currentLanguage);
     }
-  } catch (e) {}
+  } catch (e) {
+    console.error('Settings load error:', e);
+  }
   loadChangelog();
   loadReleasesList();
   loadNotificationSettings();
+}
+
+async function loadLanguageFile(lang) {
+  try {
+    const res = await fetch(`/locales/${lang}.json`);
+    if (!res.ok) throw new Error(`Nem sikerült a(z) ${lang} nyelvi fájl betöltése`);
+    currentLocaleData = await res.json();
+    translatePage();
+  } catch (e) {
+    console.error('Nyelv betöltési hiba:', e);
+  }
+}
+
+function translatePage() {
+  // Translate data-i18n attributes
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (currentLocaleData[key]) {
+      if (el.children.length === 0) {
+        el.textContent = currentLocaleData[key];
+      } else {
+        el.innerHTML = currentLocaleData[key];
+      }
+    }
+  });
+
+  // Translate placeholders
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (currentLocaleData[key]) {
+      el.placeholder = currentLocaleData[key];
+    }
+  });
+}
+
+function t(key, fallback = '') {
+  return currentLocaleData[key] || fallback || key;
+}
+
+async function saveLanguageFromSettings() {
+  const select = document.getElementById('settingsLanguageSelect');
+  const language = select ? select.value : 'hu';
+  try {
+    const res = await apiPut('/api/settings', { language });
+    if (res && res.settings) {
+      currentSettings = { ...currentSettings, ...res.settings };
+      currentLanguage = currentSettings.language || 'hu';
+      await loadLanguageFile(currentLanguage);
+      toast(t('save_success', 'Nyelvi beállítások elmentve!'), 'success');
+    }
+  } catch (e) {
+    toast('Hiba a mentéskor: ' + e.message, 'error');
+  }
 }
 
 async function loadNotificationSettings() {
