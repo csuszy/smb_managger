@@ -1,11 +1,12 @@
 {
   "name": "sambahub",
-  "version": "0.4.7",
+  "version": "0.4.8",
   "description": "SambaHub — Modern NAS Samba Administration & Printer Management Dashboard",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "test": "node test/security_and_integration.test.js"
   },
   "keywords": [
     "samba",

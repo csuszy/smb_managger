@@ -182,6 +182,27 @@ app.post('/api/auth/login', (req, res) => {
   });
 });
 
+// Middleware for securing /api/* endpoints
+app.use('/api', (req, res, next) => {
+  if (req.path.startsWith('/auth/status') || req.path.startsWith('/auth/setup') || req.path.startsWith('/auth/login')) {
+    return next();
+  }
+
+  const cfg = loadConfig();
+  if (!cfg.setupCompleted) {
+    return res.status(428).json({ error: 'Rendszer telepítése szükséges!', setupRequired: true });
+  }
+
+  const token = extractToken(req);
+  const session = validateSession(token);
+  if (!session) {
+    return res.status(401).json({ error: 'Hitelesítés szükséges!' });
+  }
+
+  req.user = session.username;
+  next();
+});
+
 app.post('/api/auth/logout', (req, res) => {
   const token = extractToken(req);
   destroySession(token);
@@ -237,27 +258,6 @@ app.put('/api/auth/storage-path', (req, res) => {
 
   audit.logEvent('config', `Megfigyelt tárhely útvonala módosítva: ${absPath}`, 'admin');
   res.json({ success: true, storageBasePath: absPath });
-});
-
-// Middleware for securing /api/* endpoints
-app.use('/api', (req, res, next) => {
-  if (req.path.startsWith('/auth/status') || req.path.startsWith('/auth/setup') || req.path.startsWith('/auth/login')) {
-    return next();
-  }
-
-  const cfg = loadConfig();
-  if (!cfg.setupCompleted) {
-    return res.status(428).json({ error: 'Rendszer telepítése szükséges!', setupRequired: true });
-  }
-
-  const token = extractToken(req);
-  const session = validateSession(token);
-  if (!session) {
-    return res.status(401).json({ error: 'Hitelesítés szükséges!' });
-  }
-
-  req.user = session.username;
-  next();
 });
 
 // ============================
@@ -1117,10 +1117,11 @@ app.post('/api/version/update', async (req, res) => {
 });
 
 
-// ============================
-// START SERVER
-// ============================
-const pkg = require('./package.json');
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`\n  🚀 NAS SMB Manager v${pkg.version} running at http://localhost:${PORT}\n`);
-});
+if (require.main === module) {
+  const pkg = require('./package.json');
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`\n  🚀 NAS SMB Manager v${pkg.version} running at http://localhost:${PORT}\n`);
+  });
+}
+
+module.exports = app;
