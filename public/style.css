@@ -136,13 +136,15 @@ body {
 }
 
 .nav-item {
-  display: flex; align-items: center; gap: 12px;
+  display: flex; align-items: center; justify-content: flex-start; gap: 12px;
   padding: 10px 14px;
   border-radius: var(--radius-sm);
   color: rgba(255, 255, 255, 0.7);
   text-decoration: none;
   font-size: 0.88rem; font-weight: 500;
   transition: var(--transition);
+  text-align: left;
+  width: 100%;
 }
 
 .nav-item:hover {
@@ -538,6 +540,8 @@ tr:hover td { background: rgba(139,92,246,0.025); }
 .mb-24 { margin-bottom: 24px; }
 .flex-gap { display: flex; gap: 10px; flex-wrap: wrap; }
 .text-muted { color: var(--text-muted); }
+.ml-auto { margin-left: auto; }
+.mr-auto { margin-right: auto; }
 
 /* Responsive */
 @media (max-width: 900px) {
