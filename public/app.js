@@ -299,7 +299,7 @@ async function loadUsers() {
 function renderUsersTable(users) {
   const tbody = document.getElementById('usersTableBody');
   if (!users || users.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" class="text-muted">Nincsenek felhasználók</td></tr>';
+    tbody.innerHTML = `<tr><td colspan="7" class="text-muted">${t('no_users', 'Nincsenek felhasználók')}</td></tr>`;
     return;
   }
 
@@ -319,21 +319,21 @@ function renderUsersTable(users) {
         <td>${u.fullName || '—'}</td>
         <td>${roleBadge}</td>
         <td>${groupsBadges}</td>
-        <td>${u.quotaMB ? u.quotaMB + ' MB' : '<span class="text-muted">Korlátlan</span>'}</td>
-        <td>${u.lastLogon || '<span class="text-muted">Ismeretlen</span>'}</td>
+        <td>${u.quotaMB ? u.quotaMB + ' MB' : `<span class="text-muted">${t('unlimited', 'Korlátlan')}</span>`}</td>
+        <td>${u.lastLogon || `<span class="text-muted">${t('unknown', 'Ismeretlen')}</span>`}</td>
         <td>
           <span class="badge ${isDis ? 'badge-red' : 'badge-green'}">
-            ${isDis ? 'Tiltva' : 'Aktív'}
+            ${isDis ? t('disabled', 'Tiltva') : t('active', 'Aktív')}
           </span>
         </td>
         <td>
           <div class="flex-gap">
-            <button class="btn btn-ghost btn-sm" onclick="openEditUserModal('${u.username}')">Szerkesztés</button>
-            <button class="btn btn-ghost btn-sm" onclick="openUserPassModal('${u.username}')">Jelszó</button>
+            <button class="btn btn-ghost btn-sm" onclick="openEditUserModal('${u.username}')">${t('edit', 'Szerkesztés')}</button>
+            <button class="btn btn-ghost btn-sm" onclick="openUserPassModal('${u.username}')">${t('password', 'Jelszó')}</button>
             <button class="btn btn-ghost btn-sm" onclick="toggleUserStatus('${u.username}', ${isDis})">
-              ${isDis ? 'Engedélyezés' : 'Tiltás'}
+              ${isDis ? t('enable', 'Engedélyezés') : t('disable', 'Tiltás')}
             </button>
-            <button class="btn btn-ghost btn-sm" style="color:var(--red);" onclick="confirmDeleteUser('${u.username}')">Törlés</button>
+            <button class="btn btn-ghost btn-sm" style="color:var(--red);" onclick="confirmDeleteUser('${u.username}')">${t('delete', 'Törlés')}</button>
           </div>
         </td>
       </tr>
