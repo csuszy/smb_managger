@@ -16,6 +16,26 @@
   "menu_settings": "System Settings",
   "menu_logout": "Logout",
   
+  "h1_dashboard": "NAS Dashboard Overview",
+  "h1_users": "Manage Users",
+  "h1_groups": "Manage Groups",
+  "h1_shares": "Manage SMB Shares",
+  "h1_folder_manager": "Interactive Folder & Storage Explorer",
+  "h1_permissions": "Permission Manager (ACL Visual Matrix)",
+  "h1_connections": "Active SMB Connections",
+  "h1_audit": "Audit Logs",
+  "h1_storage": "Storage & Quota Management",
+  "h1_recycle": "Smart Samba Recycle Bin (Recycle Bin Hub)",
+  "h1_snapshots": "Snapshots",
+  "h1_printers": "🜁 Printers & Printing Center",
+  "h1_settings": "⚙️ Profile & System Settings Center",
+  
+  "subtab_notifications": "🔔 Notifications",
+  "subtab_updates": "📦 Updates & GitHub",
+  "subtab_samba": "⚙️ SMB & Server",
+  "subtab_storage": "💾 Storage & Export",
+  "subtab_profile": "🔐 Profile & Security",
+  
   "dashboard_title": "NAS & Samba Administration Dashboard",
   "dashboard_subtitle": "Real-time system data, storage usage and services status",
   
@@ -81,5 +101,15 @@
   "samba_raw_status_loaded": "Loaded",
   "samba_raw_refresh_btn": "🔄 Refresh",
   "samba_raw_save_btn": "💾 Save Raw smb.conf & Restart Samba",
+  
+  "samba_active_running": "Active (Running)",
+  "samba_inactive_stopped": "Inactive (Stopped)",
+  "samba_online": "Samba Online",
+  "samba_offline": "Samba Offline",
+  "storage_used_format": "{used} used",
+  "storage_total_format": "{total} total",
+  "storage_free_format": "{free} free storage",
+  "copied_clipboard": "Path copied to clipboard: {path}",
+  "service_action_success": "Service action ({action}) successful!",
   "save_success": "Settings saved successfully!"
 }

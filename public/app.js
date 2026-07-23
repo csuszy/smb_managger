@@ -235,11 +235,11 @@ async function refreshDashboard() {
     const isActive = data.service.active === 'active';
     const sBadge = document.getElementById('dashServiceBadge');
     sBadge.className = `badge ${isActive ? 'badge-green' : 'badge-red'}`;
-    sBadge.textContent = isActive ? 'Aktív (Fut)' : 'Inaktív (Leállítva)';
+    sBadge.textContent = isActive ? t('samba_active_running', 'Aktív (Fut)') : t('samba_inactive_stopped', 'Inaktív (Leállítva)');
 
     const topDots = document.querySelectorAll('.status-dot');
     topDots.forEach(d => d.className = `status-dot ${isActive ? 'online' : 'offline'}`);
-    document.getElementById('topStatusLabel').textContent = isActive ? 'Samba Online' : 'Samba Offline';
+    document.getElementById('topStatusLabel').textContent = isActive ? t('samba_online', 'Samba Online') : t('samba_offline', 'Samba Offline');
 
     // System info & IP
     const serverIp = data.system.ipAddress || location.hostname || '127.0.0.1';
@@ -255,9 +255,9 @@ async function refreshDashboard() {
     document.getElementById('sysFilesystem').textContent = data.storage.filesystem;
 
     // Storage progress
-    document.getElementById('dashStorageUsed').textContent = `${data.storage.used} használt`;
-    document.getElementById('dashStorageTotal').textContent = `${data.storage.total} összesen`;
-    document.getElementById('dashStorageFree').textContent = `${data.storage.free} szabad tárhely`;
+    document.getElementById('dashStorageUsed').textContent = t('storage_used_format', '{used} használt').replace('{used}', data.storage.used);
+    document.getElementById('dashStorageTotal').textContent = t('storage_total_format', '{total} összesen').replace('{total}', data.storage.total);
+    document.getElementById('dashStorageFree').textContent = t('storage_free_format', '{free} szabad tárhely').replace('{free}', data.storage.free);
     document.getElementById('dashStorageProgress').style.width = `${data.storage.percent}%`;
 
   } catch (e) {
@@ -269,14 +269,14 @@ function copySmbPathToClipboard() {
   const codeEl = document.getElementById('dashSmbPathCode');
   if (codeEl) {
     navigator.clipboard.writeText(codeEl.textContent);
-    toast(`Útvonal másolva a vágólapra: ${codeEl.textContent}`, 'success');
+    toast(t('copied_clipboard', 'Útvonal másolva a vágólapra: {path}').replace('{path}', codeEl.textContent), 'success');
   }
 }
 
 async function serviceAction(action) {
   try {
     const res = await apiPost(`/api/service/${action}`);
-    toast(`Szolgáltatás művelet (${action}) sikeres!`, 'success');
+    toast(t('service_action_success', 'Szolgáltatás művelet ({action}) sikeres!').replace('{action}', action), 'success');
     refreshDashboard();
   } catch (e) {
     toast('Hiba: ' + e.message, 'error');
@@ -1835,6 +1835,23 @@ async function loadLanguageFile(lang) {
     if (!res.ok) throw new Error(`Nem sikerült a(z) ${lang} nyelvi fájl betöltése`);
     currentLocaleData = await res.json();
     translatePage();
+
+    // Re-render the active view to update dynamically generated texts
+    if (currentAuthStatus && currentAuthStatus.authenticated) {
+      if (currentSection === 'dashboard') refreshDashboard();
+      else if (currentSection === 'users') loadUsers();
+      else if (currentSection === 'groups') loadGroups();
+      else if (currentSection === 'shares') loadShares();
+      else if (currentSection === 'folder-manager') loadFolderManager();
+      else if (currentSection === 'permissions') loadPermissions();
+      else if (currentSection === 'connections') loadConnections();
+      else if (currentSection === 'storage') loadStorage();
+      else if (currentSection === 'recycle') loadRecycleBin();
+      else if (currentSection === 'snapshots') loadSnapshots();
+      else if (currentSection === 'printers') loadPrintersView();
+      else if (currentSection === 'samba-config') loadSambaGuiConfig();
+      else if (currentSection === 'audit') loadAuditLogs();
+    }
   } catch (e) {
     console.error('Nyelv betöltési hiba:', e);
   }

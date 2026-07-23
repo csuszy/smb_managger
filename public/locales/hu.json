@@ -16,6 +16,26 @@
   "menu_settings": "Rendszer Beállítások",
   "menu_logout": "Kijelentkezés",
   
+  "h1_dashboard": "NAS Vezérlőpult Áttekintés",
+  "h1_users": "Felhasználók Kezelése",
+  "h1_groups": "Csoportok Kezelése",
+  "h1_shares": "SMB Megosztások Kezelése",
+  "h1_folder_manager": "Interaktív Mappa & Tárhely Kezelő",
+  "h1_permissions": "Jogosultság Kezelő (ACL Visual Matrix)",
+  "h1_connections": "Aktív SMB Kapcsolatok",
+  "h1_audit": "Audit Naplózás",
+  "h1_storage": "Tárhely & Kvóta Kezelés",
+  "h1_recycle": "Okos Samba Lomtár (Recycle Bin Hub)",
+  "h1_snapshots": "Pillanatképek (Snapshots)",
+  "h1_printers": "🜁 Nyomtatók & Nyomtatási Központ",
+  "h1_settings": "⚙️ Profil & Rendszer Beállítási Központ",
+  
+  "subtab_notifications": "🔔 Értesítések",
+  "subtab_updates": "📦 Frissítések & GitHub",
+  "subtab_samba": "⚙️ SMB & Szerver",
+  "subtab_storage": "💾 Tárhely & Export",
+  "subtab_profile": "🔐 Profil & Biztonság",
+  
   "dashboard_title": "NAS & Samba Adminisztrációs Központ",
   "dashboard_subtitle": "Valós idejű rendszeradatok, tárhely használat és szolgáltatások állapota",
   
@@ -81,5 +101,15 @@
   "samba_raw_status_loaded": "Betöltve",
   "samba_raw_refresh_btn": "🔄 Frissítés",
   "samba_raw_save_btn": "💾 Nyers smb.conf Mentése & Újraindítás",
+  
+  "samba_active_running": "Aktív (Fut)",
+  "samba_inactive_stopped": "Inaktív (Leállítva)",
+  "samba_online": "Samba Online",
+  "samba_offline": "Samba Offline",
+  "storage_used_format": "{used} használt",
+  "storage_total_format": "{total} összesen",
+  "storage_free_format": "{free} szabad tárhely",
+  "copied_clipboard": "Útvonal másolva a vágólapra: {path}",
+  "service_action_success": "Szolgáltatás művelet ({action}) sikeres!",
   "save_success": "A beállítások sikeresen mentésre kerültek!"
 }
