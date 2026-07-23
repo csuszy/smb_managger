@@ -162,8 +162,15 @@
             <span>🔐 Profil & Jelszó Módosítás</span>
           </a>
           <div class="dropdown-divider"></div>
+          <div class="dropdown-item-select" style="padding: 10px 16px; display: flex; flex-direction: column; gap: 6px;">
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;" data-i18n="lang_label">Rendszer Nyelve</label>
+            <select id="topLanguageSelect" onchange="changeLanguageFromTop(this.value)" class="form-control" style="font-size: 0.85rem; padding: 4px 8px; height: auto;">
+              <!-- Loaded dynamically -->
+            </select>
+          </div>
+          <div class="dropdown-divider"></div>
           <a class="dropdown-item style-danger" onclick="logoutApp()">
-            <span>🚪 Kijelentkezés</span>
+            <span data-i18n="menu_logout">🚪 Kijelentkezés</span>
           </a>
         </div>
       </div>
@@ -937,10 +944,10 @@
     <section class="content-section" id="section-samba-config">
       <div class="section-title-bar mb-24">
         <div>
-          <h1>⚙️ Samba Grafikus & Nyers Konfigurációs Központ</h1>
-          <p class="subtitle">Hálózati protokollok, biztonsági szintek és a nyers /etc/samba/smb.conf fájl párhuzamos kezelése</p>
+          <h1 data-i18n="samba_title">⚙️ Samba Grafikus & Nyers Konfigurációs Központ</h1>
+          <p class="subtitle" data-i18n="samba_subtitle">Hálózati protokollok, biztonsági szintek és a nyers /etc/samba/smb.conf fájl párhuzamos kezelése</p>
         </div>
-        <button class="btn btn-outline" onclick="loadSambaGuiConfig()">
+        <button class="btn btn-outline" onclick="loadSambaGuiConfig()" data-i18n="samba_reload_btn">
           🔄 Konfiguráció Újratöltése
         </button>
       </div>
@@ -952,27 +959,27 @@
           <div>
             <div class="card-header-flex mb-16">
               <div>
-                <h3>🎛️ Samba Globális Hálózati Beállítások</h3>
-                <p class="text-muted mt-4">Munkacsoport, gépnév és SMB biztonsági protokollok</p>
+                <h3 data-i18n="samba_global_title">🎛️ Samba Globális Hálózati Beállítások</h3>
+                <p class="text-muted mt-4" data-i18n="samba_global_subtitle">Munkacsoport, gépnév és SMB biztonsági protokollok</p>
               </div>
-              <span class="badge badge-cyan">Grafikus GUI</span>
+              <span class="badge badge-cyan" data-i18n="samba_gui_badge">Grafikus GUI</span>
             </div>
 
             <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
               <div class="form-group">
-                <label>Munkacsoport (Workgroup) *</label>
+                <label data-i18n="samba_workgroup_label">Munkacsoport (Workgroup) *</label>
                 <input type="text" id="cfgWorkgroup" class="form-control">
               </div>
               <div class="form-group">
-                <label>NetBIOS Név (Szerver Név) *</label>
+                <label data-i18n="samba_netbios_label">NetBIOS Név (Szerver Név) *</label>
                 <input type="text" id="cfgNetbiosName" class="form-control" placeholder="pl. NAS-SERVER">
               </div>
               <div class="form-group" style="grid-column: 1 / -1;">
-                <label>Szerver Leírás / Címke</label>
+                <label data-i18n="samba_desc_label">Szerver Leírás / Címke</label>
                 <input type="text" id="cfgServerString" class="form-control">
               </div>
               <div class="form-group">
-                <label>Minimális SMB Protokoll</label>
+                <label data-i18n="samba_min_proto_label">Minimális SMB Protokoll</label>
                 <select id="cfgMinProto" class="form-control">
                   <option value="SMB2_10">SMB2_10 (Ajánlott)</option>
                   <option value="SMB2">SMB2</option>
@@ -980,7 +987,7 @@
                 </select>
               </div>
               <div class="form-group">
-                <label>Maximális SMB Protokoll</label>
+                <label data-i18n="samba_max_proto_label">Maximális SMB Protokoll</label>
                 <select id="cfgMaxProto" class="form-control">
                   <option value="SMB3_11">SMB3_11 (Legújabb)</option>
                   <option value="SMB3">SMB3</option>
@@ -988,25 +995,25 @@
                 </select>
               </div>
               <div class="form-group">
-                <label>Globális Vendég Hozzáférés</label>
+                <label data-i18n="samba_guest_label">Globális Vendég Hozzáférés</label>
                 <select id="cfgGuestOk" class="form-control">
-                  <option value="no">Tiltva (Biztonságos)</option>
-                  <option value="yes">Engedélyezve (Bad User)</option>
+                  <option value="no" data-i18n="samba_guest_no">Tiltva (Biztonságos)</option>
+                  <option value="yes" data-i18n="samba_guest_yes">Engedélyezve (Bad User)</option>
                 </select>
               </div>
               <div class="form-group">
-                <label>SMB Titkosítás (Encryption)</label>
+                <label data-i18n="samba_encrypt_label">SMB Titkosítás (Encryption)</label>
                 <select id="cfgEncrypt" class="form-control">
-                  <option value="auto">Automatikus (Auto)</option>
-                  <option value="required">Kötelező (Required)</option>
-                  <option value="off">Kikapcsolva (Off)</option>
+                  <option value="auto" data-i18n="samba_encrypt_auto">Automatikus (Auto)</option>
+                  <option value="required" data-i18n="samba_encrypt_required">Kötelező (Required)</option>
+                  <option value="off" data-i18n="samba_encrypt_off">Kikapcsolva (Off)</option>
                 </select>
               </div>
             </div>
           </div>
 
           <div class="form-actions mt-24">
-            <button class="btn btn-primary" onclick="saveSambaGuiSettings()" style="width:100%;padding:12px;">
+            <button class="btn btn-primary" onclick="saveSambaGuiSettings()" style="width:100%;padding:12px;" data-i18n="samba_save_btn">
               💾 Beállítások Mentése & Újraindítás
             </button>
           </div>
@@ -1017,12 +1024,12 @@
           <div>
             <div class="editor-toolbar card-header-flex mb-16">
               <div>
-                <strong style="font-size:1rem;display:block;">📄 Nyers Konfigurációs Szerkesztő</strong>
-                <p class="text-muted mt-4">Közvetlen <code>/etc/samba/smb.conf</code> fájl szerkesztése</p>
+                <strong style="font-size:1rem;display:block;" data-i18n="samba_raw_title">📄 Nyers Konfigurációs Szerkesztő</strong>
+                <p class="text-muted mt-4" data-i18n="samba_raw_subtitle">Közvetlen <code>/etc/samba/smb.conf</code> fájl szerkesztése</p>
               </div>
               <div class="flex-gap">
-                <span class="badge badge-purple" id="rawConfigStatus">Betöltve</span>
-                <button class="btn btn-outline btn-sm" onclick="loadSambaGuiConfig()">🔄 Frissítés</button>
+                <span class="badge badge-purple" id="rawConfigStatus" data-i18n="samba_raw_status_loaded">Betöltve</span>
+                <button class="btn btn-outline btn-sm" onclick="loadSambaGuiConfig()" data-i18n="samba_raw_refresh_btn">🔄 Frissítés</button>
               </div>
             </div>
 
@@ -1030,7 +1037,7 @@
           </div>
 
           <div class="form-actions mt-16">
-            <button class="btn btn-primary" onclick="saveRawSambaConfig()" style="width:100%;padding:12px;">
+            <button class="btn btn-primary" onclick="saveRawSambaConfig()" style="width:100%;padding:12px;" data-i18n="samba_raw_save_btn">
               💾 Nyers smb.conf Mentése & Újraindítás
             </button>
           </div>

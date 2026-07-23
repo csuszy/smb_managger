@@ -1793,8 +1793,14 @@ async function loadSettings() {
     const localesRes = await apiGet('/api/locales');
     const locales = localesRes.locales || [];
     const select = document.getElementById('settingsLanguageSelect');
+    const selectTop = document.getElementById('topLanguageSelect');
+    
+    const optionsHtml = locales.map(l => `<option value="${l.code}">${l.name}</option>`).join('');
     if (select) {
-      select.innerHTML = locales.map(l => `<option value="${l.code}">${l.name}</option>`).join('');
+      select.innerHTML = optionsHtml;
+    }
+    if (selectTop) {
+      selectTop.innerHTML = optionsHtml;
     }
 
     const data = await apiGet('/api/settings');
@@ -1809,6 +1815,9 @@ async function loadSettings() {
       currentLanguage = currentSettings.language || 'hu';
       if (select) {
         select.value = currentLanguage;
+      }
+      if (selectTop) {
+        selectTop.value = currentLanguage;
       }
       await loadLanguageFile(currentLanguage);
     }
@@ -1865,6 +1874,32 @@ async function saveLanguageFromSettings() {
     if (res && res.settings) {
       currentSettings = { ...currentSettings, ...res.settings };
       currentLanguage = currentSettings.language || 'hu';
+      
+      const selectTop = document.getElementById('topLanguageSelect');
+      if (selectTop) {
+        selectTop.value = currentLanguage;
+      }
+      
+      await loadLanguageFile(currentLanguage);
+      toast(t('save_success', 'Nyelvi beállítások elmentve!'), 'success');
+    }
+  } catch (e) {
+    toast('Hiba a mentéskor: ' + e.message, 'error');
+  }
+}
+
+async function changeLanguageFromTop(language) {
+  try {
+    const res = await apiPut('/api/settings', { language });
+    if (res && res.settings) {
+      currentSettings = { ...currentSettings, ...res.settings };
+      currentLanguage = currentSettings.language || 'hu';
+      
+      const selectSettings = document.getElementById('settingsLanguageSelect');
+      const selectTop = document.getElementById('topLanguageSelect');
+      if (selectSettings) selectSettings.value = currentLanguage;
+      if (selectTop) selectTop.value = currentLanguage;
+      
       await loadLanguageFile(currentLanguage);
       toast(t('save_success', 'Nyelvi beállítások elmentve!'), 'success');
     }
