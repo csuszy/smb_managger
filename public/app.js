@@ -1404,11 +1404,15 @@ async function loadPrintersView() {
     loadRecentEmails();
 
     const printers = data.printers || [];
+    const activeDefault = config.defaultPrinter || data.defaultPrinter || '';
     if (badge) badge.textContent = `${printers.length} Nyomtató`;
 
     if (select) {
-      select.innerHTML = '<option value="">Rendszer alapértelmezett</option>' +
-        printers.map(p => `<option value="${p.id || p.name}" ${(config.defaultPrinter === p.id || config.defaultPrinter === p.name) ? 'selected' : ''}>${p.name}</option>`).join('');
+      select.innerHTML = '<option value="">-- Válassz Alapértelmezett Nyomtatót --</option>' +
+        printers.map(p => {
+          const isSelected = (activeDefault === p.id || activeDefault === p.name);
+          return `<option value="${p.id}" ${isSelected ? 'selected' : ''}>🜁 ${p.name} (${p.type === 'cups' ? 'CUPS' : 'IP/Raw'})</option>`;
+        }).join('');
     }
 
     if (!printers || printers.length === 0) {
@@ -1416,19 +1420,45 @@ async function loadPrintersView() {
       return;
     }
 
-    tbody.innerHTML = printers.map(p => `
+    tbody.innerHTML = printers.map(p => {
+      const isDefault = (activeDefault === p.id || activeDefault === p.name);
+      return `
       <tr>
         <td><strong>🜁 ${p.name}</strong></td>
         <td><code>${p.ip ? p.ip + ':' + (p.port || 9100) : 'Helyi CUPS'}</code></td>
-        <td><span class="badge ${p.status === 'Printing' ? 'badge-amber' : 'badge-green'}">${p.status}</span></td>
-        <td>${(data.defaultPrinter === p.name || data.defaultPrinter === p.id) ? '<span class="badge badge-purple">Alapértelmezett</span>' : '—'}</td>
+        <td><span class="badge ${p.status === 'Printing' ? 'badge-amber' : (p.status === 'Disabled' ? 'badge-red' : 'badge-green')}">${p.status}</span></td>
+        <td>${isDefault ? '<span class="badge badge-purple">★ Alapértelmezett</span>' : '—'}</td>
         <td>
-          ${p.type !== 'cups' ? `<button class="btn btn-ghost btn-sm" style="color:var(--red);" onclick="deleteManualPrinter('${p.id || p.ip}')">Törlés</button>` : '<span class="text-muted">Rendszer</span>'}
+          <div class="flex-gap">
+            <button class="btn btn-ghost btn-sm" onclick="triggerTestPrintUi('${p.id}')">📄 Teszt</button>
+            ${!isDefault ? `<button class="btn btn-ghost btn-sm" onclick="setDefaultPrinterFromUi('${p.id}')">★ Kijelölés</button>` : ''}
+            ${!p.isCups || p.ip ? `<button class="btn btn-ghost btn-sm" style="color:var(--red);" onclick="deleteManualPrinter('${p.id || p.ip}')">Törlés</button>` : ''}
+          </div>
         </td>
       </tr>
-    `).join('');
+    `}).join('');
   } catch (e) {
     toast('Hiba a nyomtatók betöltésekor: ' + e.message, 'error');
+  }
+}
+
+async function triggerTestPrintUi(printerId = '') {
+  try {
+    toast('Teszt oldal nyomtatása folyamatban...', 'info');
+    const res = await apiPost('/api/printers/test-print', { printerId });
+    toast(res.message || 'Teszt oldal elküldve a nyomtatónak!', 'success');
+  } catch (e) {
+    toast('Nyomtatási hiba: ' + e.message, 'error');
+  }
+}
+
+async function setDefaultPrinterFromUi(printerId) {
+  try {
+    const res = await apiPut('/api/printers/config', { defaultPrinter: printerId });
+    toast('Alapértelmezett nyomtató elmentve!', 'success');
+    loadPrintersView();
+  } catch (e) {
+    toast('Hiba az alapértelmezett nyomtató beállításakor: ' + e.message, 'error');
   }
 }
 

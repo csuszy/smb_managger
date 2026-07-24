@@ -167,7 +167,34 @@ async function runTests() {
     const invalidJwt = validJwt.slice(0, -5) + 'XXXXX';
     assert.ok(auth.verifyJwt(validJwt), 'Valid JWT should be verified');
     assert.strictEqual(auth.verifyJwt(invalidJwt), null, 'Tampered JWT signature must be rejected');
-    console.log('  ✅ Test 5 PASSED: PBKDF2 iteration count is 310,000 and timing-safe verification works.\n');
+    // -------------------------------------------------------------
+    // Test 6: Printers, Default Selection & Test Printing
+    // -------------------------------------------------------------
+    console.log('6. Testing Printer discovery, CUPS default selection & Test printing...');
+    const printersModule = require('../lib/printers');
+    
+    // Test printer discovery
+    const printerInfo = await printersModule.getPrinters();
+    assert.ok(Array.isArray(printerInfo.printers), 'getPrinters must return a printers array');
+    
+    // Add temporary test printer
+    const addRes = await printersModule.addManualPrinter({ name: 'Test Printer Unit', ip: '192.168.1.250', port: 9100, type: 'raw' });
+    assert.strictEqual(addRes.success, true, 'addManualPrinter should return success: true');
+    assert.strictEqual(addRes.printer.id, 'net_192_168_1_250', 'Printer ID should be net_192_168_1_250');
+
+    // Save default printer selection
+    printersModule.savePrinterConfig({ defaultPrinter: 'net_192_168_1_250' });
+    const updatedInfo = await printersModule.getPrinters();
+    assert.strictEqual(updatedInfo.defaultPrinter, 'net_192_168_1_250', 'Default printer must be updated in printer info');
+
+    // Test print page endpoint via API
+    const testPrintHttpRes = await makeRequest('POST', '/api/printers/test-print', { Authorization: `Bearer ${token}` }, { printerId: 'net_192_168_1_250' });
+    assert.strictEqual(testPrintHttpRes.statusCode, 200, 'POST /api/printers/test-print should return HTTP 200');
+    assert.strictEqual(testPrintHttpRes.json.success, true, 'test-print should return success: true');
+
+    // Cleanup test printer
+    await printersModule.removeManualPrinter('net_192_168_1_250');
+    console.log('  ✅ Test 6 PASSED: Printer discovery, CUPS default setting & Test page printing succeeded.\n');
 
     console.log('🎉 ALL SECURITY & INTEGRATION TESTS PASSED SUCCESSFULLY!');
   } finally {

@@ -90,6 +90,7 @@
   
   "printers_scan_btn": "🔍 Wi-Fi / LAN Keresés",
   "printers_add_ip_btn": "➕ IP Nyomtató Hozzáadása",
+  "printers_test_btn": "📄 Teszt Oldal Nyomtatása",
   "cups_missing_title": "⚠️ CUPS Nyomtatási Szolgáltatás Nincs Telepítve",
   "cups_missing_desc": "A helyi nyomtatóillesztők használatához telepítsd a CUPS nyomtatási csomagokat egy kattintással.",
   "cups_install_btn": "⚡ CUPS Automatkus Telepítése",

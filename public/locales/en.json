@@ -88,8 +88,9 @@
   "snap_auto_max": "Max Retained Automatic Snapshots",
   "snap_auto_save_btn": "💾 Save Automation Settings",
   
-  "printers_scan_btn": "🔍 Scan Wi-Fi / LAN",
+  "printers_scan_btn": "🔍 Wi-Fi / LAN Scan",
   "printers_add_ip_btn": "➕ Add IP Printer",
+  "printers_test_btn": "📄 Print Test Page",
   "cups_missing_title": "⚠️ CUPS Printing Service Not Installed",
   "cups_missing_desc": "Install CUPS printing packages with one click to enable local printer drivers.",
   "cups_install_btn": "⚡ Automatically Install CUPS",

@@ -39,6 +39,7 @@ const {
   removeManualPrinter,
   installCupsPackages,
   printFile,
+  generateTestPageFile,
   startFolderPrintWatcher,
   checkImapEmailAccount
 } = require('./lib/printers');
@@ -913,6 +914,22 @@ app.post('/api/printers/print', async (req, res) => {
     const { filePath, printerName } = req.body;
     if (!filePath) return res.status(400).json({ error: 'A fájl útvonala megadása kötelező!' });
     const result = await printFile(filePath, printerName);
+    res.json(result);
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.post('/api/printers/test-print', async (req, res) => {
+  try {
+    const { printerId } = req.body || {};
+    const testFile = generateTestPageFile();
+    let result;
+    try {
+      result = await printFile(testFile, printerId);
+    } finally {
+      try { if (fs.existsSync(testFile)) fs.unlinkSync(testFile); } catch (e) {}
+    }
     res.json(result);
   } catch (e) {
     res.status(400).json({ error: e.message });
