@@ -203,9 +203,16 @@ async function runTests() {
     assert.strictEqual(clearRes.statusCode, 200, 'POST /api/printers/logs/clear should return HTTP 200');
     assert.strictEqual(clearRes.json.success, true, 'Clear logs should return success: true');
 
+    // Test CUPS status API
+    const cupsStatusRes = await makeRequest('GET', '/api/printers/cups-status', { Authorization: `Bearer ${token}` });
+    assert.strictEqual(cupsStatusRes.statusCode, 200, 'GET /api/printers/cups-status should return HTTP 200');
+    assert.strictEqual(cupsStatusRes.json.success, true, 'cups-status response should return success: true');
+    assert.ok(Array.isArray(cupsStatusRes.json.activeJobs), 'cups-status should include activeJobs array');
+    assert.ok(Array.isArray(cupsStatusRes.json.completedJobs), 'cups-status should include completedJobs array');
+
     // Cleanup test printer
     await printersModule.removeManualPrinter('net_192_168_1_250');
-    console.log('  ✅ Test 6 PASSED: Printer discovery, CUPS default setting, Test printing & Print logs succeeded.\n');
+    console.log('  ✅ Test 6 PASSED: Printer discovery, CUPS default setting, Test printing, Print logs & CUPS status succeeded.\n');
 
     console.log('🎉 ALL SECURITY & INTEGRATION TESTS PASSED SUCCESSFULLY!');
   } finally {

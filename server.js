@@ -45,7 +45,8 @@ const {
   getPrintLogs,
   clearPrintLogs,
   getActiveJobs,
-  getCupsDiagnostics
+  getCupsDiagnostics,
+  getCupsFullStatus
 } = require('./lib/printers');
 
 const {
@@ -1031,6 +1032,15 @@ app.get('/api/printers/diagnostics/:id?', async (req, res) => {
   try {
     const diag = await getCupsDiagnostics(req.params.id || '');
     res.json({ success: true, diagnostics: diag });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get('/api/printers/cups-status', async (req, res) => {
+  try {
+    const cupsStatus = await getCupsFullStatus();
+    res.json({ success: true, ...cupsStatus });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

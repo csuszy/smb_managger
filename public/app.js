@@ -1403,6 +1403,7 @@ async function loadPrintersView() {
 
     loadRecentEmails();
     loadPrintLogsUi();
+    loadCupsStatusUi();
 
     const printers = data.printers || [];
     const activeDefault = config.defaultPrinter || data.defaultPrinter || '';
@@ -1586,6 +1587,57 @@ async function clearPrintLogsUi() {
     loadPrintLogsUi();
   } catch (e) {
     toast('Hiba a napló törlésekor: ' + e.message, 'error');
+  }
+}
+
+async function loadCupsStatusUi() {
+  const badge = document.getElementById('cupsServiceBadge');
+  const activeCount = document.getElementById('cupsActiveQueueCount');
+  const completedCount = document.getElementById('cupsCompletedQueueCount');
+  const tbody = document.getElementById('cupsJobsTableBody');
+  if (!tbody) return;
+
+  try {
+    const res = await apiGet('/api/printers/cups-status');
+    if (badge) {
+      if (res.cupsServiceRunning) {
+        badge.className = 'badge badge-green';
+        badge.textContent = '⚡ CUPS Fut (Active)';
+      } else {
+        badge.className = 'badge badge-red';
+        badge.textContent = '❌ CUPS Leállítva';
+      }
+    }
+
+    const active = res.activeJobs || [];
+    const completed = res.completedJobs || [];
+
+    if (activeCount) activeCount.textContent = `${active.length} feladat`;
+    if (completedCount) completedCount.textContent = `${completed.length} feladat`;
+
+    const allJobs = [
+      ...active.map(j => ({ ...j, isCompleted: false })),
+      ...completed.map(j => ({ ...j, isCompleted: true }))
+    ];
+
+    if (allJobs.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" class="text-muted" style="padding:12px;text-align:center;">Nincs aktív vagy nemrég befejezett CUPS nyomtatási feladat.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = allJobs.map(j => `
+      <tr>
+        <td style="padding:8px;"><code>${j.jobId}</code></td>
+        <td style="padding:8px;">${j.user}</td>
+        <td style="padding:8px;">${j.size}B</td>
+        <td style="padding:8px;">
+          ${j.isCompleted ? '<span class="badge badge-green">✓ Befejezve</span>' : '<span class="badge badge-amber">⏳ Sorban / Feldolgozás</span>'}
+          <span class="text-muted" style="margin-left:6px;font-size:0.8rem;">${j.date}</span>
+        </td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    console.error('Error loading CUPS status:', e);
   }
 }
 
