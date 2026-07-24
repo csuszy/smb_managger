@@ -1402,6 +1402,7 @@ async function loadPrintersView() {
     if (document.getElementById('emailPrintInterval')) document.getElementById('emailPrintInterval').value = emailCfg.checkIntervalMin || 2;
 
     loadRecentEmails();
+    loadPrintLogsUi();
 
     const printers = data.printers || [];
     const activeDefault = config.defaultPrinter || data.defaultPrinter || '';
@@ -1459,6 +1460,66 @@ async function setDefaultPrinterFromUi(printerId) {
     loadPrintersView();
   } catch (e) {
     toast('Hiba az alapértelmezett nyomtató beállításakor: ' + e.message, 'error');
+  }
+}
+
+async function loadPrintLogsUi() {
+  const tbody = document.getElementById('printLogsTableBody');
+  const banner = document.getElementById('activePrintJobsBanner');
+  const jobsList = document.getElementById('activeJobsList');
+  if (!tbody) return;
+
+  try {
+    const res = await apiGet('/api/printers/logs');
+    const logs = res.logs || [];
+    const activeJobs = res.activeJobs || [];
+
+    if (banner && jobsList) {
+      if (activeJobs.length > 0) {
+        banner.style.display = 'block';
+        jobsList.innerHTML = activeJobs.map(j => `<li><strong>${j.jobId}</strong> (${j.user}, ${j.size}B) - ${j.date}</li>`).join('');
+      } else {
+        banner.style.display = 'none';
+      }
+    }
+
+    if (logs.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="text-muted" style="padding:16px;text-align:center;">Nincsenek megjeleníthető nyomtatási naplóbejegyzések.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = logs.map(log => {
+      let statusBadge = '<span class="badge badge-purple">Információ</span>';
+      if (log.status === 'success') statusBadge = '<span class="badge badge-green">✓ Sikeres</span>';
+      else if (log.status === 'error') statusBadge = '<span class="badge badge-red">❌ Hiba</span>';
+      else if (log.status === 'pending') statusBadge = '<span class="badge badge-amber">⏳ Folyamatban</span>';
+      else if (log.status === 'warning') statusBadge = '<span class="badge badge-amber">⚠️ Figyelem</span>';
+
+      return `
+        <tr>
+          <td style="padding:8px 10px;white-space:nowrap;"><code>${log.dateFormatted || log.timestamp}</code></td>
+          <td style="padding:8px 10px;">${statusBadge}</td>
+          <td style="padding:8px 10px;"><strong>${log.printer || '—'}</strong></td>
+          <td style="padding:8px 10px;"><code>${log.file || '—'}</code></td>
+          <td style="padding:8px 10px;">
+            <div>${log.message || ''}</div>
+            ${log.error ? `<div style="color:var(--red);font-size:0.82rem;margin-top:2px;font-family:monospace;">${log.error}</div>` : ''}
+          </td>
+        </tr>
+      `;
+    }).join('');
+  } catch (e) {
+    console.error('Error loading print logs:', e);
+  }
+}
+
+async function clearPrintLogsUi() {
+  try {
+    await apiPost('/api/printers/logs/clear', {});
+    toast('Nyomtatási napló kiürítve!', 'success');
+    loadPrintLogsUi();
+  } catch (e) {
+    toast('Hiba a napló törlésekor: ' + e.message, 'error');
   }
 }
 

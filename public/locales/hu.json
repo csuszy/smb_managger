@@ -102,6 +102,13 @@
   "printers_monitored_folder_label": "📁 Nyomtatási Mappa (SMB Megosztás):",
   "printers_archive_folder_label": "📦 Archívum Mappa:",
   "printers_save_btn": "💾 Nyomtatási Beállítások Mentése",
+  "print_log_title": "📜 Nyomtatási Előzmények & Rendszernapló",
+  "print_log_subtitle": "A nyomtatási feladatok, válaszüzenetek és az esetleges nyomtatási hibák valós idejű naplója.",
+  "print_log_clear_btn": "Napló Törlése",
+  "print_active_jobs_title": "⏳ Aktív Várakozási Sorban Lévő Feladatok:",
+  "th_printer": "Nyomtató",
+  "th_file": "Fájl",
+  "th_details": "Részletek & Hibák",
   
   "email_print_title": "✉️ E-mailen Keresztüli Nyomtatás (Email-to-Print)",
   "email_print_enable": "E-mail Nyomtatás Bekapcsolása",

@@ -41,7 +41,10 @@ const {
   printFile,
   generateTestPageFile,
   startFolderPrintWatcher,
-  checkImapEmailAccount
+  checkImapEmailAccount,
+  getPrintLogs,
+  clearPrintLogs,
+  getActiveJobs
 } = require('./lib/printers');
 
 const {
@@ -999,6 +1002,25 @@ app.post('/api/printers/check-email-now', async (req, res) => {
     }
     const result = await checkImapEmailAccount(cfg.emailPrint);
     res.json({ success: true, savedFilesCount: result.savedFilesCount });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get('/api/printers/logs', async (req, res) => {
+  try {
+    const logs = getPrintLogs();
+    const activeJobs = await getActiveJobs();
+    res.json({ success: true, logs, activeJobs });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post('/api/printers/logs/clear', (req, res) => {
+  try {
+    clearPrintLogs();
+    res.json({ success: true, message: 'Nyomtatási napló sikeresen kiürítve!' });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

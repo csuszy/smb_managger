@@ -937,9 +937,45 @@
                 </tr>
               </tbody>
             </table>
+        </div>
+
+        <!-- Live Print Activity Log & Queue Card -->
+        <div class="card mt-24" style="border-color:rgba(16,185,129,0.3);">
+          <div class="card-header-flex">
+            <div>
+              <h3 data-i18n="print_log_title">📜 Nyomtatási Előzmények & Rendszernapló</h3>
+              <p class="text-muted mt-4" data-i18n="print_log_subtitle">A nyomtatási feladatok, válaszüzenetek és az esetleges nyomtatási hibák valós idejű naplója.</p>
+            </div>
+            <div class="flex-gap">
+              <button class="btn btn-ghost btn-sm" onclick="loadPrintLogsUi()">🔄 <span data-i18n="btn_refresh">Frissítés</span></button>
+              <button class="btn btn-ghost btn-sm" style="color:var(--red);" onclick="clearPrintLogsUi()">🧹 <span data-i18n="print_log_clear_btn">Napló Törlése</span></button>
+            </div>
+          </div>
+
+          <div id="activePrintJobsBanner" class="mt-16" style="display:none;background:rgba(6,182,212,0.1);padding:12px 16px;border-radius:var(--radius-sm);border:1px solid rgba(6,182,212,0.3);">
+            <strong style="color:var(--cyan);" data-i18n="print_active_jobs_title">⏳ Aktív Várakozási Sorban Lévő Feladatok:</strong>
+            <ul id="activeJobsList" class="mt-8" style="margin-bottom:0;padding-left:20px;font-family:monospace;font-size:0.88rem;"></ul>
+          </div>
+
+          <div class="table-wrap mt-16" style="background:var(--bg-input);border-radius:var(--radius-sm);border:1px solid var(--border);max-height:360px;overflow-y:auto;">
+            <table style="width:100%;font-size:0.88rem;">
+              <thead>
+                <tr>
+                  <th style="padding:10px;text-align:left;white-space:nowrap;" data-i18n="th_date">Időpont</th>
+                  <th style="padding:10px;text-align:left;" data-i18n="th_status">Állapot</th>
+                  <th style="padding:10px;text-align:left;" data-i18n="th_printer">Nyomtató</th>
+                  <th style="padding:10px;text-align:left;" data-i18n="th_file">Fájl</th>
+                  <th style="padding:10px;text-align:left;" data-i18n="th_details">Részletek & Hibák</th>
+                </tr>
+              </thead>
+              <tbody id="printLogsTableBody">
+                <tr><td colspan="5" class="text-muted" style="padding:16px;text-align:center;">Nincsenek megjeleníthető nyomtatási naplóbejegyzések.</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
     <!-- ========================================================= -->
     <!-- 11. SAMBA CONFIGURATION GUI & RAW GRID -->

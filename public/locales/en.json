@@ -102,6 +102,13 @@
   "printers_monitored_folder_label": "📁 Monitored Print Folder (SMB Share):",
   "printers_archive_folder_label": "📦 Archive Folder:",
   "printers_save_btn": "💾 Save Printer Settings",
+  "print_log_title": "📜 Print History & System Log",
+  "print_log_subtitle": "Real-time log of print jobs, printer response messages, and error diagnostics.",
+  "print_log_clear_btn": "Clear Log",
+  "print_active_jobs_title": "⏳ Active Print Jobs in Queue:",
+  "th_printer": "Printer",
+  "th_file": "File",
+  "th_details": "Details & Errors",
   
   "email_print_title": "✉️ Email-to-Print Integration",
   "email_print_enable": "Enable Email Printing",
