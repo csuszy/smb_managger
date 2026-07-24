@@ -1463,6 +1463,9 @@ async function setDefaultPrinterFromUi(printerId) {
   }
 }
 
+let currentPrintLogsCache = [];
+let currentLogFilter = 'all';
+
 async function loadPrintLogsUi() {
   const tbody = document.getElementById('printLogsTableBody');
   const banner = document.getElementById('activePrintJobsBanner');
@@ -1471,7 +1474,7 @@ async function loadPrintLogsUi() {
 
   try {
     const res = await apiGet('/api/printers/logs');
-    const logs = res.logs || [];
+    currentPrintLogsCache = res.logs || [];
     const activeJobs = res.activeJobs || [];
 
     if (banner && jobsList) {
@@ -1483,34 +1486,97 @@ async function loadPrintLogsUi() {
       }
     }
 
-    if (logs.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="5" class="text-muted" style="padding:16px;text-align:center;">Nincsenek megjeleníthető nyomtatási naplóbejegyzések.</td></tr>';
-      return;
-    }
-
-    tbody.innerHTML = logs.map(log => {
-      let statusBadge = '<span class="badge badge-purple">Információ</span>';
-      if (log.status === 'success') statusBadge = '<span class="badge badge-green">✓ Sikeres</span>';
-      else if (log.status === 'error') statusBadge = '<span class="badge badge-red">❌ Hiba</span>';
-      else if (log.status === 'pending') statusBadge = '<span class="badge badge-amber">⏳ Folyamatban</span>';
-      else if (log.status === 'warning') statusBadge = '<span class="badge badge-amber">⚠️ Figyelem</span>';
-
-      return `
-        <tr>
-          <td style="padding:8px 10px;white-space:nowrap;"><code>${log.dateFormatted || log.timestamp}</code></td>
-          <td style="padding:8px 10px;">${statusBadge}</td>
-          <td style="padding:8px 10px;"><strong>${log.printer || '—'}</strong></td>
-          <td style="padding:8px 10px;"><code>${log.file || '—'}</code></td>
-          <td style="padding:8px 10px;">
-            <div>${log.message || ''}</div>
-            ${log.error ? `<div style="color:var(--red);font-size:0.82rem;margin-top:2px;font-family:monospace;">${log.error}</div>` : ''}
-          </td>
-        </tr>
-      `;
-    }).join('');
+    renderPrintLogsTable();
   } catch (e) {
     console.error('Error loading print logs:', e);
   }
+}
+
+function filterPrintLogsUi(status, btn) {
+  currentLogFilter = status;
+  if (btn) {
+    document.querySelectorAll('.print-filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  renderPrintLogsTable();
+}
+
+function renderPrintLogsTable() {
+  const tbody = document.getElementById('printLogsTableBody');
+  if (!tbody) return;
+
+  let filtered = currentPrintLogsCache;
+  if (currentLogFilter !== 'all') {
+    filtered = currentPrintLogsCache.filter(l => l.status === currentLogFilter);
+  }
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="text-muted" style="padding:16px;text-align:center;">Nincsenek megjeleníthető nyomtatási naplóbejegyzések.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(log => {
+    let statusBadge = '<span class="badge badge-purple">Információ</span>';
+    if (log.status === 'success') statusBadge = '<span class="badge badge-green">✓ Sikeres</span>';
+    else if (log.status === 'error') statusBadge = '<span class="badge badge-red">❌ Hiba</span>';
+    else if (log.status === 'pending') statusBadge = '<span class="badge badge-amber">⏳ Folyamatban</span>';
+    else if (log.status === 'warning') statusBadge = '<span class="badge badge-amber">⚠️ Figyelem</span>';
+
+    return `
+      <tr>
+        <td style="padding:8px 10px;white-space:nowrap;"><code>${log.dateFormatted || log.timestamp}</code></td>
+        <td style="padding:8px 10px;">${statusBadge}</td>
+        <td style="padding:8px 10px;"><strong>${log.printer || '—'}</strong></td>
+        <td style="padding:8px 10px;"><code>${log.file || '—'}</code></td>
+        <td style="padding:8px 10px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <div>
+              <div>${log.message || ''}</div>
+              ${log.error ? `<div style="color:var(--red);font-size:0.82rem;margin-top:2px;font-family:monospace;">${log.error}</div>` : ''}
+            </div>
+            <button class="btn btn-ghost btn-sm" style="white-space:nowrap;" onclick="showPrintLogDetailsModal('${log.id}')">🔍 Részletek</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function showPrintLogDetailsModal(logId) {
+  const log = currentPrintLogsCache.find(l => l.id === logId);
+  if (!log) return;
+
+  const dt = log.details || {};
+
+  document.getElementById('logDetailTimestamp').textContent = log.dateFormatted || log.timestamp;
+  
+  let statusBadge = '<span class="badge badge-purple">Információ</span>';
+  if (log.status === 'success') statusBadge = '<span class="badge badge-green">✓ Sikeres</span>';
+  else if (log.status === 'error') statusBadge = '<span class="badge badge-red">❌ Hiba</span>';
+  else if (log.status === 'pending') statusBadge = '<span class="badge badge-amber">⏳ Folyamatban</span>';
+  else if (log.status === 'warning') statusBadge = '<span class="badge badge-amber">⚠️ Figyelem</span>';
+  document.getElementById('logDetailStatusBadge').innerHTML = statusBadge;
+
+  document.getElementById('logDetailPrinter').textContent = log.printer || '—';
+  document.getElementById('logDetailFile').textContent = log.file || '—';
+  document.getElementById('logDetailPath').textContent = (dt.fileSize ? `[${dt.fileSize}] ` : '') + (dt.fullPath || '—');
+  document.getElementById('logDetailUri').textContent = dt.deviceUri || '—';
+  document.getElementById('logDetailModel').textContent = dt.makeAndModel || '—';
+  document.getElementById('logDetailMessage').textContent = log.message || '—';
+
+  const errContainer = document.getElementById('logDetailErrorContainer');
+  const errText = document.getElementById('logDetailErrorText');
+
+  const combinedError = [log.error, dt.rawOutput, (dt.cupsLogTail || []).join('\n')].filter(Boolean).join('\n\n--- CUPS / Rendszer Diagnosztikai Log ---\n\n');
+
+  if (combinedError) {
+    errText.textContent = combinedError;
+    errContainer.style.display = 'block';
+  } else {
+    errContainer.style.display = 'none';
+  }
+
+  document.getElementById('printLogDetailModal').classList.add('open');
 }
 
 async function clearPrintLogsUi() {

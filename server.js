@@ -44,7 +44,8 @@ const {
   checkImapEmailAccount,
   getPrintLogs,
   clearPrintLogs,
-  getActiveJobs
+  getActiveJobs,
+  getCupsDiagnostics
 } = require('./lib/printers');
 
 const {
@@ -1021,6 +1022,15 @@ app.post('/api/printers/logs/clear', (req, res) => {
   try {
     clearPrintLogs();
     res.json({ success: true, message: 'Nyomtatási napló sikeresen kiürítve!' });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get('/api/printers/diagnostics/:id?', async (req, res) => {
+  try {
+    const diag = await getCupsDiagnostics(req.params.id || '');
+    res.json({ success: true, diagnostics: diag });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

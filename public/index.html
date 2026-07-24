@@ -1696,6 +1696,38 @@
     </div>
   </div>
 
+  <!-- Print Log Detail Modal -->
+  <div class="modal-overlay" id="printLogDetailModal">
+    <div class="modal" style="max-width:680px;">
+      <h3>🔍 Nyomtatási Feladat Részletei & Rendszer-diagnosztika</h3>
+      <p class="text-muted mt-8">Részletes naplóbejegyzés, hálózati és illesztőprogram-diagnosztika</p>
+
+      <div class="sys-info-list mt-16" style="font-size:0.88rem;">
+        <div class="sys-info-item"><span>Időpont:</span> <code id="logDetailTimestamp">—</code></div>
+        <div class="sys-info-item"><span>Állapot:</span> <span id="logDetailStatusBadge">—</span></div>
+        <div class="sys-info-item"><span>Célnyomtató:</span> <strong id="logDetailPrinter">—</strong></div>
+        <div class="sys-info-item"><span>Nyomtatandó Fájl:</span> <code id="logDetailFile">—</code></div>
+        <div class="sys-info-item"><span>Fájlméret & Útvonal:</span> <code id="logDetailPath">—</code></div>
+        <div class="sys-info-item"><span>Eszköz URI (Device URI):</span> <code id="logDetailUri">—</code></div>
+        <div class="sys-info-item"><span>CUPS Modell / Driver:</span> <code id="logDetailModel">—</code></div>
+      </div>
+
+      <div class="mt-16">
+        <strong>Üzenet & Állapot:</strong>
+        <div id="logDetailMessage" style="background:var(--bg-input);padding:10px;border-radius:var(--radius-sm);margin-top:6px;font-size:0.9rem;"></div>
+      </div>
+
+      <div class="mt-16" id="logDetailErrorContainer" style="display:none;">
+        <strong style="color:var(--red);">❌ Hiba / Rendszer-diagnosztikai kimenet:</strong>
+        <pre id="logDetailErrorText" style="background:rgba(239,68,68,0.1);color:#fca5a5;padding:12px;border-radius:var(--radius-sm);margin-top:6px;font-family:monospace;font-size:0.82rem;white-space:pre-wrap;word-break:break-all;border:1px solid rgba(239,68,68,0.3);max-height:200px;overflow-y:auto;"></pre>
+      </div>
+
+      <div class="modal-actions mt-24">
+        <button class="btn btn-primary" onclick="closeModal('printLogDetailModal')">Bezárás</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Installation Progress Modal -->
   <div class="modal-overlay" id="installProgressModal">
     <div class="modal" style="max-width:480px;">
