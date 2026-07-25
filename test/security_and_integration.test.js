@@ -210,9 +210,15 @@ async function runTests() {
     assert.ok(Array.isArray(cupsStatusRes.json.activeJobs), 'cups-status should include activeJobs array');
     assert.ok(Array.isArray(cupsStatusRes.json.completedJobs), 'cups-status should include completedJobs array');
 
+    // Test enable CUPS network API
+    const netEnableRes = await makeRequest('POST', '/api/printers/enable-cups-network', { Authorization: `Bearer ${token}` });
+    assert.strictEqual(netEnableRes.statusCode, 200, 'POST /api/printers/enable-cups-network should return HTTP 200');
+    assert.strictEqual(netEnableRes.json.success, true, 'enable-cups-network should return success: true');
+    assert.ok(netEnableRes.json.serverIp, 'enable-cups-network should return serverIp');
+
     // Cleanup test printer
     await printersModule.removeManualPrinter('net_192_168_1_250');
-    console.log('  ✅ Test 6 PASSED: Printer discovery, CUPS default setting, Test printing, Print logs & CUPS status succeeded.\n');
+    console.log('  ✅ Test 6 PASSED: Printer discovery, CUPS default setting, Test printing, Print logs, CUPS status & Network IP access succeeded.\n');
 
     console.log('🎉 ALL SECURITY & INTEGRATION TESTS PASSED SUCCESSFULLY!');
   } finally {

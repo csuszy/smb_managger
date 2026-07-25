@@ -46,7 +46,8 @@ const {
   clearPrintLogs,
   getActiveJobs,
   getCupsDiagnostics,
-  getCupsFullStatus
+  getCupsFullStatus,
+  configureCupsNetworkAccess
 } = require('./lib/printers');
 
 const {
@@ -1041,6 +1042,16 @@ app.get('/api/printers/cups-status', async (req, res) => {
   try {
     const cupsStatus = await getCupsFullStatus();
     res.json({ success: true, ...cupsStatus });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post('/api/printers/enable-cups-network', async (req, res) => {
+  try {
+    const result = await configureCupsNetworkAccess();
+    if (!result.success) return res.status(500).json({ error: result.error });
+    res.json({ success: true, message: `CUPS hálózati IP elérés engedélyezve a helyi IPv4 címen (${result.serverIp}:631)!`, serverIp: result.serverIp });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

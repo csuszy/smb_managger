@@ -1595,14 +1595,22 @@ async function loadCupsStatusUi() {
   const activeCount = document.getElementById('cupsActiveQueueCount');
   const completedCount = document.getElementById('cupsCompletedQueueCount');
   const tbody = document.getElementById('cupsJobsTableBody');
+  const webLink = document.getElementById('cupsWebAdminLink');
   if (!tbody) return;
 
   try {
     const res = await apiGet('/api/printers/cups-status');
+    const host = window.location.hostname || res.serverIp || 'localhost';
+
+    if (webLink) {
+      webLink.href = `http://${host}:631`;
+      webLink.textContent = `🌐 CUPS Web Admin (${host}:631)`;
+    }
+
     if (badge) {
       if (res.cupsServiceRunning) {
         badge.className = 'badge badge-green';
-        badge.textContent = '⚡ CUPS Fut (Active)';
+        badge.textContent = `⚡ CUPS Fut (${host}:631)`;
       } else {
         badge.className = 'badge badge-red';
         badge.textContent = '❌ CUPS Leállítva';
@@ -1638,6 +1646,17 @@ async function loadCupsStatusUi() {
     `).join('');
   } catch (e) {
     console.error('Error loading CUPS status:', e);
+  }
+}
+
+async function enableCupsNetworkUi() {
+  try {
+    toast('CUPS hálózati IP elérés konfigurálása folyamatban...', 'info');
+    const res = await apiPost('/api/printers/enable-cups-network', {});
+    toast(res.message || 'CUPS hálózati elérés sikeresen engedélyezve!', 'success');
+    loadCupsStatusUi();
+  } catch (e) {
+    toast('Hiba a CUPS hálózati elérés engedélyezésekor: ' + e.message, 'error');
   }
 }
 

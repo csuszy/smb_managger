@@ -981,7 +981,8 @@
               <p class="text-muted mt-4" data-i18n="cups_api_subtitle">CUPS démon állapota, spool feladatsorok és illesztőprogram-diagnosztika</p>
             </div>
             <div class="flex-gap">
-              <a href="http://localhost:631" target="_blank" class="btn btn-outline btn-sm" style="color:var(--purple);border-color:var(--purple);">🌐 CUPS Web Admin (:631)</a>
+              <a id="cupsWebAdminLink" href="http://localhost:631" target="_blank" class="btn btn-outline btn-sm" style="color:var(--purple);border-color:var(--purple);">🌐 CUPS Web Admin (:631)</a>
+              <button class="btn btn-ghost btn-sm" onclick="enableCupsNetworkUi()" style="color:var(--cyan);">⚡ Hálózati IP Elérés</button>
               <button class="btn btn-ghost btn-sm" onclick="loadCupsStatusUi()">🔄 Frissítés</button>
             </div>
           </div>
