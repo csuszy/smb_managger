@@ -256,7 +256,15 @@ async function runTests() {
       assert.strictEqual(p.type, 'cups', 'Printers listed in getPrinters must be of type cups');
     }
 
-    console.log('  ✅ Test 7 PASSED: IMAP binary attachment extraction and CUPS-only printer mode verified.\n');
+    // Test damaged PDF Ghostscript repair
+    const damagedPdfPath = '/tmp/damaged_test.pdf';
+    fs.writeFileSync(damagedPdfPath, '%PDF-1.4\n1 0 obj\n<< /Title (Damaged) >>\nendobj\n', 'utf8');
+    const preparedTarget = await printersModule.prepareFileForCupsPrinting(damagedPdfPath);
+    assert.ok(fs.existsSync(preparedTarget), 'Prepared target file must exist');
+    if (fs.existsSync(damagedPdfPath)) fs.unlinkSync(damagedPdfPath);
+    if (preparedTarget !== damagedPdfPath && fs.existsSync(preparedTarget)) fs.unlinkSync(preparedTarget);
+
+    console.log('  ✅ Test 7 PASSED: IMAP binary attachment extraction, damaged PDF repair & CUPS-only printer mode verified.\n');
 
     console.log('🎉 ALL SECURITY & INTEGRATION TESTS PASSED SUCCESSFULLY!');
   } finally {

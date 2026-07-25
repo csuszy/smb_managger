@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "id": "log_1784981794153_52flj",
+    "timestamp": "2026-07-25T12:16:34.153Z",
+    "dateFormatted": "2026. 07. 25. 12:16:34",
+    "type": "cups",
+    "status": "warning",
+    "file": "damaged_test.pdf",
+    "printer": "",
+    "message": "Sérült PDF fájl szerkezete (trailer dictionary / xref) helyreállítva Ghostscript segítségével",
+    "error": "",
+    "details": {}
+  }
+]
