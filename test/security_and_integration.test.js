@@ -249,6 +249,32 @@ async function runTests() {
     assert.strictEqual(extracted[0].filename, 'document.pdf', 'Filename should match document.pdf');
     assert.deepStrictEqual(extracted[0].data, fakePdfBytes, 'Extracted binary Buffer must match original PDF bytes byte-for-byte');
 
+    // Test nested boundary MIME extraction & RFC 2231 filename decoding
+    const nestedMime = [
+      'From: test@example.com',
+      'Subject: NYOMTATAS',
+      'MIME-Version: 1.0',
+      'Content-Type: multipart/mixed; boundary="OUTER_BOUND"',
+      '',
+      '--OUTER_BOUND',
+      'Content-Type: multipart/related; boundary="INNER_BOUND"',
+      '',
+      '--INNER_BOUND',
+      'Content-Type: application/pdf',
+      'Content-Transfer-Encoding: base64',
+      'Content-Disposition: attachment;',
+      '\tfilename*=UTF-8\'\'teszt%20dokumentum.pdf',
+      '',
+      base64Pdf,
+      '--INNER_BOUND--',
+      '--OUTER_BOUND--'
+    ].join('\r\n');
+
+    const nestedExtracted = printersModule.extractMimeAttachments(Buffer.from(nestedMime, 'binary'));
+    assert.strictEqual(nestedExtracted.length, 1, 'Should extract 1 attachment from nested MIME parts');
+    assert.strictEqual(nestedExtracted[0].filename, 'teszt_dokumentum.pdf', 'RFC 2231 filename should be decoded correctly');
+    assert.deepStrictEqual(nestedExtracted[0].data, fakePdfBytes, 'Nested binary Buffer payload must match original PDF bytes');
+
     // Test CUPS-only printer mode
     const cupsOnlyInfo = await printersModule.getPrinters();
     assert.ok(Array.isArray(cupsOnlyInfo.printers), 'getPrinters should return array');
