@@ -383,15 +383,28 @@ body {
 /* =========================================================
    TABLES & BADGES
    ========================================================= */
-.table-wrap { overflow-x: auto; }
+.table-wrap {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
 table { width: 100%; border-collapse: collapse; text-align: left; }
 th {
   padding: 12px 16px; font-size: 0.72rem; font-weight: 700;
   text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);
   border-bottom: 2px solid var(--border);
 }
-td { padding: 14px 16px; font-size: 0.88rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+td {
+  padding: 14px 16px; font-size: 0.88rem; border-bottom: 1px solid var(--border); vertical-align: middle;
+  word-break: break-word; overflow-wrap: anywhere;
+}
 tr:hover td { background: rgba(139,92,246,0.025); }
+code, pre, .sys-info-item code {
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
 
 .badge {
   display: inline-flex; align-items: center; gap: 4px;

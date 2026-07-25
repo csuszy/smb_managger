@@ -220,6 +220,44 @@ async function runTests() {
     await printersModule.removeManualPrinter('net_192_168_1_250');
     console.log('  ✅ Test 6 PASSED: Printer discovery, CUPS default setting, Test printing, Print logs, CUPS status & Network IP access succeeded.\n');
 
+    // -------------------------------------------------------------
+    // Test 7: IMAP Binary Attachment Extraction Integrity & CUPS-only Mode
+    // -------------------------------------------------------------
+    console.log('7. Testing IMAP binary attachment extraction integrity & CUPS-only mode...');
+    
+    // Test binary PDF buffer base64 extraction
+    const fakePdfBytes = Buffer.from('%PDF-1.4\n1 0 obj\n<< /Title (Test PDF Binary) >>\nendobj\n%%EOF\n', 'binary');
+    const base64Pdf = fakePdfBytes.toString('base64');
+
+    const fakeMime = [
+      'From: test@example.com',
+      'Subject: NYOMTATAS',
+      'MIME-Version: 1.0',
+      'Content-Type: multipart/mixed; boundary="--BOUNDARY12345"',
+      '',
+      '----BOUNDARY12345',
+      'Content-Type: application/pdf; name="document.pdf"',
+      'Content-Transfer-Encoding: base64',
+      'Content-Disposition: attachment; filename="document.pdf"',
+      '',
+      base64Pdf,
+      '----BOUNDARY12345--'
+    ].join('\r\n');
+
+    const extracted = printersModule.extractMimeAttachments(Buffer.from(fakeMime, 'binary'));
+    assert.strictEqual(extracted.length, 1, 'Should extract 1 attachment');
+    assert.strictEqual(extracted[0].filename, 'document.pdf', 'Filename should match document.pdf');
+    assert.deepStrictEqual(extracted[0].data, fakePdfBytes, 'Extracted binary Buffer must match original PDF bytes byte-for-byte');
+
+    // Test CUPS-only printer mode
+    const cupsOnlyInfo = await printersModule.getPrinters();
+    assert.ok(Array.isArray(cupsOnlyInfo.printers), 'getPrinters should return array');
+    for (const p of cupsOnlyInfo.printers) {
+      assert.strictEqual(p.type, 'cups', 'Printers listed in getPrinters must be of type cups');
+    }
+
+    console.log('  ✅ Test 7 PASSED: IMAP binary attachment extraction and CUPS-only printer mode verified.\n');
+
     console.log('🎉 ALL SECURITY & INTEGRATION TESTS PASSED SUCCESSFULLY!');
   } finally {
     server.close();
