@@ -49,7 +49,15 @@ A modern, fast, and feature-rich **TrueNAS / CasaOS style web application** desi
 9. **🛡️ Audit Logs (Audit Napló)**
    - Comprehensive audit logging for all administrative actions (file changes, user edits, config updates).
 
-10. **🌐 Global Samba GUI & Network Discovery**
+10. **🍎 Apple Time Machine Backup Server (Mac Mentési Központ)**
+    - Full native **macOS Time Machine** backup target over SMB utilizing Samba's `vfs_fruit` module.
+    - Zero-configuration **Avahi / Bonjour mDNS** network advertisement (`_smb._tcp` and `_adisk._tcp` with `adVF=0x82`).
+    - 1-Click Time Machine Share creation with custom quota / max size limit (`fruit:time machine max size`).
+    - Automatic detection and health monitoring of Mac `.sparsebundle` / `.backupbundle` files.
+    - Built-in tool to clear stale locks and orphan tokens if a Mac network backup is interrupted.
+    - Interactive step-by-step connection guide for macOS System Settings / Preferences and CLI (`tmutil`).
+
+11. **🌐 Global Samba GUI & Network Discovery**
     - Configure NetBIOS server name, workgroup, minimum/maximum SMB protocols, encryption, and guest access.
     - Integrated support for **WSDD** (Windows WS-Discovery) and **Avahi** (Mac mDNS/Bonjour) for zero-config network discovery.
 

@@ -1,7 +1,7 @@
 {
   "name": "sambahub",
-  "version": "0.4.16",
-  "description": "SambaHub — Modern NAS Samba Administration & Printer Management Dashboard",
+  "version": "0.5.0",
+  "description": "SambaHub — Modern NAS Samba Administration, Apple Time Machine Backup & Printer Management Dashboard",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

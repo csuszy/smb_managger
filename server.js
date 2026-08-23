@@ -61,8 +61,16 @@ const {
   destroySession
 } = require('./lib/auth');
 
+const {
+  syncAvahiTimeMachineService,
+  getTimeMachineStatus,
+  quickSetupTimeMachineShare,
+  cleanupStaleLocks,
+  getMacGuide
+} = require('./lib/timemachine');
+
 const app = express();
-const PORT = 8080;
+const PORT = process.env.PORT || 8085;
 
 function getSambaBase() {
   const cfg = loadConfig();
@@ -75,6 +83,9 @@ function getSambaBase() {
 
 // Guarantee default [homes] section and permissions
 ensureDefaultHomesSection(getSambaBase()).catch(e => console.error(e));
+
+// Guarantee Avahi Bonjour Time Machine announcement on startup
+syncAvahiTimeMachineService().catch(e => console.error('Avahi TM sync error:', e));
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -1052,6 +1063,67 @@ app.post('/api/printers/enable-cups-network', async (req, res) => {
     const result = await configureCupsNetworkAccess();
     if (!result.success) return res.status(500).json({ error: result.error });
     res.json({ success: true, message: `CUPS hálózati IP elérés engedélyezve a helyi IPv4 címen (${result.serverIp}:631)!`, serverIp: result.serverIp });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ============================
+// TIME MACHINE BACKUP SERVER API
+// ============================
+app.get('/api/timemachine/status', async (req, res) => {
+  try {
+    const status = await getTimeMachineStatus();
+    res.json(status);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post('/api/timemachine/quick-setup', async (req, res) => {
+  try {
+    const result = await quickSetupTimeMachineShare(req.body, req.user || 'admin');
+    res.json(result);
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.post('/api/timemachine/avahi/sync', async (req, res) => {
+  try {
+    const result = await syncAvahiTimeMachineService();
+    res.json(result);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post('/api/timemachine/avahi/restart', async (req, res) => {
+  try {
+    await run('systemctl restart avahi-daemon 2>&1');
+    const result = await syncAvahiTimeMachineService();
+    audit.logEvent('service', 'Avahi mDNS Bonjour szolgáltatás újraindítva', req.user || 'admin');
+    res.json({ success: true, message: 'Avahi Bonjour szolgáltatás sikeresen újraindítva!', result });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.delete('/api/timemachine/locks', async (req, res) => {
+  try {
+    const { targetPath, bundleName } = req.body || {};
+    const result = await cleanupStaleLocks(targetPath, bundleName, req.user || 'admin');
+    res.json(result);
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.get('/api/timemachine/guide', (req, res) => {
+  try {
+    const shareName = req.query.shareName || 'TimeMachine';
+    const guide = getMacGuide(shareName);
+    res.json({ success: true, guide });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

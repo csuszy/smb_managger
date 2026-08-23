@@ -9,7 +9,7 @@ WorkingDirectory=/opt/smb-manager
 ExecStart=/usr/bin/node /opt/smb-manager/server.js
 Restart=always
 RestartSec=5
-Environment=NODE_ENV=production PORT=8080
+Environment=NODE_ENV=production PORT=8085
 
 [Install]
 WantedBy=multi-user.target

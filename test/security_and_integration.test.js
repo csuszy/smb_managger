@@ -292,6 +292,93 @@ async function runTests() {
 
     console.log('  ✅ Test 7 PASSED: IMAP binary attachment extraction, damaged PDF repair & CUPS-only printer mode verified.\n');
 
+    // -------------------------------------------------------------
+    // Test 8: Apple Time Machine Backup Server & Avahi Bonjour Zero-Conf
+    // -------------------------------------------------------------
+    console.log('8. Testing Apple Time Machine Backup Server & Avahi Bonjour Zero-Conf...');
+    const timemachineModule = require('../lib/timemachine');
+
+    // 8.1: Test Quick Setup endpoint
+    const tmSetupRes = await makeRequest('POST', '/api/timemachine/quick-setup', { Authorization: `Bearer ${token}` }, {
+      name: 'UnitTestTM',
+      folderPath: '/tmp/test_timemachine_share',
+      maxSize: '500G',
+      isPublic: false,
+      validUsers: 'testadmin'
+    });
+    assert.strictEqual(tmSetupRes.statusCode, 200, 'POST /api/timemachine/quick-setup should return 200');
+    assert.strictEqual(tmSetupRes.json.success, true, 'Quick setup should succeed');
+    assert.strictEqual(tmSetupRes.json.name, 'UnitTestTM', 'Share name must match');
+
+    // Verify smb.conf fruit entries
+    const smbConf = fs.readFileSync('/etc/samba/smb.conf', 'utf8');
+    assert.ok(smbConf.includes('[UnitTestTM]'), 'smb.conf must contain [UnitTestTM] section');
+    assert.ok(smbConf.includes('fruit:time machine = yes'), 'smb.conf must contain fruit:time machine = yes');
+    assert.ok(smbConf.includes('fruit:time machine max size = 500G'), 'smb.conf must contain fruit:time machine max size = 500G');
+    assert.ok(smbConf.includes('fruit:aapl = yes'), 'smb.conf must contain fruit:aapl = yes');
+
+    // Verify Avahi service file generation
+    assert.ok(fs.existsSync('/etc/avahi/services/timemachine.service'), 'Avahi service file must exist');
+    const avahiXml = fs.readFileSync('/etc/avahi/services/timemachine.service', 'utf8');
+    assert.ok(avahiXml.includes('_adisk._tcp'), 'Avahi XML must advertise _adisk._tcp for Apple discovery');
+    assert.ok(avahiXml.includes('adVN=UnitTestTM,adVF=0x82'), 'Avahi XML must include adVN=UnitTestTM with Time Machine flag 0x82');
+
+    // 8.2: Test Time Machine Status endpoint
+    const tmStatusRes = await makeRequest('GET', '/api/timemachine/status', { Authorization: `Bearer ${token}` });
+    assert.strictEqual(tmStatusRes.statusCode, 200, 'GET /api/timemachine/status should return 200');
+    assert.strictEqual(tmStatusRes.json.success, true, 'Status response success must be true');
+    assert.ok(Array.isArray(tmStatusRes.json.shares), 'Status must return shares array');
+    const unitTmShare = tmStatusRes.json.shares.find(s => s.name === 'UnitTestTM');
+    assert.ok(unitTmShare, 'UnitTestTM must be listed in Time Machine shares');
+    assert.strictEqual(unitTmShare.timeMachine, true, 'Share must have timeMachine: true');
+    assert.strictEqual(unitTmShare.timeMachineMaxSize, '500G', 'Share must have 500G max size');
+
+    // 8.3: Test Mac Setup Guide endpoint
+    const tmGuideRes = await makeRequest('GET', '/api/timemachine/guide?shareName=UnitTestTM', { Authorization: `Bearer ${token}` });
+    assert.strictEqual(tmGuideRes.statusCode, 200, 'GET /api/timemachine/guide should return 200');
+    assert.strictEqual(tmGuideRes.json.success, true, 'Guide response success must be true');
+    assert.ok(tmGuideRes.json.guide.smbUrl.includes('UnitTestTM'), 'Guide SMB URL must include share name');
+    assert.ok(Array.isArray(tmGuideRes.json.guide.steps), 'Guide steps must be an array');
+
+    // 8.4: Test Sparsebundle Detection and Lock Cleanup
+    const testBundleDir = '/tmp/test_timemachine_share/MacBook-Pro-Test.sparsebundle';
+    const testBandsDir = path.join(testBundleDir, 'bands');
+    fs.mkdirSync(testBandsDir, { recursive: true });
+    fs.writeFileSync(path.join(testBandsDir, '0'), 'mock_band_data');
+    fs.writeFileSync(path.join(testBundleDir, 'token'), 'active_lock_token');
+
+    // Check status detects the mock bundle
+    const tmStatusWithBundle = await makeRequest('GET', '/api/timemachine/status', { Authorization: `Bearer ${token}` });
+    const detectedBundle = tmStatusWithBundle.json.backups.find(b => b.name === 'MacBook-Pro-Test.sparsebundle');
+    assert.ok(detectedBundle, 'Status should detect mock MacBook-Pro-Test.sparsebundle');
+    assert.strictEqual(detectedBundle.isLocked, true, 'Mock bundle with token file must be reported as locked');
+
+    // Clean lock via API
+    const unlockRes = await makeRequest('DELETE', '/api/timemachine/locks', { Authorization: `Bearer ${token}` }, {
+      targetPath: testBundleDir
+    });
+    assert.strictEqual(unlockRes.statusCode, 200, 'DELETE /api/timemachine/locks should return 200');
+    assert.strictEqual(unlockRes.json.success, true, 'Lock cleanup should succeed');
+    assert.strictEqual(fs.existsSync(path.join(testBundleDir, 'token')), false, 'Token lock file must be deleted');
+
+    // Verify bundle is now unlocked
+    const tmStatusUnlocked = await makeRequest('GET', '/api/timemachine/status', { Authorization: `Bearer ${token}` });
+    const unlockedBundle = tmStatusUnlocked.json.backups.find(b => b.name === 'MacBook-Pro-Test.sparsebundle');
+    assert.strictEqual(unlockedBundle.isLocked, false, 'Bundle must be reported as unlocked after lock cleanup');
+
+    // 8.5: Test Avahi Sync API
+    const avahiSyncRes = await makeRequest('POST', '/api/timemachine/avahi/sync', { Authorization: `Bearer ${token}` });
+    assert.strictEqual(avahiSyncRes.statusCode, 200, 'POST /api/timemachine/avahi/sync should return 200');
+    assert.strictEqual(avahiSyncRes.json.success, true, 'Avahi sync should succeed');
+
+    // Cleanup test share and directory
+    await shares.deleteShare('UnitTestTM');
+    if (fs.existsSync('/tmp/test_timemachine_share')) {
+      fs.rmSync('/tmp/test_timemachine_share', { recursive: true, force: true });
+    }
+
+    console.log('  ✅ Test 8 PASSED: Apple Time Machine Backup Server, smb.conf fruit stack, Avahi Bonjour mDNS advertising, sparsebundle diagnostics & lock cleanup verified.\n');
+
     console.log('🎉 ALL SECURITY & INTEGRATION TESTS PASSED SUCCESSFULLY!');
   } finally {
     server.close();

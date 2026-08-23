@@ -108,6 +108,7 @@ function switchSection(sectionId) {
     case 'recycle': loadRecycleFiles(); break;
     case 'snapshots': loadSnapshots(); break;
     case 'printers': loadPrintersView(); break;
+    case 'timemachine': loadTimeMachine(); break;
     case 'samba-config': loadSambaGuiConfig(); break;
     case 'settings': loadSettings(); break;
   }
@@ -562,6 +563,7 @@ async function loadShares() {
 
     grid.innerHTML = globalShares.map(s => {
       let badges = '';
+      if (s.timeMachine) badges += '<span class="badge badge-green">🍏 Time Machine</span>';
       if (s.isPublic) badges += '<span class="badge badge-green">Publikus</span>';
       else badges += '<span class="badge badge-purple">Privát</span>';
       if (s.readOnly) badges += '<span class="badge badge-amber">Csak Olvasható</span>';
@@ -579,6 +581,7 @@ async function loadShares() {
             <div class="mt-16 sys-info-list" style="gap:10px;">
               <div class="sys-info-item"><span>Útvonal:</span> <code style="padding:4px 8px;background:var(--bg-input);border-radius:6px;">${s.path}</code></div>
               <div class="sys-info-item"><span>Engedélyezett userek:</span> <strong>${s.validUsers || 'Mindenki'}</strong></div>
+              ${s.timeMachine ? `<div class="sys-info-item"><span>Time Machine Korlát:</span> <strong style="color:var(--green)">${s.timeMachineMaxSize || 'Korlátlan'}</strong></div>` : ''}
             </div>
           </div>
           <div class="form-actions mt-24 flex-gap" style="border-top:1px solid var(--border);padding-top:16px;">
@@ -594,6 +597,12 @@ async function loadShares() {
   } catch (e) {
     toast('Hiba a megosztások betöltésekor', 'error');
   }
+}
+
+function toggleShareModalTmSize() {
+  const isTm = document.getElementById('sModalTimeMachine').checked;
+  const grp = document.getElementById('sModalTmSizeGroup');
+  if (grp) grp.style.display = isTm ? 'block' : 'none';
 }
 
 async function populateShareAccessCheckboxes(selectedValidStr = '', selectedWriteStr = '') {
@@ -669,6 +678,9 @@ async function openAddShareModal() {
   document.getElementById('sModalReadOnly').checked = false;
   document.getElementById('sModalRecycle').checked = true;
   document.getElementById('sModalDisabled').checked = false;
+  document.getElementById('sModalTimeMachine').checked = false;
+  document.getElementById('sModalTmMaxSize').value = '1000G';
+  toggleShareModalTmSize();
 
   await populateShareAccessCheckboxes('', '');
   document.getElementById('shareModal').classList.add('open');
@@ -688,6 +700,9 @@ async function openEditShareModal(name) {
   document.getElementById('sModalReadOnly').checked = s.readOnly;
   document.getElementById('sModalRecycle').checked = s.recycle;
   document.getElementById('sModalDisabled').checked = s.disabled;
+  document.getElementById('sModalTimeMachine').checked = !!s.timeMachine;
+  document.getElementById('sModalTmMaxSize').value = s.timeMachineMaxSize || '1000G';
+  toggleShareModalTmSize();
 
   await populateShareAccessCheckboxes(s.validUsers || '', s.writeList || '');
   document.getElementById('shareModal').classList.add('open');
@@ -701,6 +716,8 @@ async function saveShareFromModal() {
   const readOnly = document.getElementById('sModalReadOnly').checked;
   const recycle = document.getElementById('sModalRecycle').checked;
   const disabled = document.getElementById('sModalDisabled').checked;
+  const timeMachine = document.getElementById('sModalTimeMachine').checked;
+  const timeMachineMaxSize = document.getElementById('sModalTmMaxSize').value.trim();
 
   const validChks = document.querySelectorAll('.s-valid-chk:checked');
   const writeChks = document.querySelectorAll('.s-write-chk:checked');
@@ -710,11 +727,12 @@ async function saveShareFromModal() {
 
   try {
     await apiPost('/api/shares', {
-      name, folderPath, comment, isPublic, readOnly, recycle, disabled, validUsers, writeList
+      name, folderPath, comment, isPublic, readOnly, recycle, disabled, timeMachine, timeMachineMaxSize, validUsers, writeList
     });
     toast(`Megosztás [${name}] elmentve!`, 'success');
     closeModal('shareModal');
     loadShares();
+    if (currentSection === 'timemachine') loadTimeMachine();
   } catch (e) {
     toast('Hiba: ' + e.message, 'error');
   }
@@ -2595,6 +2613,312 @@ async function saveStoragePathFromSettings() {
 
 
 
+// =========================================================
+// TIME MACHINE MANAGEMENT & MACOS BACKUP SUITE
+// =========================================================
+let globalTmStatus = null;
+
+async function loadTimeMachine() {
+  const tbodyShares = document.getElementById('tmSharesTableBody');
+  const tbodyBackups = document.getElementById('tmBackupsTableBody');
+  if (tbodyShares) tbodyShares.innerHTML = '<tr><td colspan="6" class="text-muted" style="padding:16px;text-align:center;">Betöltés...</td></tr>';
+  if (tbodyBackups) tbodyBackups.innerHTML = '<tr><td colspan="7" class="text-muted" style="padding:16px;text-align:center;">Betöltés...</td></tr>';
+
+  try {
+    const status = await apiGet('/api/timemachine/status');
+    globalTmStatus = status;
+
+    // Update status indicators
+    const vfsEl = document.getElementById('tmVfsStatus');
+    if (vfsEl) {
+      vfsEl.textContent = status.fruitSupported ? 'Aktív & Támogatott' : 'Korlátozott';
+      vfsEl.style.color = status.fruitSupported ? 'var(--green)' : 'var(--amber)';
+    }
+
+    const avahiEl = document.getElementById('tmAvahiStatus');
+    if (avahiEl) {
+      if (status.avahi && status.avahi.active) {
+        avahiEl.textContent = 'Aktív (Bonjour)';
+        avahiEl.style.color = 'var(--cyan)';
+      } else {
+        avahiEl.textContent = 'Inaktív';
+        avahiEl.style.color = 'var(--red)';
+      }
+    }
+
+    const sharesCountEl = document.getElementById('tmSharesCount');
+    if (sharesCountEl) sharesCountEl.textContent = status.sharesCount || 0;
+
+    const backupsCountEl = document.getElementById('tmBackupsCount');
+    if (backupsCountEl) backupsCountEl.textContent = status.backupsCount || 0;
+
+    renderTimeMachineShares(status.shares || []);
+    renderDetectedBackups(status.backups || []);
+    renderMacGuide(status.shares || [], status.server ? status.server.ip : '127.0.0.1');
+  } catch (e) {
+    toast('Hiba a Time Machine adatok betöltésekor: ' + e.message, 'error');
+  }
+}
+
+function renderTimeMachineShares(shares) {
+  const tbody = document.getElementById('tmSharesTableBody');
+  if (!tbody) return;
+
+  if (!shares || shares.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" style="padding:24px;text-align:center;color:var(--text-muted);">
+          Nincs még konfigurálva Time Machine megosztás.<br>
+          <button class="btn btn-sm btn-primary mt-12" onclick="openQuickTmModal()">⚡ Gyors Time Machine Létrehozás</button>
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = shares.map(s => {
+    let accessBadge = s.isPublic 
+      ? '<span class="badge badge-green">Publikus</span>' 
+      : `<span class="badge badge-purple">Privát (${s.validUsers || 'Mindenki'})</span>`;
+
+    return `
+      <tr>
+        <td>
+          <strong style="color:var(--purple);font-size:1rem;">🍏 [${s.name}]</strong>
+          ${s.disabled ? '<span class="badge badge-red ml-8">Inaktív</span>' : '<span class="badge badge-green ml-8">Aktív</span>'}
+        </td>
+        <td><code style="padding:3px 6px;background:var(--bg-input);border-radius:4px;font-size:0.85rem;">${s.path}</code></td>
+        <td><strong style="color:var(--cyan);">${s.maxSize || 'Korlátlan'}</strong> <span class="text-muted" style="font-size:0.8rem;">(Használt: ${s.usedFormatted || '0 B'})</span></td>
+        <td>${accessBadge}</td>
+        <td><span class="badge badge-amber">${s.bundleCount || 0} db Mac</span></td>
+        <td>
+          <div class="table-actions">
+            <button class="btn btn-xs btn-outline" onclick="openEditShareModal('${s.name}')">✏️ Szerkesztés</button>
+            <button class="btn btn-xs btn-outline" onclick="browsePathInExplorer('${s.path}')">📂 Megnyitás</button>
+            <button class="btn btn-xs btn-ghost" style="color:var(--red)" onclick="confirmDeleteShare('${s.name}')">🗑️</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function renderDetectedBackups(backups) {
+  const tbody = document.getElementById('tmBackupsTableBody');
+  if (!tbody) return;
+
+  if (!backups || backups.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" style="padding:20px;text-align:center;color:var(--text-muted);">
+          Nincsenek még észlelt Mac biztonsági mentési csomagok a szerveren.<br>
+          <span style="font-size:0.82rem;">(Amint egy Mac elindítja az első mentést, a .sparsebundle csomag automatikusan megjelenik itt)</span>
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = backups.map(b => {
+    const lastStr = b.lastModified ? new Date(b.lastModified).toLocaleString('hu-HU') : 'Ismeretlen';
+    const lockBadge = b.isLocked 
+      ? '<span class="badge badge-amber">🔒 Zárolva (Folyamatban/Lock)</span>' 
+      : '<span class="badge badge-green">✓ Szabad</span>';
+
+    return `
+      <tr>
+        <td><strong>💻 ${b.macName || b.name}</strong></td>
+        <td><code style="font-size:0.82rem;background:var(--bg-input);padding:2px 6px;border-radius:4px;">${b.name}</code></td>
+        <td><span class="badge badge-purple">[${b.shareName}]</span></td>
+        <td><strong style="color:var(--cyan);">${b.sizeFormatted || '0 B'}</strong> <span class="text-muted" style="font-size:0.75rem;">(${b.bandCount} band)</span></td>
+        <td><span class="text-muted" style="font-size:0.85rem;">${lastStr}</span></td>
+        <td>${lockBadge}</td>
+        <td>
+          <button class="btn btn-xs btn-outline" onclick="unlockTmBackup('${b.path}', '${b.name}')" title="Árva zárolás törlése ha megszakadt a kapcsolat">
+            🔓 Zárolás Feloldása
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function renderMacGuide(shares, serverIp) {
+  const select = document.getElementById('tmGuideShareSelect');
+  if (!select) return;
+
+  const currentVal = select.value;
+  select.innerHTML = '';
+
+  if (!shares || shares.length === 0) {
+    select.innerHTML = '<option value="TimeMachine">TimeMachine (Alapértelmezett)</option>';
+  } else {
+    shares.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.name;
+      opt.textContent = `${s.name} (${s.path})`;
+      select.appendChild(opt);
+    });
+    if (currentVal && shares.some(s => s.name === currentVal)) {
+      select.value = currentVal;
+    }
+  }
+
+  updateTmGuideDisplay();
+}
+
+function updateTmGuideDisplay() {
+  const select = document.getElementById('tmGuideShareSelect');
+  const shareName = select ? select.value : 'TimeMachine';
+  const serverIp = (globalTmStatus && globalTmStatus.server && globalTmStatus.server.ip) ? globalTmStatus.server.ip : (document.getElementById('topSmbIpValue').textContent || '192.168.1.22');
+  const username = currentAuthStatus.username || 'admin';
+
+  const smbUrlEl = document.getElementById('tmGuideSmbUrl');
+  const commandEl = document.getElementById('tmGuideCommand');
+
+  if (smbUrlEl) smbUrlEl.value = `smb://${serverIp}/${shareName}`;
+  if (commandEl) commandEl.value = `sudo tmutil setdestination -p "smb://${username}@${serverIp}/${shareName}"`;
+
+  const stepsContainer = document.getElementById('tmGuideStepsContainer');
+  if (stepsContainer) {
+    stepsContainer.innerHTML = `
+      <div style="background:var(--bg-input);padding:14px;border-radius:10px;border:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span style="background:var(--purple);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;">1</span>
+          <strong style="font-size:0.88rem;">Beállítások megnyitása</strong>
+        </div>
+        <p class="text-muted" style="font-size:0.8rem;margin:0;">Apple menü ➔ Rendszerbeállítások ➔ Általános ➔ Time Machine.</p>
+      </div>
+
+      <div style="background:var(--bg-input);padding:14px;border-radius:10px;border:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span style="background:var(--purple);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;">2</span>
+          <strong style="font-size:0.88rem;">Lemez hozzáadása (+)</strong>
+        </div>
+        <p class="text-muted" style="font-size:0.8rem;margin:0;">Kattints a "+" gombra. Az Avahi mDNS azonnal felkínálja a szervert.</p>
+      </div>
+
+      <div style="background:var(--bg-input);padding:14px;border-radius:10px;border:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span style="background:var(--purple);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;">3</span>
+          <strong style="font-size:0.88rem;">Hitelesítés</strong>
+        </div>
+        <p class="text-muted" style="font-size:0.8rem;margin:0;">Válaszd a(z) <code>${shareName}</code> megosztást és add meg a Samba felhasználóneved.</p>
+      </div>
+
+      <div style="background:var(--bg-input);padding:14px;border-radius:10px;border:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span style="background:var(--green);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;">✓</span>
+          <strong style="font-size:0.88rem;">Kész! Automata mentés</strong>
+        </div>
+        <p class="text-muted" style="font-size:0.8rem;margin:0;">A Mac óránként észrevétlenül menti a megváltozott fájlokat a szerverre.</p>
+      </div>
+    `;
+  }
+}
+
+function copyTmUrl() {
+  const input = document.getElementById('tmGuideSmbUrl');
+  if (input) {
+    input.select();
+    navigator.clipboard.writeText(input.value);
+    toast('Hálózati SMB URL másolva a vágólapra!', 'info');
+  }
+}
+
+function copyTmCommand() {
+  const input = document.getElementById('tmGuideCommand');
+  if (input) {
+    input.select();
+    navigator.clipboard.writeText(input.value);
+    toast('Mac terminál parancs másolva a vágólapra!', 'info');
+  }
+}
+
+async function openQuickTmModal() {
+  document.getElementById('qTmName').value = 'TimeMachine';
+  document.getElementById('qTmPath').value = (currentAuthStatus.storageBasePath || '/srv/samba') + '/TimeMachine';
+  document.getElementById('qTmMaxSize').value = '1000G';
+  document.getElementById('qTmPublic').checked = false;
+
+  const usersGrid = document.getElementById('qTmUsersGrid');
+  usersGrid.innerHTML = '<span class="text-muted">Betöltés...</span>';
+
+  try {
+    const res = await apiGet('/api/users');
+    const users = res.users || [];
+    if (users.length === 0) {
+      usersGrid.innerHTML = '<span class="text-muted">Nincsenek felhasználók</span>';
+    } else {
+      usersGrid.innerHTML = users.map(u => `
+        <label class="checkbox-chip">
+          <input type="checkbox" value="${u.username}" class="q-tm-user-chk" checked>
+          <span>👤 ${u.username}</span>
+        </label>
+      `).join('');
+    }
+  } catch (e) {
+    usersGrid.innerHTML = '<span class="text-muted">Hiba a felhasználók betöltésekor</span>';
+  }
+
+  document.getElementById('quickTmModal').classList.add('open');
+}
+
+function setQuickTmSize(size) {
+  document.getElementById('qTmMaxSize').value = size;
+}
+
+async function saveQuickTmShare() {
+  const name = document.getElementById('qTmName').value.trim();
+  const folderPath = document.getElementById('qTmPath').value.trim();
+  const maxSize = document.getElementById('qTmMaxSize').value.trim();
+  const isPublic = document.getElementById('qTmPublic').checked;
+
+  const chks = document.querySelectorAll('.q-tm-user-chk:checked');
+  const validUsers = Array.from(chks).map(c => c.value).join(' ');
+  const writeList = validUsers;
+
+  if (!name) return toast('A megosztás neve kötelező!', 'error');
+
+  try {
+    await apiPost('/api/timemachine/quick-setup', {
+      name,
+      folderPath,
+      maxSize,
+      isPublic,
+      validUsers,
+      writeList
+    });
+
+    toast(`Time Machine megosztás [${name}] sikeresen létrehozva és Avahi/Bonjour hirdetve!`, 'success');
+    closeModal('quickTmModal');
+    loadTimeMachine();
+  } catch (e) {
+    toast('Hiba a létrehozáskor: ' + e.message, 'error');
+  }
+}
+
+async function syncAvahiNow() {
+  try {
+    toast('Avahi / Bonjour szolgáltatás szinkronizálása...', 'info');
+    const res = await apiPost('/api/timemachine/avahi/sync', {});
+    toast(`Bonjour mDNS sikeresen újrahirdetve (${res.count || 0} TM megosztás)!`, 'success');
+    loadTimeMachine();
+  } catch (e) {
+    toast('Hiba a szinkronizáláskor: ' + e.message, 'error');
+  }
+}
+
+async function unlockTmBackup(targetPath, bundleName) {
+  try {
+    await apiDelete('/api/timemachine/locks', { targetPath, bundleName });
+    toast(`Zárolás feloldva a(z) ${bundleName} csomagon!`, 'success');
+    loadTimeMachine();
+  } catch (e) {
+    toast('Hiba a feloldáskor: ' + e.message, 'error');
+  }
+}
+
 // Global search bar
 document.getElementById('globalSearch').addEventListener('input', (e) => {
   const q = e.target.value.trim().toLowerCase();
@@ -2609,3 +2933,4 @@ setInterval(() => {
     else if (currentSection === 'connections') loadConnections();
   }
 }, 15000);
+
