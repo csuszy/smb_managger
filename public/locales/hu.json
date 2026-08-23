@@ -433,5 +433,8 @@
   "tm_quick_modal_desc": "Hozz létre egy Apple Time Machine kompatibilis hálózati meghajtót a Mac biztonsági mentésekhez mindössze 1 kattintással.",
   "tm_max_size_preset_label": "Ajánlott Méretkorlátok (Quota):",
   "share_timemachine_label": "🍎 Apple Time Machine Biztonsági Mentés Támogatás (vfs_fruit)",
-  "share_tm_max_size_label": "⏰ Time Machine Max. Méretkorlát (pl. 500G, 1T, 2T vagy 0 / üres = Korlátlan)"
+  "share_tm_max_size_label": "⏰ Time Machine Max. Méretkorlát (pl. 500G, 1T, 2T vagy 0 / üres = Korlátlan)",
+  "admin_pass_label": "Adminisztrátor Jelszó *",
+  "cups_api_title": "🖨️ CUPS Nyomtatási Szerver & API Állapot",
+  "cups_api_subtitle": "CUPS démon állapota, spool feladatsorok és illesztőprogram-diagnosztika"
 }

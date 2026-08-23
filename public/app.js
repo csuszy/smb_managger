@@ -27,6 +27,7 @@ const sectionTitles = {
   'recycle': 'Lomtár',
   'snapshots': 'Pillanatképek',
   'printers': 'Nyomtatók & Nyomtatás',
+  'timemachine': 'Time Machine (Mac)',
   'samba-config': 'Samba Beállítások',
   'audit': 'Audit Naplók',
   'settings': 'Rendszer Beállítások'
@@ -1108,6 +1109,100 @@ function selectCurrentFolderForPerms() {
 }
 
 // =========================================================
+// 6. ACTIVE SMB CONNECTIONS CONTROLLER
+// =========================================================
+async function loadConnections() {
+  const tbody = document.getElementById('connectionsTableBody');
+  if (!tbody) return;
+
+  try {
+    const data = await apiGet('/api/connections');
+    const connections = data.connections || [];
+
+    if (connections.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" class="text-muted" style="padding:16px;text-align:center;">Jelenleg nincsenek aktív SMB kapcsolatok.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = connections.map(c => `
+      <tr>
+        <td><code>${c.pid}</code></td>
+        <td><strong>👤 ${c.user}</strong></td>
+        <td><span class="badge badge-purple">${c.group || 'users'}</span></td>
+        <td><code>${c.machine}</code></td>
+        <td><span class="badge badge-green">📁 ${c.share || '—'}</span></td>
+        <td><span class="badge badge-cyan">${c.protocol || 'SMB3'}</span></td>
+        <td>
+          <button class="btn btn-ghost btn-sm" style="color:var(--red);" onclick="killConnectionUi('${c.pid}')">
+            ⚡ Bontás
+          </button>
+        </td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="text-muted" style="padding:16px;text-align:center;">Hiba a kapcsolatok betöltésekor: ' + e.message + '</td></tr>';
+  }
+}
+
+async function killConnectionUi(pid) {
+  try {
+    await apiDelete(`/api/connections/${pid}`);
+    toast(`Kapcsolat (PID: ${pid}) sikeresen megszakítva!`, 'success');
+    loadConnections();
+  } catch (e) {
+    toast('Hiba a kapcsolat bontásakor: ' + e.message, 'error');
+  }
+}
+
+// =========================================================
+// 7. AUDIT LOGS CONTROLLER
+// =========================================================
+async function loadAuditLogs() {
+  const tbody = document.getElementById('auditTableBody');
+  if (!tbody) return;
+
+  const category = document.getElementById('auditCategoryFilter') ? document.getElementById('auditCategoryFilter').value : 'all';
+  const search = document.getElementById('auditSearchInput') ? document.getElementById('auditSearchInput').value.trim() : '';
+
+  try {
+    const query = new URLSearchParams({ category, search, limit: 100 });
+    const data = await apiGet(`/api/audit?${query.toString()}`);
+    const logs = data.logs || [];
+
+    if (logs.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="text-muted" style="padding:16px;text-align:center;">Nincsenek a feltételeknek megfelelő naplóbejegyzések.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = logs.map(l => {
+      let catBadge = '<span class="badge badge-purple">' + l.category + '</span>';
+      if (l.category === 'auth') catBadge = '<span class="badge badge-amber">🔐 Auth</span>';
+      else if (l.category === 'users') catBadge = '<span class="badge badge-purple">👤 Userek</span>';
+      else if (l.category === 'shares') catBadge = '<span class="badge badge-green">📁 Megosztás</span>';
+      else if (l.category === 'permissions') catBadge = '<span class="badge badge-cyan">⭐ Jogok</span>';
+      else if (l.category === 'files') catBadge = '<span class="badge badge-purple">📄 Fájlok</span>';
+      else if (l.category === 'service') catBadge = '<span class="badge badge-red">⚡ Service</span>';
+
+      const detailsStr = l.details && Object.keys(l.details).length > 0 ? JSON.stringify(l.details) : '—';
+      const timeStr = l.timestamp ? new Date(l.timestamp).toLocaleString('hu-HU') : '—';
+
+      return `
+        <tr>
+          <td style="white-space:nowrap;"><small class="text-muted">${timeStr}</small></td>
+          <td>${catBadge}</td>
+          <td><strong>${l.action}</strong></td>
+          <td>👤 ${l.user}</td>
+          <td><code>${l.ip || '127.0.0.1'}</code></td>
+          <td><small style="color:var(--text-muted);word-break:break-all;">${detailsStr}</small></td>
+        </tr>
+      `;
+    }).join('');
+  } catch (e) {
+    if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="text-muted" style="padding:16px;text-align:center;">Hiba a naplók betöltésekor: ' + e.message + '</td></tr>';
+  }
+}
+
+// =========================================================
 // 9. SMART RECYCLE BIN
 // =========================================================
 let currentRecycleFiles = [];
@@ -1981,8 +2076,20 @@ function switchSettingsSubTab(subtabId) {
   if (activeContent) activeContent.classList.add('active');
 
   // Load sub-tab specific data
-  if (subtabId === 'updates') { loadChangelog(); loadReleasesList(); }
+  if (subtabId === 'updates') { checkAppVersion(false); loadChangelog(); loadReleasesList(); }
   if (subtabId === 'notifications') loadNotificationSettings();
+  if (subtabId === 'storage') {
+    const pInput = document.getElementById('settingsStoragePath');
+    if (pInput && currentAuthStatus && currentAuthStatus.storageBasePath) {
+      pInput.value = currentAuthStatus.storageBasePath;
+    }
+  }
+  if (subtabId === 'profile') {
+    const uEl = document.getElementById('profileUsernameDisplay');
+    if (uEl && currentAuthStatus && currentAuthStatus.username) {
+      uEl.textContent = currentAuthStatus.username;
+    }
+  }
 }
 
 function openSettingsSubTab(subtabId) {
@@ -2058,6 +2165,16 @@ async function loadSettings() {
         appNameInput.value = currentSettings.appName;
       }
       
+      const storagePathInput = document.getElementById('settingsStoragePath');
+      if (storagePathInput && currentAuthStatus && currentAuthStatus.storageBasePath) {
+        storagePathInput.value = currentAuthStatus.storageBasePath;
+      }
+
+      const profileUsernameEl = document.getElementById('profileUsernameDisplay');
+      if (profileUsernameEl && currentAuthStatus && currentAuthStatus.username) {
+        profileUsernameEl.textContent = currentAuthStatus.username;
+      }
+
       currentLanguage = currentSettings.language || 'hu';
       if (select) {
         select.value = currentLanguage;
@@ -2088,13 +2205,14 @@ async function loadLanguageFile(lang) {
       else if (currentSection === 'users') loadUsers();
       else if (currentSection === 'groups') loadGroups();
       else if (currentSection === 'shares') loadShares();
-      else if (currentSection === 'folder-manager') loadFolderManager();
-      else if (currentSection === 'permissions') loadPermissions();
+      else if (currentSection === 'folder-manager') loadInteractiveExplorer();
+      else if (currentSection === 'permissions') loadPermissionsView();
       else if (currentSection === 'connections') loadConnections();
       else if (currentSection === 'storage') loadStorage();
-      else if (currentSection === 'recycle') loadRecycleBin();
+      else if (currentSection === 'recycle') loadRecycleFiles();
       else if (currentSection === 'snapshots') loadSnapshots();
       else if (currentSection === 'printers') loadPrintersView();
+      else if (currentSection === 'timemachine') loadTimeMachine();
       else if (currentSection === 'samba-config') loadSambaGuiConfig();
       else if (currentSection === 'audit') loadAuditLogs();
     }

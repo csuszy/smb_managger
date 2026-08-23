@@ -433,5 +433,8 @@
   "tm_quick_modal_desc": "Create an Apple Time Machine compatible network share for Mac backups in just 1 click.",
   "tm_max_size_preset_label": "Suggested Size Limits (Quota):",
   "share_timemachine_label": "🍎 Apple Time Machine Backup Support (vfs_fruit)",
-  "share_tm_max_size_label": "⏰ Time Machine Max Size Limit (e.g. 500G, 1T, 2T or 0 / blank = Unlimited)"
+  "share_tm_max_size_label": "⏰ Time Machine Max Size Limit (e.g. 500G, 1T, 2T or 0 / blank = Unlimited)",
+  "admin_pass_label": "Administrator Password *",
+  "cups_api_title": "🖨️ CUPS Print Server & API Status",
+  "cups_api_subtitle": "CUPS daemon state, spool queues and driver diagnostics"
 }
